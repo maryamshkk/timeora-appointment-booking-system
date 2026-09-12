@@ -5,6 +5,10 @@ import {
     Banknote,
     Clock3,
     CheckCircle2,
+    History,
+    FileText,
+    MoreHorizontal,
+    Download,
 } from "lucide-react";
 
 import Sidebar from "../../components/dashboard/Sidebar";
@@ -60,6 +64,31 @@ function PaymentCashOnReception() {
         //     status: "paid",
         //     method: "cash",
         // });
+    }
+
+    function handleViewReceipt(event) {
+        event.preventDefault();
+
+        if (paymentStatus !== "paid") {
+            return;
+        }
+
+        // TODO: axios GET /api/company/appointments/:id/receipt
+        // TODO: navigate to a future receipt view / print page
+    }
+
+    function formatPaidTimestamp(date) {
+        if (!date) {
+            return "";
+        }
+
+        return date.toLocaleString("en-US", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
     }
 
     return (
@@ -163,10 +192,10 @@ function PaymentCashOnReception() {
                     </div>
 
                     {/* Main Grid */}
-                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
 
                         {/* Card A — Appointment Summary */}
-                        <div className="rounded-xl border border-gray/20 bg-white p-7 shadow-sm">
+                        <div className="self-start rounded-xl border border-gray/20 bg-white p-7 shadow-sm">
 
                             <h2 className="font-serif text-2xl text-navy">
                                 Appointment Summary
@@ -240,8 +269,10 @@ function PaymentCashOnReception() {
 
                         </div>
 
-                        {/* Card B — Payment */}
-                        <div>
+                        {/* Right Column — Payment + Activity */}
+                        <div className="flex flex-col gap-6">
+
+                            {/* Card B — Payment */}
                             <div className="overflow-hidden rounded-xl border border-gray/20 bg-white shadow-sm">
 
                                 {/* Accent Bar */}
@@ -393,7 +424,174 @@ function PaymentCashOnReception() {
                                 </div>
 
                             </div>
+
+                            {/* Card C — Payment Activity */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-6 shadow-sm">
+
+                                {/* Header */}
+                                <div className="mb-4 flex items-center gap-2">
+
+                                    <History className="h-4 w-4 text-navy" />
+
+                                    <p className="text-xs font-bold uppercase tracking-wide text-navy">
+                                        Payment Activity
+                                    </p>
+
+                                </div>
+
+                                <div className="mb-5 border-b border-gray/20" />
+
+                                {/* Timeline */}
+                                <div className="relative">
+
+                                    {/* Connecting Line */}
+                                    <div className="absolute left-4 top-4 bottom-4 w-px bg-gray/30" />
+
+                                    {/* Invoice Generated */}
+                                    <div className="relative flex gap-3">
+
+                                        <div className="z-10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray/10">
+                                            <FileText className="h-3.5 w-3.5 text-navy" />
+                                        </div>
+
+                                        <div className="min-w-0 pt-0.5">
+
+                                            <div className="flex flex-wrap items-center gap-2">
+
+                                                <p className="text-sm font-bold text-navy">
+                                                    Invoice Generated
+                                                </p>
+
+                                                <span className="text-gray">
+                                                    ·
+                                                </span>
+
+                                                <p className="text-sm font-bold text-navy">
+                                                    Rs. {appointmentData.amount}
+                                                </p>
+
+                                            </div>
+
+                                            <p className="mt-0.5 text-xs text-gray">
+                                                25 Aug · 09:45 AM | System Automated
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    {/* Payment State */}
+                                    <div className="relative mt-5 flex gap-3">
+
+                                        {paymentStatus === "paid" ? (
+                                            <>
+                                                <div className="z-10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-50">
+                                                    <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
+                                                </div>
+
+                                                <div className="min-w-0 pt-0.5">
+
+                                                    <div className="flex flex-wrap items-center gap-2">
+
+                                                        <p className="text-sm font-bold text-navy">
+                                                            Payment Confirmed
+                                                        </p>
+
+                                                        <span className="text-gray">
+                                                            ·
+                                                        </span>
+
+                                                        <p className="text-sm font-bold text-navy">
+                                                            Rs. {appointmentData.amount}
+                                                        </p>
+
+                                                    </div>
+
+                                                    <p className="mt-0.5 text-xs text-gray">
+                                                        {formatPaidTimestamp(paidAt)}
+                                                    </p>
+
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="z-10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray/10">
+                                                    <MoreHorizontal className="h-3.5 w-3.5 text-gray" />
+                                                </div>
+
+                                                <div className="min-w-0 pt-0.5">
+
+                                                    <p className="text-sm italic text-gray">
+                                                        Awaiting payment confirmation…
+                                                    </p>
+
+                                                </div>
+                                            </>
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
                         </div>
+
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="mt-6 flex flex-col-reverse justify-end gap-3 sm:flex-row">
+
+                        {/* Back */}
+                        <button
+                            type="button"
+                            onClick={function () {
+                                navigate(`/company/appointments/${appointmentId}`);
+                            }}
+                            className="
+                                rounded-lg
+                                border
+                                border-gray
+                                bg-white
+                                px-6
+                                py-2.5
+                                text-sm
+                                font-bold
+                                text-navy
+                                transition
+                                hover:border-navy
+                            "
+                        >
+                            Back
+                        </button>
+
+                        {/* View Receipt */}
+                        <button
+                            type="button"
+                            disabled={paymentStatus !== "paid"}
+                            onClick={handleViewReceipt}
+                            className={`
+                                flex
+                                items-center
+                                justify-center
+                                gap-2
+                                rounded-lg
+                                border
+                                px-6
+                                py-2.5
+                                text-sm
+                                font-bold
+                                transition
+                                ${
+                                    paymentStatus === "paid"
+                                        ? "border-navy bg-white text-navy hover:bg-navy hover:text-white"
+                                        : "cursor-not-allowed border-gray bg-white text-slate opacity-50"
+                                }
+                            `}
+                        >
+                            <Download className="h-4 w-4" />
+                            View Receipt
+                        </button>
 
                     </div>
 

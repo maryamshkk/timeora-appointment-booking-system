@@ -61,7 +61,7 @@ function AppRoutes() {
                     path="/company/appointments/:appointmentId"
                     element={<AppointmentDetails />}
                 />
-                <Route path="/company/payment"  element={<PaymentCashOnReception />}/> 
+                <Route path="/company/appointments/payment"  element={<PaymentCashOnReception />}/> 
 
                 {/* Company — Calendar */}
                 <Route path="/company/calendar" element={<CalenderSchedule />} />
