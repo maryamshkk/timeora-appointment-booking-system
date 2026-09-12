@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft, Download, Printer } from "lucide-react";
+import { ArrowLeft, Check, Download, Printer } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import Sidebar from "../../components/dashboard/Sidebar";
@@ -115,11 +115,90 @@ function PaymentReceipt() {
                         className="max-w-3xl w-full bg-white rounded-xl border border-gray/20 shadow-sm p-8 md:p-12 print:shadow-none print:border-0"
                     >
 
-                        {/* Receipt content will be added next */}
-                        <div className="min-h-[500px] flex items-center justify-center">
-                            <p className="text-sm text-slate">
+                        {/* Receipt Header */}
+                        <div className="text-center">
+
+                            <h1 className="font-serif text-4xl text-navy tracking-wide">
+                                TIMEORA
+                            </h1>
+
+                            <p className="text-xs font-bold uppercase tracking-widest text-slate mt-2">
                                 Payment Receipt
                             </p>
+
+                            <p className="text-sm text-slate mt-3">
+                                Receipt No. {receiptData.receiptNumber}
+                            </p>
+
+                        </div>
+
+                        {/* Divider */}
+                        <div className="border-b border-gray/30 my-8"></div>
+
+                        {/* From + Receipt Details */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+
+                            {/* From */}
+                            <div>
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-slate mb-3">
+                                    From
+                                </p>
+
+                                <h2 className="font-serif text-xl text-navy">
+                                    {receiptData.company.name}
+                                </h2>
+
+                                <p className="text-sm text-slate mt-2">
+                                    {receiptData.company.address}
+                                </p>
+
+                                <p className="text-sm text-slate mt-1">
+                                    {receiptData.company.email}
+                                </p>
+                            </div>
+
+                            {/* Details */}
+                            <div className="sm:text-right">
+
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-slate mb-3">
+                                    Details
+                                </p>
+
+                                <div className="flex sm:justify-end gap-2 text-sm">
+                                    <span className="text-slate">
+                                        Receipt Date:
+                                    </span>
+
+                                    <span className="text-navy font-medium">
+                                        {receiptData.receiptDate}
+                                    </span>
+                                </div>
+
+                                <div className="flex sm:justify-end gap-2 text-sm mt-2">
+                                    <span className="text-slate">
+                                        Payment Time:
+                                    </span>
+
+                                    <span className="text-navy font-medium">
+                                        {receiptData.paymentTime}
+                                    </span>
+                                </div>
+
+                                {/* Paid Status */}
+                                <div className="flex sm:justify-end items-center gap-2 mt-3">
+
+                                    <span className="w-5 h-5 rounded-full bg-navy flex items-center justify-center">
+                                        <Check className="w-3 h-3 text-white" />
+                                    </span>
+
+                                    <span className="text-xs font-bold tracking-wide text-navy">
+                                        PAID
+                                    </span>
+
+                                </div>
+
+                            </div>
+
                         </div>
 
                     </div>
