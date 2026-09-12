@@ -272,6 +272,27 @@ function AppointmentManagement() {
         navigate(`/company/appointments/${bookingId}`);
     }
 
+    function goToReschedule(bookingId) {
+        navigate(`/company/appointments/${bookingId}/reschedule`);
+    }
+
+    function handleCancelBooking(booking) {
+        const confirmed = window.confirm(
+            `Cancel appointment for ${booking.customer}?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        // TODO: axios PATCH /api/company/appointments/${booking.id}/cancel
+        // On success: refresh the bookings list
+
+        window.alert(
+            "Appointment cancelled. (API not connected yet.)"
+        );
+    }
+
     return (
         <div className="flex min-h-screen bg-beige">
             {/* Desktop Sidebar */}
@@ -280,6 +301,7 @@ function AppointmentManagement() {
                     companyName="Shifa Clinic"
                     activeItem="Appointments"
                     ctaLabel="Book Appointment"
+                    ctaPath="/company/appointments/new"
                 />
             </div>
 
@@ -298,6 +320,7 @@ function AppointmentManagement() {
                             companyName="Shifa Clinic"
                             activeItem="Appointments"
                             ctaLabel="Book Appointment"
+                            ctaPath="/company/appointments/new"
                         />
                     </div>
                 </>
@@ -682,9 +705,11 @@ function AppointmentManagement() {
                                                             onClick={(event) => event.stopPropagation()}
                                                             className="absolute right-0 top-9 z-30 w-44 rounded-lg border border-gray/20 bg-white py-1 shadow-lg"
                                                         >
+                                                            {/* View Details */}
                                                             <button
                                                                 type="button"
-                                                                onClick={() => {
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation();
                                                                     setOpenActionId(null);
                                                                     goToDetails(booking.id);
                                                                 }}
@@ -693,24 +718,28 @@ function AppointmentManagement() {
                                                                 View Details
                                                             </button>
 
+                                                            {/* Edit / Reschedule */}
                                                             <button
                                                                 type="button"
-                                                                onClick={() => {
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation();
                                                                     setOpenActionId(null);
-                                                                    // TODO: navigate to edit page once it exists
+                                                                    goToReschedule(booking.id);
                                                                 }}
                                                                 className="w-full px-4 py-2.5 text-left text-sm text-navy hover:bg-beige"
                                                             >
                                                                 Edit / Reschedule
                                                             </button>
 
+                                                            {/* Cancel Appointment */}
                                                             {booking.status !== "Cancelled" &&
                                                                 booking.status !== "Completed" && (
                                                                     <button
                                                                         type="button"
-                                                                        onClick={() => {
+                                                                        onClick={(event) => {
+                                                                            event.stopPropagation();
                                                                             setOpenActionId(null);
-                                                                            // TODO: cancel booking API
+                                                                            handleCancelBooking(booking);
                                                                         }}
                                                                         className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
                                                                     >

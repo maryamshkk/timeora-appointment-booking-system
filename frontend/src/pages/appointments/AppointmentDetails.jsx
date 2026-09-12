@@ -94,7 +94,7 @@ function AppointmentDetails() {
         // TODO: axios GET /api/company/appointments/:appointmentId
     }, [appointmentId]);
 
-    function handleCancel() {
+    async function handleCancel() {
         const confirmed = window.confirm(
             "Are you sure you want to cancel this appointment?"
         );
@@ -102,7 +102,24 @@ function AppointmentDetails() {
         if (!confirmed) {
             return;
         }
-        // TODO: axios PATCH /api/company/appointments/:id/cancel
+
+        try {
+            // TODO: axios PATCH /api/company/appointments/:id/cancel
+            // await api.patch(
+            //     `/company/appointments/${appointmentId}/cancel`
+            // );
+
+            setAppointment((previous) => ({
+                ...previous,
+                status: "Cancelled",
+            }));
+
+            navigate("/company/appointments");
+        } catch (error) {
+            window.alert(
+                "Unable to cancel the appointment. Please try again."
+            );
+        }
     }
 
     function handleReschedule() {
@@ -127,11 +144,12 @@ function AppointmentDetails() {
     return (
         <div className="flex min-h-screen bg-beige">
             {/* Desktop Sidebar — inline */}
-            <div className="hidden lg:block">
+            <div className="hidden lg:block lg:flex-shrink-0">
                 <Sidebar
                     companyName="Shifa Clinic"
                     activeItem="Appointments"
                     ctaLabel="Book Appointment"
+                    ctaPath="/company/appointments/new"
                 />
             </div>
 
@@ -145,11 +163,12 @@ function AppointmentDetails() {
                         aria-label="Close menu"
                     />
 
-                    <div className="fixed left-0 top-0 z-40 h-screen overflow-y-auto lg:hidden">
+                    <div className="fixed left-0 top-0 z-40 h-screen w-64 overflow-y-auto lg:hidden">
                         <Sidebar
                             companyName="Shifa Clinic"
                             activeItem="Appointments"
                             ctaLabel="Book Appointment"
+                            ctaPath="/company/appointments/new"
                         />
                     </div>
                 </>

@@ -13,6 +13,7 @@ import CompanyDashboard from "../pages/dashboard/CompanyDashboard";
 import AppointmentManagement from "../pages/appointments/AppointmentManagement";
 import AppointmentDetails from "../pages/appointments/AppointmentDetails";
 import CreateAppointment from "../pages/appointments/CreateAppointment";
+import RescheduleAppointment from "../pages/appointments/RescheduleAppointment";
 import CalenderSchedule from "../pages/calendar/CalendarSchedule";
 import StaffManagement from "../pages/staff/StaffManagement";
 import AddStaff from "../pages/staff/AddStaff";
@@ -45,6 +46,10 @@ function AppRoutes() {
                 {/* Company — Appointments */}
                 <Route path="/company/appointments" element={<AppointmentManagement />} />
                 <Route path="/company/appointments/new" element={<CreateAppointment />} />
+                <Route
+                    path="/company/appointments/:appointmentId/reschedule"
+                    element={<RescheduleAppointment />}
+                />
                 <Route
                     path="/company/appointments/:appointmentId"
                     element={<AppointmentDetails />}
