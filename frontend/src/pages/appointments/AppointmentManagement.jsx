@@ -145,6 +145,7 @@ const bookings = [
 function AppointmentManagement() {
     const navigate = useNavigate();
 
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [viewMode, setViewMode] = useState("list");
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -273,24 +274,53 @@ function AppointmentManagement() {
 
     return (
         <div className="flex min-h-screen bg-beige">
-            <Sidebar activeItem="Appointments" />
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block lg:flex-shrink-0">
+                <Sidebar
+                    companyName="Shifa Clinic"
+                    activeItem="Appointments"
+                    ctaLabel="Book Appointment"
+                />
+            </div>
+
+            {/* Mobile Sidebar — overlay */}
+            {sidebarOpen && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
+                        aria-label="Close menu"
+                    />
+
+                    <div className="fixed left-0 top-0 z-40 h-screen w-64 overflow-y-auto lg:hidden">
+                        <Sidebar
+                            companyName="Shifa Clinic"
+                            activeItem="Appointments"
+                            ctaLabel="Book Appointment"
+                        />
+                    </div>
+                </>
+            )}
 
             <div className="flex min-w-0 flex-1 flex-col">
                 <Topbar
+                    onMenuClick={() => setSidebarOpen(true)}
                     showBell
                     hasNotification
                     profileInfo={{ name: "Company Profile" }}
                     searchPlaceholder="Search..."
                 />
 
-                <main className="flex-1 bg-beige px-8 py-6">
+                <main className="flex-1 bg-beige px-3 py-4 sm:px-4 sm:py-5 md:px-6 lg:px-8 lg:py-6">
                     {/* Header */}
-                    <div className="mb-6 flex flex-col items-start justify-between gap-5 md:flex-row md:items-start">
+                    <div className="mb-4 flex flex-col gap-3 sm:mb-6 md:flex-row md:items-start md:justify-between">
                         <div>
-                            <h1 className="font-serif text-4xl text-navy">
+                            <h1 className="font-serif text-2xl text-navy sm:text-3xl lg:text-4xl">
                                 Appointment Management
                             </h1>
-                            <p className="mt-1.5 text-sm text-slate">
+
+                            <p className="mt-1 text-xs text-slate sm:mt-1.5 sm:text-sm">
                                 View and manage appointments across your company.
                             </p>
                         </div>
@@ -298,7 +328,7 @@ function AppointmentManagement() {
                         <button
                             type="button"
                             onClick={() => navigate("/company/appointments/new")}
-                            className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-bold text-white transition hover:bg-gold hover:text-navy sm:w-auto sm:px-5 sm:py-3"
                         >
                             <Plus className="h-4 w-4" />
                             Create Appointment
@@ -306,7 +336,7 @@ function AppointmentManagement() {
                     </div>
 
                     {/* Stat Cards */}
-                    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="mb-4 grid grid-cols-2 gap-3 sm:gap-4 md:mb-6 lg:grid-cols-4">
                         <StatCard value={24} label="Today" accentColor="bg-navy" />
                         <StatCard value={12} label="Upcoming" accentColor="bg-gold" />
                         <StatCard value={8} label="Completed" accentColor="bg-gray" />
@@ -314,15 +344,15 @@ function AppointmentManagement() {
                     </div>
 
                     {/* Toolbar */}
-                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div className="mb-4 flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:justify-between">
                         {/* Left Controls */}
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                             {/* View Toggle */}
-                            <div className="flex overflow-hidden rounded-lg border border-gray/30 bg-white">
+                            <div className="flex w-full overflow-hidden rounded-lg border border-gray/30 bg-white sm:w-auto">
                                 <button
                                     type="button"
                                     onClick={() => setViewMode("list")}
-                                    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition ${
+                                    className={`flex flex-1 items-center justify-center gap-2 px-3 py-2.5 text-xs font-bold transition sm:flex-none sm:px-4 sm:text-sm ${
                                         viewMode === "list"
                                             ? "bg-beige text-navy"
                                             : "text-slate hover:bg-beige/50"
@@ -335,7 +365,7 @@ function AppointmentManagement() {
                                 <button
                                     type="button"
                                     onClick={() => setViewMode("calendar")}
-                                    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold transition ${
+                                    className={`flex flex-1 items-center justify-center gap-2 px-3 py-2.5 text-xs font-bold transition sm:flex-none sm:px-4 sm:text-sm ${
                                         viewMode === "calendar"
                                             ? "bg-beige text-navy"
                                             : "text-slate hover:bg-beige/50"
@@ -347,8 +377,8 @@ function AppointmentManagement() {
                             </div>
 
                             {/* Date Picker */}
-                            <div className="flex items-center gap-2">
-                                <div className="relative">
+                            <div className="flex w-full items-center gap-2 sm:w-auto">
+                                <div className="relative flex-1 sm:flex-none">
                                     <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate" />
 
                                     <input
@@ -358,7 +388,7 @@ function AppointmentManagement() {
                                             setBookingDate(event.target.value);
                                             setCurrentPage(1);
                                         }}
-                                        className="h-[42px] rounded-lg border border-gray/30 bg-white pl-9 pr-3 text-sm font-bold text-navy outline-none transition hover:border-navy focus:border-navy"
+                                        className="h-[42px] w-full rounded-lg border border-gray/30 bg-white pl-9 pr-8 text-xs font-bold text-navy outline-none transition hover:border-navy focus:border-navy sm:w-auto sm:pr-3 sm:text-sm"
                                     />
 
                                     {bookingDate && (
@@ -379,7 +409,7 @@ function AppointmentManagement() {
                                 <button
                                     type="button"
                                     onClick={handleToday}
-                                    className="h-[42px] rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy transition hover:border-navy"
+                                    className="h-[42px] flex-shrink-0 rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy transition hover:border-navy"
                                 >
                                     Today
                                 </button>
@@ -387,9 +417,9 @@ function AppointmentManagement() {
                         </div>
 
                         {/* Right Controls */}
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                             {/* Search */}
-                            <div className="relative min-w-[220px]">
+                            <div className="relative w-full sm:w-auto sm:min-w-[220px]">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate" />
 
                                 <input
@@ -410,7 +440,7 @@ function AppointmentManagement() {
                                 onClick={() =>
                                     setShowFilters((current) => !current)
                                 }
-                                className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold transition ${
+                                className={`flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold transition sm:w-auto ${
                                     showFilters || activeFilterCount > 0
                                         ? "border-navy bg-navy text-white"
                                         : "border-gray/30 bg-white text-navy hover:border-navy"
@@ -430,8 +460,8 @@ function AppointmentManagement() {
 
                     {/* Filter Panel */}
                     {showFilters && (
-                        <div className="mb-4 rounded-xl border border-gray/20 bg-beige/30 p-4">
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="mb-4 rounded-xl border border-gray/20 bg-beige/30 p-3 sm:p-4">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
                                 {/* Status */}
                                 <div>
                                     <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate">
@@ -517,7 +547,7 @@ function AppointmentManagement() {
                             </div>
 
                             {/* Clear Filters */}
-                            <div className="mt-4 flex justify-end">
+                            <div className="mt-3 flex justify-end sm:mt-4">
                                 <button
                                     type="button"
                                     onClick={clearFilters}
@@ -535,7 +565,7 @@ function AppointmentManagement() {
                             <div className="overflow-x-auto">
                                 <div className="min-w-[1050px]">
                                     {/* Header */}
-                                    <div className="grid grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 border-b border-gray/20 bg-beige/40 px-5 py-3.5 text-xs font-bold uppercase tracking-wide text-slate">
+                                    <div className="grid grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 border-b border-gray/20 bg-beige/40 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate sm:px-5 sm:py-3.5">
                                         <span></span>
                                         <span>Time</span>
                                         <span>Customer</span>
@@ -552,7 +582,7 @@ function AppointmentManagement() {
                                             <div
                                                 key={booking.id}
                                                 onClick={() => goToDetails(booking.id)}
-                                                className={`relative grid cursor-pointer grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 px-5 py-4 transition hover:bg-beige/20 ${
+                                                className={`relative grid cursor-pointer grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 px-4 py-4 transition hover:bg-beige/20 sm:px-5 ${
                                                     index !== paginatedBookings.length - 1
                                                         ? "border-b border-gray/10"
                                                         : ""
@@ -602,7 +632,7 @@ function AppointmentManagement() {
 
                                                 {/* Status */}
                                                 <span
-                                                    className={`w-fit rounded-full px-2.5 py-1 text-xs font-bold ${getStatusStyle(
+                                                    className={`w-fit whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${getStatusStyle(
                                                         booking.status
                                                     )}`}
                                                 >
@@ -713,8 +743,8 @@ function AppointmentManagement() {
                             </div>
 
                             {/* Footer — Dynamic Pagination */}
-                            <div className="flex items-center justify-between border-t border-gray/20 px-5 py-4">
-                                <p className="text-xs text-slate">
+                            <div className="flex flex-col items-center gap-3 border-t border-gray/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                                <p className="text-xs text-slate sm:text-sm">
                                     {filteredBookings.length === 0
                                         ? "0 bookings"
                                         : `${startIndex + 1}-${Math.min(
@@ -738,7 +768,7 @@ function AppointmentManagement() {
                                         <ChevronLeft className="h-4 w-4" />
                                     </button>
 
-                                    <span className="text-xs font-bold text-navy">
+                                    <span className="text-xs font-bold text-navy sm:text-sm">
                                         {currentPage} / {totalPages}
                                     </span>
 

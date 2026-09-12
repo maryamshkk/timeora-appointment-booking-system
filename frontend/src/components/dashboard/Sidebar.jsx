@@ -20,6 +20,7 @@ function Sidebar({
     companyName = "Shifa Clinic",
     activeItem = "Dashboard",
     ctaLabel = "Book Appointment",
+    ctaPath = "/company/appointments/new",
     className = "",
 }) {
     const navItems = [
@@ -93,7 +94,7 @@ function Sidebar({
                 <div className="border-t border-white/10 my-4" />
 
                 <Link
-                    to="/company/appointments/new"
+                    to={ctaPath}
                     className="w-full flex items-center justify-center gap-2 bg-gold text-navy font-bold uppercase tracking-wide text-sm py-3 rounded-lg hover:bg-white transition mb-4"
                 >
                     <Plus className="w-4 h-4" />

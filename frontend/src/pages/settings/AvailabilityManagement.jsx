@@ -675,7 +675,9 @@ function AvailabilityManagement() {
                                             <button
                                                 type="button"
                                                 onClick={() =>
-                                                    navigate(`/staff/${staff.id}/availability`)
+                                                    navigate(
+                                                        `/company/staff/${staff.id}/availability`
+                                                    )
                                                 }
                                                 className="flex-shrink-0 rounded-lg border border-gray px-3 py-2 text-[10px] font-bold uppercase text-navy transition hover:border-navy sm:px-4 sm:text-xs"
                                             >

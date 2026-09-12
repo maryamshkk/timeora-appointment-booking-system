@@ -138,10 +138,11 @@ function ServicesManagement() {
             {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
                 <Sidebar
-                    companyName="Shifa Clinic"
-                    activeItem="Services"
-                    ctaLabel="Add Service"
-                />
+                companyName="Shifa Clinic"
+                activeItem="Services"
+                ctaLabel="Add Service"
+                ctaPath="/company/services/add"
+            />
             </div>
 
             {/* Mobile Sidebar — overlay */}
@@ -156,10 +157,11 @@ function ServicesManagement() {
 
                     <div className="fixed left-0 top-0 z-40 h-screen w-64 overflow-y-auto lg:hidden">
                         <Sidebar
-                            companyName="Shifa Clinic"
-                            activeItem="Services"
-                            ctaLabel="Add Service"
-                        />
+                        companyName="Shifa Clinic"
+                        activeItem="Services"
+                        ctaLabel="Add Service"
+                        ctaPath="/company/services/add"
+                    />
                     </div>
                 </>
             )}

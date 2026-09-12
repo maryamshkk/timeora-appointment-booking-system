@@ -116,6 +116,7 @@ function CustomerManagement() {
                     companyName="Shifa Clinic"
                     activeItem="Customers"
                     ctaLabel="Add Customer"
+                    ctaPath="/company/customers/new"
                 />
             </div>
 
@@ -131,10 +132,11 @@ function CustomerManagement() {
 
                     <div className="fixed left-0 top-0 z-40 h-screen w-64 overflow-y-auto lg:hidden">
                         <Sidebar
-                            companyName="Shifa Clinic"
-                            activeItem="Customers"
-                            ctaLabel="Add Customer"
-                        />
+                        companyName="Shifa Clinic"
+                        activeItem="Customers"
+                        ctaLabel="Add Customer"
+                        ctaPath="/company/customers/add"
+                    />
                     </div>
                 </>
             )}

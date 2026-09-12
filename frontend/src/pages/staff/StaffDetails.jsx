@@ -248,7 +248,8 @@ function StaffDetails() {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    navigate(`/company/staff/${staffId}/edit`);
+                                    // TODO: navigate to edit staff page once it exists
+                                    // navigate(`/company/staff/${staffId}/edit`);
                                 }}
                                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-bold text-white transition hover:bg-gold hover:text-navy sm:w-auto sm:px-5"
                             >

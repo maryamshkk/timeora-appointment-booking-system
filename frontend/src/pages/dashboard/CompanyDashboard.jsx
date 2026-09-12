@@ -80,11 +80,12 @@ function CompanyDashboard({
         <div className="flex min-h-screen bg-beige">
             {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
-                <Sidebar
-                    companyName={companyName}
-                    activeItem="Dashboard"
-                    ctaLabel="Book New"
-                />
+            <Sidebar
+            companyName={companyName}
+            activeItem="Dashboard"
+            ctaLabel="Book Appointment"
+            ctaPath="/company/appointments/new"
+        />
             </div>
 
             {/* Mobile Sidebar — overlay */}
@@ -99,10 +100,11 @@ function CompanyDashboard({
 
                     <div className="fixed left-0 top-0 z-40 h-screen w-64 overflow-y-auto lg:hidden">
                         <Sidebar
-                            companyName={companyName}
-                            activeItem="Dashboard"
-                            ctaLabel="Book New"
-                        />
+                        companyName={companyName}
+                        activeItem="Dashboard"
+                        ctaLabel="Book Appointment"
+                        ctaPath="/company/appointments/new"
+                    />
                     </div>
                 </>
             )}

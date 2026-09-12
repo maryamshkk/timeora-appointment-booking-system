@@ -93,11 +93,14 @@ function StaffManagement() {
             String(staff.id).includes(query);
 
         const matchesStatus =
-            statusFilter === "all" || staff.status === statusFilter;
+            statusFilter === "all" ||
+            staff.status === statusFilter;
 
         const matchesRole =
             roleFilter === "all" ||
-            staff.role.toLowerCase().includes(roleFilter.toLowerCase());
+            staff.role.toLowerCase().includes(
+                roleFilter.toLowerCase()
+            );
 
         return matchesSearch && matchesStatus && matchesRole;
     });
@@ -107,10 +110,11 @@ function StaffManagement() {
             {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
                 <Sidebar
-                    companyName="Shifa Clinic"
-                    activeItem="Staff"
-                    ctaLabel="Add Staff"
-                />
+                companyName="Shifa Clinic"
+                activeItem="Staff"
+                ctaLabel="Add Staff"
+                ctaPath="/company/staff/add"
+            />
             </div>
 
             {/* Mobile Sidebar — overlay */}
@@ -125,10 +129,11 @@ function StaffManagement() {
 
                     <div className="fixed left-0 top-0 z-40 h-screen w-64 overflow-y-auto lg:hidden">
                         <Sidebar
-                            companyName="Shifa Clinic"
-                            activeItem="Staff"
-                            ctaLabel="Add Staff"
-                        />
+                        companyName="Shifa Clinic"
+                        activeItem="Staff"
+                        ctaLabel="Add Staff"
+                        ctaPath="/company/staff/add"
+                    />
                     </div>
                 </>
             )}
@@ -162,7 +167,7 @@ function StaffManagement() {
                             onClick={function () {
                                 navigate(`/company/staff/add`);
                             }}
-                            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-gold hover:text-navy sm:w-auto sm:px-5 sm:py-3"
+                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-gold hover:text-navy sm:w-auto sm:px-5 sm:py-3"
                         >
                             <Plus className="h-4 w-4" />
                             Add Staff
@@ -170,7 +175,7 @@ function StaffManagement() {
                     </div>
 
                     {/* Staff Stats */}
-                    <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:mb-6 xl:grid-cols-4">
+                    <div className="mb-4 grid grid-cols-2 gap-3 sm:gap-4 md:mb-6 lg:grid-cols-4">
                         <StatCard
                             label="TOTAL STAFF"
                             value={12}
@@ -197,7 +202,7 @@ function StaffManagement() {
                     </div>
 
                     {/* Filters */}
-                    <div className="mb-4 flex flex-col gap-3 sm:mb-6 md:flex-row md:items-center md:justify-between">
+                    <div className="mb-4 flex flex-col gap-3 sm:mb-6 md:flex-row md:flex-wrap md:items-center md:justify-between">
                         {/* Search */}
                         <div className="relative w-full md:max-w-[420px] md:flex-1">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate" />
@@ -214,50 +219,38 @@ function StaffManagement() {
                         </div>
 
                         {/* Dropdowns */}
-                        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
+                        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:w-auto md:gap-3">
                             {/* Status */}
-                            <div className="relative w-full sm:w-auto">
+                            <div className="relative w-full">
                                 <select
                                     value={statusFilter}
                                     onChange={function (event) {
                                         setStatusFilter(event.target.value);
                                     }}
-                                    className="w-full appearance-none rounded-lg border border-gray/30 bg-white px-4 py-2.5 pr-9 text-sm font-bold text-navy outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:w-auto"
+                                    className="w-full appearance-none rounded-lg border border-gray/30 bg-white px-3 py-2.5 pr-9 text-xs font-bold text-navy outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:px-4 sm:text-sm"
                                 >
                                     <option value="all">Status: All</option>
-                                    <option value="Active">
-                                        Status: Active
-                                    </option>
-                                    <option value="On Leave">
-                                        Status: On Leave
-                                    </option>
-                                    <option value="Inactive">
-                                        Status: Inactive
-                                    </option>
+                                    <option value="Active">Status: Active</option>
+                                    <option value="On Leave">Status: On Leave</option>
+                                    <option value="Inactive">Status: Inactive</option>
                                 </select>
 
                                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate" />
                             </div>
 
                             {/* Role */}
-                            <div className="relative w-full sm:w-auto">
+                            <div className="relative w-full">
                                 <select
                                     value={roleFilter}
                                     onChange={function (event) {
                                         setRoleFilter(event.target.value);
                                     }}
-                                    className="w-full appearance-none rounded-lg border border-gray/30 bg-white px-4 py-2.5 pr-9 text-sm font-bold text-navy outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:w-auto"
+                                    className="w-full appearance-none rounded-lg border border-gray/30 bg-white px-3 py-2.5 pr-9 text-xs font-bold text-navy outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:px-4 sm:text-sm"
                                 >
                                     <option value="all">Role: All</option>
-                                    <option value="Doctor">
-                                        Role: Doctor
-                                    </option>
-                                    <option value="Therapist">
-                                        Role: Therapist
-                                    </option>
-                                    <option value="Receptionist">
-                                        Role: Receptionist
-                                    </option>
+                                    <option value="Doctor">Role: Doctor</option>
+                                    <option value="Therapist">Role: Therapist</option>
+                                    <option value="Receptionist">Role: Receptionist</option>
                                     <option value="Admin">Role: Admin</option>
                                 </select>
 
@@ -289,9 +282,7 @@ function StaffManagement() {
                                     <div
                                         key={staff.id}
                                         onClick={function () {
-                                            navigate(
-                                                `/company/staff/${staff.id}`
-                                            );
+                                            navigate(`/company/staff/${staff.id}`);
                                         }}
                                         className="cursor-pointer rounded-xl border border-gray/20 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5"
                                     >
@@ -339,7 +330,9 @@ function StaffManagement() {
                                             <div className="flex items-center gap-2 text-xs text-slate sm:text-sm">
                                                 <Phone className="h-3.5 w-3.5 flex-shrink-0" />
 
-                                                <span>{staff.phone}</span>
+                                                <span>
+                                                    {staff.phone}
+                                                </span>
                                             </div>
                                         </div>
 
@@ -351,8 +344,7 @@ function StaffManagement() {
                                                 </p>
 
                                                 <p className="mt-0.5 text-xs font-bold text-navy sm:text-sm">
-                                                    {staff.appointmentsToday}{" "}
-                                                    today
+                                                    {staff.appointmentsToday} today
                                                 </p>
                                             </div>
 
@@ -360,9 +352,7 @@ function StaffManagement() {
                                                 type="button"
                                                 onClick={function (event) {
                                                     event.stopPropagation();
-                                                    navigate(
-                                                        "/company/calendar"
-                                                    );
+                                                    navigate("/company/calendar");
                                                 }}
                                                 className="text-xs font-bold text-navy hover:underline"
                                             >
