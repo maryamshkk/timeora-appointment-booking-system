@@ -16,6 +16,7 @@ import AppointmentDetails from "../pages/appointments/AppointmentDetails";
 import CreateAppointment from "../pages/appointments/CreateAppointment";
 import RescheduleAppointment from "../pages/appointments/RescheduleAppointment";
 import PaymentCashOnReception from "../pages/appointments/PaymentCasOnReception";
+import PaymentReceipt from "../pages/appointments/PaymentReceipt";
 
 import CalenderSchedule from "../pages/calendar/CalendarSchedule";
 
@@ -62,6 +63,7 @@ function AppRoutes() {
                     element={<AppointmentDetails />}
                 />
                 <Route path="/company/appointments/payment"  element={<PaymentCashOnReception />}/> 
+                <Route path="/company/appointments/receipt" element={<PaymentReceipt />} />
 
                 {/* Company — Calendar */}
                 <Route path="/company/calendar" element={<CalenderSchedule />} />
