@@ -30,6 +30,13 @@ const mockReceiptData = {
         service: "Consultation",
     },
 
+    items: [
+        {
+            description: "Consultation",
+            amount: 3000,
+        },
+    ],
+
     amount: 3000,
     amountPaid: 3000,
     paymentMethod: "Cash on Reception",
@@ -278,6 +285,100 @@ function PaymentReceipt() {
                                         </span>
                                     </div>
 
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {/* Line Items */}
+                        <div className="mb-8">
+
+                            {/* Table Header */}
+                            <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-gray/30 pb-3">
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-slate">
+                                    Description
+                                </p>
+
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-slate text-right">
+                                    Amount
+                                </p>
+                            </div>
+
+                            {/* Items */}
+                            <div>
+                                {receiptData.items.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className="grid grid-cols-[1fr_auto] gap-4 py-4 border-b border-dashed border-gray/30"
+                                    >
+                                        <p className="text-sm text-navy">
+                                            {item.description}
+                                        </p>
+
+                                        <p className="text-sm font-medium text-navy text-right">
+                                            Rs {item.amount.toLocaleString()}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+
+                        </div>
+
+                        {/* Totals */}
+                        <div className="flex flex-col items-end gap-3 mb-8">
+
+                            {/* Subtotal */}
+                            <div className="w-full sm:w-64 flex items-center justify-between text-sm">
+                                <span className="text-slate">
+                                    Subtotal
+                                </span>
+
+                                <span className="text-navy font-medium">
+                                    Rs {receiptData.amount.toLocaleString()}
+                                </span>
+                            </div>
+
+                            {/* Total */}
+                            <div className="w-full sm:w-64 flex items-center justify-between text-sm">
+                                <span className="text-slate font-bold">
+                                    Total
+                                </span>
+
+                                <span className="text-navy font-bold">
+                                    Rs {receiptData.amount.toLocaleString()}
+                                </span>
+                            </div>
+
+                        </div>
+
+                        {/* Total Paid */}
+                        <div className="border-t border-gray/30 pt-6">
+
+                            <div className="flex items-end justify-between gap-4">
+
+                                <div>
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate">
+                                        Total Paid
+                                    </p>
+
+                                    <p className="font-serif text-3xl text-amber-700 mt-1">
+                                        Rs {receiptData.amountPaid.toLocaleString()}
+                                    </p>
+                                </div>
+
+                                <div className="text-right">
+                                    <p className="text-xs text-slate">
+                                        Balance
+                                    </p>
+
+                                    <p className="text-sm font-bold text-navy mt-1">
+                                        Rs{" "}
+                                        {Math.max(
+                                            receiptData.amount - receiptData.amountPaid,
+                                            0
+                                        ).toLocaleString()}
+                                    </p>
                                 </div>
 
                             </div>
