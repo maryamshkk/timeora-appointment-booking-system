@@ -10,19 +10,26 @@ import ResetPassword from "../pages/auth/ResetPassword";
 
 // Company
 import CompanyDashboard from "../pages/dashboard/CompanyDashboard";
+
 import AppointmentManagement from "../pages/appointments/AppointmentManagement";
 import AppointmentDetails from "../pages/appointments/AppointmentDetails";
 import CreateAppointment from "../pages/appointments/CreateAppointment";
 import RescheduleAppointment from "../pages/appointments/RescheduleAppointment";
+import PaymentCashOnReception from "../pages/appointments/PaymentCasOnReception";
+
 import CalenderSchedule from "../pages/calendar/CalendarSchedule";
+
 import StaffManagement from "../pages/staff/StaffManagement";
 import AddStaff from "../pages/staff/AddStaff";
 import StaffDetails from "../pages/staff/StaffDetails";
+
 import ServicesManagement from "../pages/services/ServicesManagement";
 import AddService from "../pages/services/AddService";
+
 import CustomerManagement from "../pages/customers/CustomerManagement";
 import AddCustomer from "../pages/customers/AddCustomers";
 import CustomerDetails from "../pages/customers/CustomerDetails";
+
 import AvailabilityManagement from "../pages/settings/AvailabilityManagement";
 
 
@@ -54,6 +61,7 @@ function AppRoutes() {
                     path="/company/appointments/:appointmentId"
                     element={<AppointmentDetails />}
                 />
+                <Route path="/company/payment"  element={<PaymentCashOnReception />}/> 
 
                 {/* Company — Calendar */}
                 <Route path="/company/calendar" element={<CalenderSchedule />} />
