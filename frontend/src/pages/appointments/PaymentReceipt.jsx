@@ -79,10 +79,10 @@ function PaymentReceipt() {
                     />
                 </div>
 
-                <main className="bg-beige px-8 py-6 flex flex-col items-center">
+                <main className="bg-beige px-8 py-6 flex flex-col items-center print:bg-white print:px-0 print:py-0">
 
                     {/* Action Row */}
-                    <div className="max-w-3xl w-full mb-5 flex items-center justify-between print:hidden">
+                    <div className="max-w-3xl w-full mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
 
                         <button
                             type="button"
@@ -119,7 +119,7 @@ function PaymentReceipt() {
                     {/* Receipt Card */}
                     <div
                         id="receipt-printable"
-                        className="max-w-3xl w-full bg-white rounded-xl border border-gray/20 shadow-sm p-8 md:p-12 print:shadow-none print:border-0"
+                        className="max-w-3xl w-full bg-white rounded-xl border border-gray/20 shadow-sm p-6 sm:p-8 md:p-12 print:shadow-none print:border-0 print:rounded-none"
                     >
 
                         {/* Receipt Header */}
@@ -380,6 +380,35 @@ function PaymentReceipt() {
                                         ).toLocaleString()}
                                     </p>
                                 </div>
+
+                            </div>
+
+                        </div>
+
+                        {/* Receipt Footer */}
+                        <div className="border-t border-gray/30 mt-8 pt-6">
+
+                            {/* Payment Method */}
+                            <div className="flex items-center justify-between gap-4 mb-6">
+                                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                                    Payment Method
+                                </span>
+
+                                <span className="text-sm font-bold text-navy text-right">
+                                    {receiptData.paymentMethod}
+                                </span>
+                            </div>
+
+                            {/* Thank You */}
+                            <div className="text-center pt-4">
+
+                                <p className="font-serif text-lg text-navy">
+                                    Thank you for choosing {receiptData.company.name}.
+                                </p>
+
+                                <p className="text-xs text-slate mt-2">
+                                    We appreciate your business.
+                                </p>
 
                             </div>
 
