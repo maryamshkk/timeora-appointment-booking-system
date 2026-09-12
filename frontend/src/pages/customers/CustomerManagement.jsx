@@ -164,7 +164,7 @@ function CustomerManagement() {
 
                         <button
                             type="button"
-                            onClick={() => navigate("/company/customers/add")}
+                            onClick={() => navigate("/company/customers/new")}
                             className="flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-gold hover:text-navy sm:w-auto sm:px-5 sm:py-3"
                         >
                             <Plus className="h-4 w-4" />

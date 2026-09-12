@@ -267,6 +267,10 @@ function AppointmentManagement() {
         setCurrentPage(1);
     }
 
+    function goToDetails(bookingId) {
+        navigate(`/company/appointments/${bookingId}`);
+    }
+
     return (
         <div className="flex min-h-screen bg-beige">
             <Sidebar activeItem="Appointments" />
@@ -293,7 +297,7 @@ function AppointmentManagement() {
 
                         <button
                             type="button"
-                            onClick={() => navigate("/company/appointments/create")}
+                            onClick={() => navigate("/company/appointments/new")}
                             className="flex items-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
                         >
                             <Plus className="h-4 w-4" />
@@ -547,7 +551,8 @@ function AppointmentManagement() {
                                         paginatedBookings.map((booking, index) => (
                                             <div
                                                 key={booking.id}
-                                                className={`relative grid grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 px-5 py-4 transition hover:bg-beige/20 ${
+                                                onClick={() => goToDetails(booking.id)}
+                                                className={`relative grid cursor-pointer grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 px-5 py-4 transition hover:bg-beige/20 ${
                                                     index !== paginatedBookings.length - 1
                                                         ? "border-b border-gray/10"
                                                         : ""
@@ -628,27 +633,30 @@ function AppointmentManagement() {
                                                 <div className="relative flex justify-end">
                                                     <button
                                                         type="button"
-                                                        onClick={() =>
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
                                                             setOpenActionId(
                                                                 openActionId === booking.id
                                                                     ? null
                                                                     : booking.id
-                                                            )
-                                                        }
+                                                            );
+                                                        }}
                                                         className="flex h-8 w-8 items-center justify-center rounded-lg text-slate transition hover:bg-beige hover:text-navy"
+                                                        aria-label="More actions"
                                                     >
                                                         <MoreHorizontal className="h-4 w-4" />
                                                     </button>
 
                                                     {openActionId === booking.id && (
-                                                        <div className="absolute right-0 top-9 z-30 w-44 rounded-lg border border-gray/20 bg-white py-1 shadow-lg">
+                                                        <div
+                                                            onClick={(event) => event.stopPropagation()}
+                                                            className="absolute right-0 top-9 z-30 w-44 rounded-lg border border-gray/20 bg-white py-1 shadow-lg"
+                                                        >
                                                             <button
                                                                 type="button"
                                                                 onClick={() => {
                                                                     setOpenActionId(null);
-                                                                    navigate(
-                                                                        `/company/appointments/${booking.id}`
-                                                                    );
+                                                                    goToDetails(booking.id);
                                                                 }}
                                                                 className="w-full px-4 py-2.5 text-left text-sm text-navy hover:bg-beige"
                                                             >
@@ -659,9 +667,7 @@ function AppointmentManagement() {
                                                                 type="button"
                                                                 onClick={() => {
                                                                     setOpenActionId(null);
-                                                                    navigate(
-                                                                        `/company/appointments/${booking.id}/edit`
-                                                                    );
+                                                                    // TODO: navigate to edit page once it exists
                                                                 }}
                                                                 className="w-full px-4 py-2.5 text-left text-sm text-navy hover:bg-beige"
                                                             >
@@ -727,6 +733,7 @@ function AppointmentManagement() {
                                             )
                                         }
                                         className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
+                                        aria-label="Previous page"
                                     >
                                         <ChevronLeft className="h-4 w-4" />
                                     </button>
@@ -742,6 +749,7 @@ function AppointmentManagement() {
                                             setCurrentPage((page) => page + 1)
                                         }
                                         className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
+                                        aria-label="Next page"
                                     >
                                         <ChevronRight className="h-4 w-4" />
                                     </button>

@@ -18,6 +18,7 @@ import StaffDetails from "../pages/staff/StaffDetails";
 import ServicesManagement from "../pages/services/ServicesManagement";
 import AddService from "../pages/services/AddService";
 import CustomerManagement from "../pages/customers/CustomerManagement";
+import AddCustomer from "../pages/customers/AddCustomers";
 import CustomerDetails from "../pages/customers/CustomerDetails";
 import AvailabilityManagement from "../pages/settings/AvailabilityManagement";
 import CreateAppointment from "../pages/appointments/CreateAppointment";
@@ -36,8 +37,8 @@ function AppRoutes(){
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/company/dashboard" element={<CompanyDashboard />} />
                 <Route path="/company/appointments" element={<AppointmentManagement />} />
+                <Route path="/company/appointments/new" element={<CreateAppointment />} />
                 <Route path="/company/appointments/:appointmentId" element={<AppointmentDetails />} />
-                <Route path="/company/appointments/create" element={<CreateAppointment />} />
                 <Route path="/company/calendar" element={<CalenderSchedule />} />
                 <Route path="/company/staff" element={<StaffManagement />} />
                 <Route path="/company/staff/add" element={<AddStaff />}/>
@@ -45,6 +46,7 @@ function AppRoutes(){
                 <Route path="/company/services" element={<ServicesManagement />}/>
                 <Route path="/company/services/add" element={<AddService />} />
                 <Route path="/company/customers" element={<CustomerManagement/>}/>
+                <Route path="/company/customers/new" element={<AddCustomer/>}/>
                 <Route path="/company/customers/:customerId"element={<CustomerDetails />} />
                 <Route path="/company/availability" element={<AvailabilityManagement />} />
             </Routes>

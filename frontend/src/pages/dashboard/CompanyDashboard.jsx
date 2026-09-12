@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     CalendarDays,
     Clock,
@@ -22,6 +23,7 @@ function CompanyDashboard({
     companyName = "Shifa Clinic",
     profileName = "Admin",
 }) {
+    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // TODO: axios GET /api/company/dashboard
@@ -135,6 +137,7 @@ function CompanyDashboard({
                         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
                             <button
                                 type="button"
+                                onClick={() => navigate("/company/appointments/new")}
                                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-4 py-2.5 text-sm font-bold text-white transition hover:bg-gold hover:text-navy sm:w-auto"
                             >
                                 <Plus className="w-4 h-4" />
@@ -143,7 +146,7 @@ function CompanyDashboard({
 
                             <button
                                 type="button"
-                                
+                                onClick={() => navigate("/company/staff/add")}
                                 className="flex w-full items-center justify-center gap-2 rounded-lg border border-navy bg-white px-4 py-2.5 text-sm font-bold text-navy transition hover:bg-navy hover:text-white sm:w-auto"
                             >
                                 <UserPlus className="w-4 h-4" />
@@ -152,6 +155,7 @@ function CompanyDashboard({
 
                             <button
                                 type="button"
+                                onClick={() => navigate("/company/services/add")}
                                 className="flex w-full items-center justify-center gap-2 rounded-lg border border-navy bg-white px-4 py-2.5 text-sm font-bold text-navy transition hover:bg-navy hover:text-white sm:w-auto"
                             >
                                 <FilePlus2 className="w-4 h-4" />
