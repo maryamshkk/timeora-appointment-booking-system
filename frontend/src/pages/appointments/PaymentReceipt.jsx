@@ -201,6 +201,89 @@ function PaymentReceipt() {
 
                         </div>
 
+                        {/* Billed To + Appointment Reference */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10">
+
+                            {/* Billed To */}
+                            <div>
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-slate mb-3">
+                                    Billed To
+                                </p>
+
+                                <h2 className="font-serif text-xl text-navy">
+                                    {receiptData.customer.name}
+                                </h2>
+
+                                <p className="text-sm text-slate mt-2">
+                                    {receiptData.customer.phone}
+                                </p>
+                            </div>
+
+                            {/* Appointment Reference */}
+                            <div className="bg-beige/40 border border-gray/20 rounded-lg p-5">
+
+                                <p className="text-[11px] font-bold uppercase tracking-widest text-slate mb-4">
+                                    Appointment Ref
+                                </p>
+
+                                <div className="space-y-2">
+
+                                    <div className="flex justify-between gap-4 text-sm">
+                                        <span className="text-slate">
+                                            ID
+                                        </span>
+
+                                        <span className="text-navy font-bold text-right">
+                                            {receiptData.appointment.id}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex justify-between gap-4 text-sm">
+                                        <span className="text-slate">
+                                            Date
+                                        </span>
+
+                                        <span className="text-navy text-right">
+                                            {receiptData.appointment.date}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex justify-between gap-4 text-sm">
+                                        <span className="text-slate">
+                                            Time
+                                        </span>
+
+                                        <span className="text-navy text-right">
+                                            {receiptData.appointment.time}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex justify-between gap-4 text-sm">
+                                        <span className="text-slate">
+                                            Staff
+                                        </span>
+
+                                        <span className="text-navy text-right">
+                                            {receiptData.appointment.staff}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex justify-between gap-4 text-sm">
+                                        <span className="text-slate">
+                                            Service
+                                        </span>
+
+                                        <span className="text-navy text-right">
+                                            {receiptData.appointment.service}
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                 </main>
