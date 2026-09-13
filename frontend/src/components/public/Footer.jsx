@@ -6,7 +6,6 @@ function Footer() {
         { label: "Privacy Policy", path: "/privacy" },
         { label: "Terms of Service", path: "/terms" },
         { label: "Cookie Policy", path: "/cookies" },
-        { label: "Accessibility", path: "/accessibility" },
     ];
 
     const footerRef = useRef(null);

@@ -11,6 +11,12 @@ import Login from "../pages/auth/Login";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 
+// Legal
+import PrivacyPolicy from "../pages/legal/PrivacyPolicy";
+import TermsOfService from "../pages/legal/TermsOfService";
+import CookiePolicy from "../pages/legal/CookiePolicy";
+import Accessibility from "../pages/legal/Accessibility";
+
 // Company
 import CompanyDashboard from "../pages/dashboard/CompanyDashboard";
 
@@ -89,6 +95,13 @@ function AppRoutes() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/forget-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+
+                {/* Legal */}
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/cookies" element={<CookiePolicy />} />
+                <Route path="/accessibility" element={<Accessibility />} />
 
                 {/* Company — Dashboard */}
                 <Route path="/company/dashboard" element={<CompanyDashboard />} />
@@ -180,24 +193,6 @@ function AppRoutes() {
                     path="/company/settings/notifications"
                     element={<NotificationSettings />}
                 />
-
-                {/* Aliases — optional, enable if Sidebar links use non-/company paths */}
-                {/*
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/reports/appointments" element={<AppointmentReport />} />
-                <Route path="/reports/staff" element={<StaffReport />} />
-                <Route path="/reports/services" element={<ServiceReport />} />
-                <Route path="/reports/customers" element={<CustomerReport />} />
-
-                <Route path="/settings" element={<CompanySettings />} />
-                <Route path="/settings/profile" element={<CompanyProfile />} />
-                <Route path="/settings/booking" element={<BookingSettings />} />
-                <Route path="/settings/hours" element={<BusinessHours />} />
-                <Route path="/settings/notifications" element={<NotificationSettings />} />
-
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/help" element={<HelpCenter />} />
-                */}
 
                 {/* Fallback */}
                 <Route path="*" element={<RoleSelectionPage />} />
