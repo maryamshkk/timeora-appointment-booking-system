@@ -16,17 +16,17 @@ function SettingsNav({ activeSection = "overview" }) {
         {
             key: "hours",
             label: "Business Hours",
-            path: "/settings/hours",
+            path: "/company/settings/hours",
         },
         {
             key: "booking",
             label: "Booking Settings",
-            path: "/settings/booking",
+            path: "/company/settings/booking",
         },
         {
             key: "notifications",
             label: "Notification Settings",
-            path: "/settings/notifications",
+            path: "/company/settings/notifications",
         },
     ];
 

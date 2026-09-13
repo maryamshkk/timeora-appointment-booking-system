@@ -41,6 +41,8 @@ import CustomerReport from "../pages/reports/CustomerReport";
 
 import CompanySettings from "../pages/settings/CompanySettings";
 import CompanyProfile from "../pages/settings/CompanyProfile";
+import Notifications from "../pages/notifications/Notifications";
+
 
 function AppRoutes() {
     return (
@@ -110,6 +112,8 @@ function AppRoutes() {
                 <Route path="/company/reports/services" element={<ServiceReport />}/>
                 <Route path="/company/reports/customers" element={<CustomerReport />}/>
 
+                {/* Company-notifications */}
+                <Route path="/company/notifications" element={<Notifications />}/>
 
                 {/* Company - Settings */}
                 <Route path="/company/settings" element={<CompanySettings />} />
