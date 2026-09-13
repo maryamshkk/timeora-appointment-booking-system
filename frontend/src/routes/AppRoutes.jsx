@@ -48,6 +48,7 @@ import HelpCenter from "../pages/help/HelpCenter";
 import CompanySettings from "../pages/settings/CompanySettings";
 import CompanyProfile from "../pages/settings/CompanyProfile";
 import BookingSettings from "../pages/settings/BookingSettings";
+import BusinessHours from "../pages/settings/BusinessHours";
 import NotificationSettings from "../pages/settings/NotificationSettings";
 
 function AppRoutes() {
@@ -128,6 +129,7 @@ function AppRoutes() {
                 <Route path="/company/settings" element={<CompanySettings />} />
                 <Route path="/company/settings/profile" element={<CompanyProfile />} />
                 <Route path="/company/settings/booking" element={<BookingSettings/>}/>
+                <Route path="/company/settings/hours" element={<BusinessHours/>}/>
                 <Route path="/company/settings/notifications" element={<NotificationSettings />} />
 
                 {/* Fallback */}
