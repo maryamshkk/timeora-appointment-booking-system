@@ -34,6 +34,8 @@ import CustomerDetails from "../pages/customers/CustomerDetails";
 import AvailabilityManagement from "../pages/availability/AvailabilityManagement";
 
 import Reports from "../pages/reports/Reports";
+import AppointmentReport from "../pages/reports/AppointmentReport";
+
 
 import CompanySettings from "../pages/settings/CompanySettings";
 
@@ -101,6 +103,8 @@ function AppRoutes() {
 
                 {/* Company - Reports */}
                 <Route path="/company/reports" element={<Reports />}/>
+                <Route path="/company/reports/appointments" element={<AppointmentReport />}/>
+
 
                 {/* Company - Settings */}
                 <Route path="/company/settings" element={<CompanySettings />} />
