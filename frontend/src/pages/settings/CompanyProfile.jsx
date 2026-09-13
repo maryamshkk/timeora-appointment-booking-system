@@ -1,5 +1,11 @@
 import React, { useState, useRef } from "react";
-import { ChevronRight, Image, Upload, X } from "lucide-react";
+import {
+    ChevronDown,
+    ChevronRight,
+    Image,
+    Upload,
+    X,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 import Sidebar from "../../components/dashboard/Sidebar";
@@ -8,6 +14,7 @@ import SettingsNav from "../../components/settings/SettingsNav";
 
 function CompanyProfile() {
     const fileInputRef = useRef(null);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const [formData, setFormData] = useState({
         logoUrl: "",
@@ -75,26 +82,61 @@ function CompanyProfile() {
 
     const descriptionCharCount = formData.description.length;
 
-    return (
-        <div className="min-h-screen bg-beige flex">
+    const inputClass = `
+        w-full
+        border
+        border-gray
+        rounded-lg
+        px-4
+        py-3
+        text-sm
+        text-navy
+        bg-white
+        outline-none
+        focus:border-navy
+        focus:ring-2
+        focus:ring-gold
+    `;
 
-            {/* Sidebar */}
-            <Sidebar activeItem="Settings" />
+    return (
+        <div className="min-h-screen flex bg-beige">
+
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block lg:flex-shrink-0">
+                <Sidebar activeItem="Settings" />
+            </div>
+
+            {/* Mobile / Tablet Sidebar — overlay drawer */}
+            {sidebarOpen && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
+                        aria-label="Close menu"
+                    />
+
+                    <div className="fixed left-0 top-0 z-40 h-screen w-64 max-w-[80vw] overflow-y-auto lg:hidden">
+                        <Sidebar activeItem="Settings" />
+                    </div>
+                </>
+            )}
 
             {/* Main Area */}
-            <div className="flex-1 min-w-0">
+            <div className="flex min-w-0 flex-1 flex-col">
 
-                {/* Topbar */}
                 <Topbar
+                    onMenuClick={() => setSidebarOpen(true)}
                     showBell
                     simpleProfileIcon
                     searchPlaceholder="Search settings..."
                 />
 
-                <main className="px-8 py-6">
+                <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
 
                     {/* Breadcrumb */}
-                    <div className="flex items-center gap-2 mb-8">
+                    <div className="flex flex-wrap items-center gap-2 mb-6">
+
                         <Link
                             to="/settings"
                             className="text-sm text-slate hover:text-navy transition"
@@ -107,13 +149,14 @@ function CompanyProfile() {
                         <span className="text-sm font-bold text-navy">
                             Company Profile
                         </span>
+
                     </div>
 
                     {/* Header */}
-                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5 mb-8">
+                    <div className="flex flex-col gap-5 mb-8 md:flex-row md:items-start md:justify-between">
 
                         <div>
-                            <h1 className="font-serif text-4xl text-navy">
+                            <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                                 Company Profile
                             </h1>
 
@@ -136,6 +179,8 @@ function CompanyProfile() {
                                 hover:bg-gold
                                 hover:text-navy
                                 transition
+                                w-full
+                                md:w-auto
                             "
                         >
                             Save Changes
@@ -160,9 +205,9 @@ function CompanyProfile() {
                             >
 
                                 {/* Basic Information */}
-                                <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-7">
+                                <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
 
-                                    <h2 className="font-serif text-2xl text-navy">
+                                    <h2 className="font-serif text-xl text-navy sm:text-2xl">
                                         Basic Information
                                     </h2>
 
@@ -187,7 +232,7 @@ function CompanyProfile() {
                                         </div>
 
                                         {/* Logo Details */}
-                                        <div className="flex-1">
+                                        <div className="flex-1 min-w-0">
 
                                             <p className="text-xs font-bold uppercase tracking-wide text-navy mb-1.5">
                                                 Company Logo
@@ -197,7 +242,7 @@ function CompanyProfile() {
                                                 This logo will appear on your public booking page and customer communications. Recommended size: 512x512px.
                                             </p>
 
-                                            <div className="flex items-center gap-4">
+                                            <div className="flex flex-wrap items-center gap-4">
 
                                                 <input
                                                     ref={fileInputRef}
@@ -273,21 +318,7 @@ function CompanyProfile() {
                                             name="companyName"
                                             value={formData.companyName}
                                             onChange={handleChange}
-                                            className="
-                                                w-full
-                                                border
-                                                border-gray
-                                                rounded-lg
-                                                px-4
-                                                py-3
-                                                text-sm
-                                                text-navy
-                                                bg-white
-                                                outline-none
-                                                focus:border-navy
-                                                focus:ring-2
-                                                focus:ring-gold
-                                            "
+                                            className={inputClass}
                                         />
 
                                     </div>
@@ -313,35 +344,227 @@ function CompanyProfile() {
                                             maxLength={500}
                                             value={formData.description}
                                             onChange={handleChange}
-                                            className="
-                                                w-full
-                                                border
-                                                border-gray
-                                                rounded-lg
-                                                px-4
-                                                py-3
-                                                text-sm
-                                                text-navy
-                                                bg-white
-                                                outline-none
-                                                resize-y
-                                                focus:border-navy
-                                                focus:ring-2
-                                                focus:ring-gold
-                                            "
+                                            className={`${inputClass} resize-y`}
                                         />
 
                                     </div>
 
                                 </div>
 
-                                {/* Temporary bottom actions */}
-                                <div className="flex justify-end gap-3">
+                                {/* Contact Information */}
+                                <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
+
+                                    <h2 className="font-serif text-xl text-navy sm:text-2xl">
+                                        Contact Information
+                                    </h2>
+
+                                    <div className="border-b border-gray/20 mt-4 mb-5" />
+
+                                    {/* Email + Phone */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+
+                                        {/* Business Email */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
+                                                Business Email
+                                            </label>
+
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                className={inputClass}
+                                            />
+                                        </div>
+
+                                        {/* Business Phone */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
+                                                Business Phone
+                                            </label>
+
+                                            <input
+                                                type="tel"
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                className={inputClass}
+                                            />
+                                        </div>
+
+                                    </div>
+
+                                    {/* Website */}
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
+                                            Website
+                                        </label>
+
+                                        <input
+                                            type="url"
+                                            name="website"
+                                            value={formData.website}
+                                            onChange={handleChange}
+                                            placeholder="www.yourcompany.example"
+                                            className={inputClass}
+                                        />
+                                    </div>
+
+                                </div>
+
+                                {/* Business Address */}
+                                <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
+
+                                    <h2 className="font-serif text-xl text-navy sm:text-2xl">
+                                        Business Address
+                                    </h2>
+
+                                    <div className="border-b border-gray/20 mt-4 mb-5" />
+
+                                    {/* Address */}
+                                    <div className="mb-5">
+
+                                        <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
+                                            Address
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="address"
+                                            value={formData.address}
+                                            onChange={handleChange}
+                                            className={inputClass}
+                                        />
+
+                                    </div>
+
+                                    {/* City + Province */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+
+                                        {/* City */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
+                                                City
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                name="city"
+                                                value={formData.city}
+                                                onChange={handleChange}
+                                                className={inputClass}
+                                            />
+                                        </div>
+
+                                        {/* Province */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
+                                                Province / State
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                name="province"
+                                                value={formData.province}
+                                                onChange={handleChange}
+                                                className={inputClass}
+                                            />
+                                        </div>
+
+                                    </div>
+
+                                    {/* Country + Postal Code */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                                        {/* Country */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
+                                                Country
+                                            </label>
+
+                                            <div className="relative">
+
+                                                <select
+                                                    name="country"
+                                                    value={formData.country}
+                                                    onChange={handleChange}
+                                                    className={`
+                                                        ${inputClass}
+                                                        appearance-none
+                                                        pr-10
+                                                    `}
+                                                >
+                                                    <option value="Pakistan">
+                                                        Pakistan
+                                                    </option>
+
+                                                    <option value="United States">
+                                                        United States
+                                                    </option>
+
+                                                    <option value="United Kingdom">
+                                                        United Kingdom
+                                                    </option>
+
+                                                    <option value="United Arab Emirates">
+                                                        United Arab Emirates
+                                                    </option>
+
+                                                    <option value="Canada">
+                                                        Canada
+                                                    </option>
+
+                                                    <option value="Australia">
+                                                        Australia
+                                                    </option>
+                                                </select>
+
+                                                <ChevronDown
+                                                    className="
+                                                        absolute
+                                                        right-4
+                                                        top-1/2
+                                                        -translate-y-1/2
+                                                        w-4
+                                                        h-4
+                                                        text-slate
+                                                        pointer-events-none
+                                                    "
+                                                />
+
+                                            </div>
+
+                                        </div>
+
+                                        {/* Postal Code */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
+                                                Postal Code
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                name="postalCode"
+                                                value={formData.postalCode}
+                                                onChange={handleChange}
+                                                className={inputClass}
+                                            />
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                {/* Bottom Actions */}
+                                <div className="border-t border-gray/20 pt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
 
                                     <button
                                         type="button"
                                         onClick={handleCancel}
                                         className="
+                                            w-full
+                                            sm:w-auto
                                             bg-white
                                             border
                                             border-gray
@@ -361,6 +584,8 @@ function CompanyProfile() {
                                     <button
                                         type="submit"
                                         className="
+                                            w-full
+                                            sm:w-auto
                                             bg-navy
                                             text-white
                                             px-6
@@ -388,21 +613,38 @@ function CompanyProfile() {
                             {/* Profile Summary */}
                             <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6 text-center">
 
-                                <div className="w-16 h-16 mx-auto rounded-lg bg-gray/10 border border-gray/20 flex items-center justify-center">
-                                    {formData.logoUrl ? (
-                                        <img
-                                            src={formData.logoUrl}
-                                            alt="Company logo"
-                                            className="w-full h-full object-cover rounded-lg"
-                                        />
-                                    ) : (
-                                        <span className="font-serif text-xl text-navy">
-                                            S
+                                {/* Logo Preview */}
+                                <div className="relative w-16 h-16 mx-auto mb-3">
+
+                                    <div className="w-16 h-16 rounded-lg bg-gray/10 border border-gray/20 overflow-hidden flex items-center justify-center">
+
+                                        {formData.logoUrl ? (
+                                            <img
+                                                src={formData.logoUrl}
+                                                alt="Company logo"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="font-serif text-xl text-navy">
+                                                {formData.companyName
+                                                    .charAt(0)
+                                                    .toUpperCase() || "S"}
+                                            </span>
+                                        )}
+
+                                    </div>
+
+                                    {/* Verified Badge */}
+                                    <div className="absolute -right-1 -bottom-1 w-5 h-5 rounded-full bg-gold border-2 border-white flex items-center justify-center">
+                                        <span className="text-[10px] font-bold text-navy">
+                                            ✓
                                         </span>
-                                    )}
+                                    </div>
+
                                 </div>
 
-                                <h2 className="font-serif text-2xl text-navy mt-4">
+                                {/* Company Name */}
+                                <h2 className="font-serif text-2xl text-navy break-words">
                                     {formData.companyName}
                                 </h2>
 
@@ -410,40 +652,71 @@ function CompanyProfile() {
                                     Company
                                 </p>
 
+                                {/* Status */}
                                 <span className="inline-flex items-center gap-2 mt-3 bg-green-50 text-green-700 text-xs font-bold uppercase px-3 py-1.5 rounded-full">
                                     <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                     Active
                                 </span>
+
+                                {/* Divider */}
+                                <div className="border-t border-gray/20 my-5" />
+
+                                {/* Stats */}
+                                <div className="grid grid-cols-2 gap-4 text-left">
+
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-wide text-gray">
+                                            Member Since
+                                        </p>
+
+                                        <p className="text-sm font-bold text-navy mt-1">
+                                            Oct 2023
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-wide text-gray">
+                                            Profile Completion
+                                        </p>
+
+                                        <p className="text-sm font-bold text-navy mt-1">
+                                            85%
+                                        </p>
+                                    </div>
+
+                                </div>
 
                             </div>
 
                             {/* Next Steps */}
                             <div className="bg-navy rounded-xl p-6 text-white">
 
-                                <h2 className="font-serif text-xl">
+                                <h2 className="font-serif text-xl text-white">
                                     Next Steps
                                 </h2>
 
-                                <p className="text-sm text-white/70 leading-relaxed mt-2">
+                                <p className="text-sm text-white/70 leading-relaxed mt-2 mb-5">
                                     Complete these actions to fully optimize your company presence.
                                 </p>
 
-                                <div className="mt-5 space-y-4">
+                                <div className="flex flex-col gap-4">
 
+                                    {/* Completed */}
                                     <div className="flex items-start gap-2.5">
 
                                         <div className="w-5 h-5 rounded-full border-2 border-gold bg-gold/20 flex items-center justify-center flex-shrink-0">
-                                            <span className="text-gold text-xs">
+                                            <span className="text-[11px] font-bold text-gold">
                                                 ✓
                                             </span>
                                         </div>
 
-                                        <span className="text-sm font-bold text-white/70 line-through">
+                                        <p className="text-sm font-bold text-white/70 line-through">
                                             Add Basic Details
-                                        </span>
+                                        </p>
 
                                     </div>
 
+                                    {/* Email Verification */}
                                     <div className="flex items-start gap-2.5">
 
                                         <div className="w-5 h-5 rounded-full border-2 border-white/40 flex-shrink-0" />
