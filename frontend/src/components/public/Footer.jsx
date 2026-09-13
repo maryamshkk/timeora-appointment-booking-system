@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 function Footer() {
     const footerLinks = [
-        { label: "Privacy Policy", path: "/privacy-policy" },
+        { label: "Privacy Policy", path: "/privacy" },
         { label: "Terms of Service", path: "/terms" },
         { label: "Cookie Policy", path: "/cookies" },
         { label: "Accessibility", path: "/accessibility" },
@@ -33,51 +33,38 @@ function Footer() {
     return (
         <footer
             ref={footerRef}
-            className="bg-navy text-white py-12 px-8 overflow-hidden"
+            className="overflow-hidden bg-navy px-4 py-12 text-white sm:px-6 md:px-8"
         >
             <div
                 className={`
-                    max-w-7xl mx-auto flex flex-col md:flex-row justify-between
-                    items-start md:items-center gap-6
-                    transition-all duration-700 ease-out
-                    ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
+                    mx-auto flex max-w-7xl flex-col items-start justify-between gap-6
+                    transition-all duration-700 ease-out md:flex-row md:items-center
+                    ${isVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}
                 `}
             >
-                {/* Brand */}
                 <div>
                     <Link
                         to="/"
-                        className="
-                            font-serif italic text-2xl text-gold inline-block
-                            transition-transform duration-300 ease-out
-                            hover:-translate-y-0.5
-                        "
+                        className="inline-block font-serif italic text-2xl text-gold transition-transform duration-300 ease-out hover:-translate-y-0.5"
                     >
                         Timeora
                     </Link>
 
-                    <p className="text-sm text-white/60 mt-1.5">
+                    <p className="mt-1.5 text-sm text-white/60">
                         Precision scheduling for elite providers.
                         © 2024 Timeora. All rights reserved.
                     </p>
                 </div>
 
-                {/* Footer Links */}
                 <nav className="flex flex-wrap gap-6">
                     {footerLinks.map((item) => (
                         <Link
                             key={item.label}
                             to={item.path}
-                            className="relative text-sm text-white/60 hover:text-white transition-colors duration-300 group"
+                            className="group relative text-sm text-white/60 transition-colors duration-300 hover:text-white"
                         >
                             {item.label}
-                            <span
-                                className="
-                                    absolute left-0 -bottom-1 h-px w-0 bg-gold
-                                    transition-all duration-300 ease-out
-                                    group-hover:w-full
-                                "
-                            />
+                            <span className="absolute -bottom-1 left-0 h-px w-0 bg-gold transition-all duration-300 ease-out group-hover:w-full" />
                         </Link>
                     ))}
                 </nav>
