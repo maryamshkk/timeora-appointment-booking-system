@@ -47,6 +47,7 @@ function PaymentReceipt() {
     const navigate = useNavigate();
 
     const [receiptData, setReceiptData] = useState(mockReceiptData);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     function handleDownloadPdf() {
         // TODO: GET /api/company/receipts/:appointmentId/pdf
@@ -59,46 +60,66 @@ function PaymentReceipt() {
     return (
         <div className="min-h-screen flex bg-beige">
 
-            {/* Sidebar */}
-            <div className="print:hidden">
+            {/* Desktop Sidebar (lg and up) */}
+            <div className="hidden lg:block lg:flex-shrink-0 print:hidden">
                 <Sidebar
                     companyName={receiptData.company.name}
                     activeItem="Appointments"
                 />
             </div>
 
+            {/* Mobile / Tablet Sidebar — overlay drawer */}
+            {sidebarOpen && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden print:hidden"
+                        aria-label="Close menu"
+                    />
+
+                    <div className="fixed left-0 top-0 z-40 h-screen w-64 max-w-[80vw] overflow-y-auto lg:hidden print:hidden">
+                        <Sidebar
+                            companyName={receiptData.company.name}
+                            activeItem="Appointments"
+                        />
+                    </div>
+                </>
+            )}
+
             {/* Main Area */}
-            <div className="flex-1 min-w-0">
+            <div className="flex min-w-0 flex-1 flex-col">
 
                 {/* Topbar */}
                 <div className="print:hidden">
                     <Topbar
+                        onMenuClick={() => setSidebarOpen(true)}
                         showBell
                         simpleProfileIcon
                         showSearch={false}
                     />
                 </div>
 
-                <main className="bg-beige px-8 py-6 flex flex-col items-center print:bg-white print:px-0 print:py-0">
+                <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6 flex flex-col items-center print:bg-white print:px-0 print:py-0">
 
                     {/* Action Row */}
-                    <div className="max-w-3xl w-full mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+                    <div className="max-w-3xl w-full mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between print:hidden">
 
                         <button
                             type="button"
                             onClick={() => navigate(-1)}
-                            className="flex items-center gap-2 text-sm text-slate hover:text-navy transition"
+                            className="flex items-center gap-2 self-start text-sm text-slate hover:text-navy transition sm:self-auto"
                         >
                             <ArrowLeft className="w-4 h-4" />
                             Back
                         </button>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col gap-3 w-full sm:flex-row sm:items-center sm:w-auto">
 
                             <button
                                 type="button"
                                 onClick={handleDownloadPdf}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray/40 rounded-lg text-sm font-bold text-navy hover:bg-beige transition"
+                                className="flex w-full items-center justify-center gap-2 px-5 py-2.5 bg-white border border-gray/40 rounded-lg text-sm font-bold text-navy hover:bg-beige transition sm:w-auto"
                             >
                                 <Download className="w-4 h-4" />
                                 Download PDF
@@ -107,7 +128,7 @@ function PaymentReceipt() {
                             <button
                                 type="button"
                                 onClick={handlePrint}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-navy text-white rounded-lg text-sm font-bold hover:bg-gold hover:text-navy transition"
+                                className="flex w-full items-center justify-center gap-2 px-5 py-2.5 bg-navy text-white rounded-lg text-sm font-bold hover:bg-gold hover:text-navy transition sm:w-auto"
                             >
                                 <Printer className="w-4 h-4" />
                                 Print Receipt
@@ -119,13 +140,13 @@ function PaymentReceipt() {
                     {/* Receipt Card */}
                     <div
                         id="receipt-printable"
-                        className="max-w-3xl w-full bg-white rounded-xl border border-gray/20 shadow-sm p-6 sm:p-8 md:p-12 print:shadow-none print:border-0 print:rounded-none"
+                        className="max-w-3xl w-full bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-8 md:p-12 print:shadow-none print:border-0 print:rounded-none"
                     >
 
                         {/* Receipt Header */}
                         <div className="text-center">
 
-                            <h1 className="font-serif text-4xl text-navy tracking-wide">
+                            <h1 className="font-serif text-3xl sm:text-4xl text-navy tracking-wide">
                                 TIMEORA
                             </h1>
 
@@ -140,10 +161,10 @@ function PaymentReceipt() {
                         </div>
 
                         {/* Divider */}
-                        <div className="border-b border-gray/30 my-8"></div>
+                        <div className="border-b border-gray/30 my-6 sm:my-8"></div>
 
                         {/* From + Receipt Details */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
 
                             {/* From */}
                             <div>
@@ -151,7 +172,7 @@ function PaymentReceipt() {
                                     From
                                 </p>
 
-                                <h2 className="font-serif text-xl text-navy">
+                                <h2 className="font-serif text-lg sm:text-xl text-navy">
                                     {receiptData.company.name}
                                 </h2>
 
@@ -159,7 +180,7 @@ function PaymentReceipt() {
                                     {receiptData.company.address}
                                 </p>
 
-                                <p className="text-sm text-slate mt-1">
+                                <p className="text-sm text-slate mt-1 break-words">
                                     {receiptData.company.email}
                                 </p>
                             </div>
@@ -194,7 +215,7 @@ function PaymentReceipt() {
                                 {/* Paid Status */}
                                 <div className="flex sm:justify-end items-center gap-2 mt-3">
 
-                                    <span className="w-5 h-5 rounded-full bg-navy flex items-center justify-center">
+                                    <span className="w-5 h-5 rounded-full bg-navy flex items-center justify-center shrink-0">
                                         <Check className="w-3 h-3 text-white" />
                                     </span>
 
@@ -209,7 +230,7 @@ function PaymentReceipt() {
                         </div>
 
                         {/* Billed To + Appointment Reference */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-10">
 
                             {/* Billed To */}
                             <div>
@@ -217,7 +238,7 @@ function PaymentReceipt() {
                                     Billed To
                                 </p>
 
-                                <h2 className="font-serif text-xl text-navy">
+                                <h2 className="font-serif text-lg sm:text-xl text-navy">
                                     {receiptData.customer.name}
                                 </h2>
 
@@ -227,7 +248,7 @@ function PaymentReceipt() {
                             </div>
 
                             {/* Appointment Reference */}
-                            <div className="bg-beige/40 border border-gray/20 rounded-lg p-5">
+                            <div className="bg-beige/40 border border-gray/20 rounded-lg p-4 sm:p-5">
 
                                 <p className="text-[11px] font-bold uppercase tracking-widest text-slate mb-4">
                                     Appointment Ref
@@ -240,7 +261,7 @@ function PaymentReceipt() {
                                             ID
                                         </span>
 
-                                        <span className="text-navy font-bold text-right">
+                                        <span className="text-navy font-bold text-right break-all">
                                             {receiptData.appointment.id}
                                         </span>
                                     </div>
@@ -292,7 +313,7 @@ function PaymentReceipt() {
                         </div>
 
                         {/* Line Items */}
-                        <div className="mb-8">
+                        <div className="mb-6 sm:mb-8">
 
                             {/* Table Header */}
                             <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-gray/30 pb-3">
@@ -312,7 +333,7 @@ function PaymentReceipt() {
                                         key={index}
                                         className="grid grid-cols-[1fr_auto] gap-4 py-4 border-b border-dashed border-gray/30"
                                     >
-                                        <p className="text-sm text-navy">
+                                        <p className="text-sm text-navy break-words">
                                             {item.description}
                                         </p>
 
@@ -326,7 +347,7 @@ function PaymentReceipt() {
                         </div>
 
                         {/* Totals */}
-                        <div className="flex flex-col items-end gap-3 mb-8">
+                        <div className="flex flex-col items-end gap-3 mb-6 sm:mb-8">
 
                             {/* Subtotal */}
                             <div className="w-full sm:w-64 flex items-center justify-between text-sm">
@@ -355,19 +376,19 @@ function PaymentReceipt() {
                         {/* Total Paid */}
                         <div className="border-t border-gray/30 pt-6">
 
-                            <div className="flex items-end justify-between gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 
                                 <div>
                                     <p className="text-[11px] font-bold uppercase tracking-widest text-slate">
                                         Total Paid
                                     </p>
 
-                                    <p className="font-serif text-3xl text-amber-700 mt-1">
+                                    <p className="font-serif text-2xl sm:text-3xl text-amber-700 mt-1">
                                         Rs {receiptData.amountPaid.toLocaleString()}
                                     </p>
                                 </div>
 
-                                <div className="text-right">
+                                <div className="text-left sm:text-right">
                                     <p className="text-xs text-slate">
                                         Balance
                                     </p>
@@ -386,15 +407,15 @@ function PaymentReceipt() {
                         </div>
 
                         {/* Receipt Footer */}
-                        <div className="border-t border-gray/30 mt-8 pt-6">
+                        <div className="border-t border-gray/30 mt-6 sm:mt-8 pt-6">
 
                             {/* Payment Method */}
-                            <div className="flex items-center justify-between gap-4 mb-6">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4 mb-6">
                                 <span className="text-xs font-bold uppercase tracking-wide text-slate">
                                     Payment Method
                                 </span>
 
-                                <span className="text-sm font-bold text-navy text-right">
+                                <span className="text-sm font-bold text-navy sm:text-right">
                                     {receiptData.paymentMethod}
                                 </span>
                             </div>
@@ -402,7 +423,7 @@ function PaymentReceipt() {
                             {/* Thank You */}
                             <div className="text-center pt-4">
 
-                                <p className="font-serif text-lg text-navy">
+                                <p className="font-serif text-base sm:text-lg text-navy">
                                     Thank you for choosing {receiptData.company.name}.
                                 </p>
 

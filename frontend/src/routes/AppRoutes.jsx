@@ -31,7 +31,7 @@ import CustomerManagement from "../pages/customers/CustomerManagement";
 import AddCustomer from "../pages/customers/AddCustomers";
 import CustomerDetails from "../pages/customers/CustomerDetails";
 
-import AvailabilityManagement from "../pages/settings/AvailabilityManagement";
+import AvailabilityManagement from "../pages/availability/AvailabilityManagement";
 
 
 function AppRoutes() {
