@@ -36,6 +36,7 @@ import AvailabilityManagement from "../pages/availability/AvailabilityManagement
 import Reports from "../pages/reports/Reports";
 import AppointmentReport from "../pages/reports/AppointmentReport";
 import StaffReport from "../pages/reports/StaffReport";
+import ServiceReport from "../pages/reports/ServiceReport";
 
 import CompanySettings from "../pages/settings/CompanySettings";
 
@@ -105,6 +106,7 @@ function AppRoutes() {
                 <Route path="/company/reports" element={<Reports />}/>
                 <Route path="/company/reports/appointments" element={<AppointmentReport />}/>
                 <Route path="/company/reports/staff" element={<StaffReport />}/>
+                <Route path="/company/reports/services" element={<ServiceReport />}/>
 
 
                 {/* Company - Settings */}
