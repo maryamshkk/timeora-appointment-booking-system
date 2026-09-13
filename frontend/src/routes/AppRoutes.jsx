@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-
+import LandingPage from "../pages/LandingPage";
 
 import RoleSelectionPage from "../pages/auth/RoleSelectionPage";
 import CompanyRegistration from "../pages/auth/CompanyRegister";
@@ -56,6 +56,9 @@ function AppRoutes() {
     return (
         <BrowserRouter>
             <Routes>
+                {/* Landing page */}
+                <Route path="/" element={<LandingPage />} />
+
                 {/* Auth */}
                 <Route path="/" element={<RoleSelectionPage />} />
                 <Route path="/register" element={<RoleSelectionPage />} />
