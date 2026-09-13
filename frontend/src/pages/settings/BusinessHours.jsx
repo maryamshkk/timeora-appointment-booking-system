@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Copy } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import Sidebar from "../../components/dashboard/Sidebar";
@@ -127,6 +127,110 @@ function BusinessHours() {
         }));
     }
 
+    function handleBreakChange(day, index, field, value) {
+        setSchedule((previous) => ({
+            ...previous,
+            [day]: {
+                ...previous[day],
+                breaks: previous[day].breaks.map((breakItem, breakIndex) =>
+                    breakIndex === index
+                        ? {
+                              ...breakItem,
+                              [field]: value,
+                          }
+                        : breakItem
+                ),
+            },
+        }));
+    }
+
+    function copyHoursToAll(day) {
+        setSchedule((previous) => {
+            const sourceDay = previous[day];
+
+            const updatedSchedule = { ...previous };
+
+            DAYS.forEach((currentDay) => {
+                if (currentDay === day) {
+                    return;
+                }
+
+                updatedSchedule[currentDay] = {
+                    ...updatedSchedule[currentDay],
+                    isOpen: sourceDay.isOpen,
+                    open: sourceDay.open,
+                    close: sourceDay.close,
+                    breaks: [],
+                };
+            });
+
+            return updatedSchedule;
+        });
+
+        // TODO: Add confirmation dialog before copying hours to all days.
+    }
+
+    function getScheduleSummary() {
+        const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday"];
+
+        const weekdaySchedules = weekdays.map((day) => schedule[day]);
+
+        const allWeekdaysOpen = weekdaySchedules.every(
+            (day) => day.isOpen
+        );
+
+        const firstWeekday = weekdaySchedules[0];
+
+        const allWeekdaysSame =
+            allWeekdaysOpen &&
+            weekdaySchedules.every(
+                (day) =>
+                    day.open === firstWeekday.open &&
+                    day.close === firstWeekday.close
+            );
+
+        const summary = [];
+
+        if (allWeekdaysSame) {
+            summary.push({
+                label: "Mon - Fri",
+                value: `${firstWeekday.open} - ${firstWeekday.close}`,
+            });
+        } else {
+            weekdays.forEach((day) => {
+                const dayData = schedule[day];
+
+                summary.push({
+                    label: day.slice(0, 3),
+                    value: dayData.isOpen
+                        ? `${dayData.open} - ${dayData.close}`
+                        : "Closed",
+                });
+            });
+        }
+
+        ["saturday", "sunday"].forEach((day) => {
+            const dayData = schedule[day];
+
+            summary.push({
+                label: day.slice(0, 3),
+                value: dayData.isOpen
+                    ? `${dayData.open} - ${dayData.close}`
+                    : "Closed",
+            });
+        });
+
+        return summary;
+    }
+
+    const scheduleSummary = getScheduleSummary();
+
+    const hasOpenDay = DAYS.some(
+        (day) => schedule[day].isOpen
+    );
+
+    const scheduleStatus = hasOpenDay ? "Configured" : "Not Set";
+
     function handleSave() {
         setSavedSnapshot(schedule);
 
@@ -223,9 +327,47 @@ function BusinessHours() {
 
                                 <div className="border-b border-gray/20 mt-4 mb-4" />
 
-                                <p className="text-sm text-slate">
-                                    Weekly schedule summary will appear here.
-                                </p>
+                                <div className="flex flex-col gap-3">
+
+                                    {scheduleSummary.map((item) => (
+                                        <div
+                                            key={item.label}
+                                            className="flex items-center justify-between gap-4"
+                                        >
+                                            <span className="text-xs font-bold uppercase tracking-wide text-navy">
+                                                {item.label}
+                                            </span>
+
+                                            <span className="text-sm text-slate text-right">
+                                                {item.value}
+                                            </span>
+                                        </div>
+                                    ))}
+
+                                </div>
+
+                                <div className="border-t border-gray/20 mt-5 pt-4 flex items-center justify-between">
+                                    <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                                        Status
+                                    </span>
+
+                                    <span
+                                        className={`
+                                            text-xs
+                                            font-bold
+                                            rounded-full
+                                            px-3
+                                            py-1
+                                            ${
+                                                hasOpenDay
+                                                    ? "bg-green-50 text-green-700"
+                                                    : "bg-gray/20 text-slate"
+                                            }
+                                        `}
+                                    >
+                                        {scheduleStatus}
+                                    </span>
+                                </div>
 
                             </div>
 
@@ -390,6 +532,31 @@ function BusinessHours() {
                                                             />
                                                         </div>
 
+                                                        {/* Copy Hours to All */}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => copyHoursToAll(day)}
+                                                            className="
+                                                                flex
+                                                                items-center
+                                                                justify-center
+                                                                w-9
+                                                                h-9
+                                                                rounded-lg
+                                                                border
+                                                                border-gray/40
+                                                                text-slate
+                                                                hover:border-navy
+                                                                hover:text-navy
+                                                                hover:bg-beige
+                                                                transition
+                                                            "
+                                                            title="Copy hours to all days"
+                                                            aria-label={`Copy ${day} hours to all days`}
+                                                        >
+                                                            <Copy className="w-4 h-4" />
+                                                        </button>
+
                                                         {/* Break Chips */}
                                                         {dayData.breaks.length > 0 && (
                                                             <div className="w-full flex flex-wrap items-center gap-2 md:pl-[70px]">
@@ -398,7 +565,7 @@ function BusinessHours() {
                                                                     <div
                                                                         key={index}
                                                                         className="
-                                                                            flex items-center gap-2
+                                                                            flex flex-wrap items-center gap-2
                                                                             bg-beige
                                                                             border border-gray/30
                                                                             rounded-lg
@@ -410,14 +577,74 @@ function BusinessHours() {
                                                                             Break
                                                                         </span>
 
-                                                                        <span className="text-xs font-bold text-navy">
-                                                                            {breakItem.start} - {breakItem.end}
+                                                                        <input
+                                                                            type="text"
+                                                                            value={breakItem.start}
+                                                                            onChange={(event) =>
+                                                                                handleBreakChange(
+                                                                                    day,
+                                                                                    index,
+                                                                                    "start",
+                                                                                    event.target.value
+                                                                                )
+                                                                            }
+                                                                            className="
+                                                                                w-[105px]
+                                                                                h-8
+                                                                                rounded-md
+                                                                                border
+                                                                                border-gray/40
+                                                                                bg-white
+                                                                                px-2
+                                                                                text-xs
+                                                                                text-navy
+                                                                                font-serif
+                                                                                outline-none
+                                                                                focus:border-navy
+                                                                            "
+                                                                        />
+
+                                                                        <span className="text-xs text-slate">
+                                                                            -
                                                                         </span>
+
+                                                                        <input
+                                                                            type="text"
+                                                                            value={breakItem.end}
+                                                                            onChange={(event) =>
+                                                                                handleBreakChange(
+                                                                                    day,
+                                                                                    index,
+                                                                                    "end",
+                                                                                    event.target.value
+                                                                                )
+                                                                            }
+                                                                            className="
+                                                                                w-[105px]
+                                                                                h-8
+                                                                                rounded-md
+                                                                                border
+                                                                                border-gray/40
+                                                                                bg-white
+                                                                                px-2
+                                                                                text-xs
+                                                                                text-navy
+                                                                                font-serif
+                                                                                outline-none
+                                                                                focus:border-navy
+                                                                            "
+                                                                        />
 
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => removeBreak(day, index)}
-                                                                            className="text-slate hover:text-navy transition"
+                                                                            className="
+                                                                                text-lg
+                                                                                leading-none
+                                                                                text-slate
+                                                                                hover:text-navy
+                                                                                transition
+                                                                            "
                                                                             aria-label="Remove break"
                                                                         >
                                                                             ×
