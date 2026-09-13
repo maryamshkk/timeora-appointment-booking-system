@@ -211,7 +211,7 @@ function Notifications() {
     }
 
     return (
-        <div className="min-h-screen bg-white flex">
+        <div className="min-h-screen flex bg-beige">
 
             {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
@@ -245,7 +245,7 @@ function Notifications() {
                     showSearch={false}
                 />
 
-                <main className="flex-1 bg-white px-4 py-5 sm:px-6 md:px-8 md:py-6">
+                <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
 
                     {/* Header */}
                     <div className="flex flex-col gap-5 mb-5 md:flex-row md:items-start md:justify-between">
@@ -262,7 +262,8 @@ function Notifications() {
 
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
 
-                            <span className="bg-gray/10 text-slate text-sm font-bold px-4 py-2 rounded-lg text-center">
+                            <span className="inline-flex items-center gap-2 bg-gold/15 border border-gold text-amber-700 text-xs font-bold uppercase tracking-wide px-3 py-2 rounded-lg text-center">
+                                <span className="w-1.5 h-1.5 rounded-full bg-gold" />
                                 {unreadCount} unread
                             </span>
 
@@ -405,26 +406,20 @@ function Notifications() {
 
                         </div>
                     ) : (
-                        <div>
+                        <div className="flex flex-col gap-6">
 
                             {Object.entries(groupedNotifications).map(
-                                ([group, groupNotifications], groupIndex) => (
-                                    <section
-                                        key={group}
-                                        className={
-                                            groupIndex === 0
-                                                ? "mt-4"
-                                                : "mt-6"
-                                        }
-                                    >
+                                ([group, groupNotifications]) => (
+                                    <section key={group}>
 
                                         {/* Section Label */}
-                                        <h2 className="text-xs font-bold uppercase tracking-wide text-gray mb-3">
+                                        <h2 className="text-xs font-bold uppercase tracking-wide text-slate mb-3">
                                             {group}
                                         </h2>
 
-                                        {/* Notifications */}
-                                        <div>
+                                        {/* Card Container */}
+                                        <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden divide-y divide-gray/10">
+
                                             {groupNotifications.map(
                                                 (notification) => {
                                                     const iconData =
@@ -448,19 +443,15 @@ function Notifications() {
                                                                 items-start
                                                                 gap-3
                                                                 sm:gap-4
-                                                                border
-                                                                border-gray/15
-                                                                rounded-xl
                                                                 px-4
                                                                 sm:px-5
                                                                 py-4
-                                                                mb-2.5
                                                                 cursor-pointer
                                                                 transition
-                                                                hover:border-gray/30
+                                                                hover:bg-beige/40
                                                                 ${
                                                                     !notification.read
-                                                                        ? "bg-gray/5"
+                                                                        ? "bg-beige/30"
                                                                         : "bg-white"
                                                                 }
                                                             `}
@@ -535,6 +526,7 @@ function Notifications() {
                                                     );
                                                 }
                                             )}
+
                                         </div>
 
                                     </section>

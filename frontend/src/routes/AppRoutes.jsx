@@ -47,6 +47,7 @@ import HelpCenter from "../pages/help/HelpCenter";
 
 import CompanySettings from "../pages/settings/CompanySettings";
 import CompanyProfile from "../pages/settings/CompanyProfile";
+import NotificationSettings from "../pages/settings/NotificationSettings";
 
 function AppRoutes() {
     return (
@@ -125,6 +126,7 @@ function AppRoutes() {
                 {/* Company - Settings */}
                 <Route path="/company/settings" element={<CompanySettings />} />
                 <Route path="/company/settings/profile" element={<CompanyProfile />} />
+                <Route path="/company/settings/notifications" element={<NotificationSettings />} />
 
                 {/* Fallback */}
                 <Route path="*" element={<RoleSelectionPage />} />
