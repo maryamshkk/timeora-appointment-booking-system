@@ -75,6 +75,7 @@ function PaymentCashOnReception() {
 
         // TODO: axios GET /api/company/appointments/:id/receipt
         // TODO: navigate to a future receipt view / print page
+         navigate(`/company/appointments/${appointmentId}/receipt`);
     }
 
     function formatPaidTimestamp(date) {

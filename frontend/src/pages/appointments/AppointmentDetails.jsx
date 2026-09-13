@@ -127,8 +127,7 @@ function AppointmentDetails() {
     }
 
     function handleCreateReceipt() {
-        // TODO: axios POST /api/company/appointments/:id/receipt
-    }
+navigate(`/company/appointments/${appointmentId}/payment`);    }
 
     const statusClasses = {
         Confirmed: "border-green-600/30 bg-green-50 text-green-700",
