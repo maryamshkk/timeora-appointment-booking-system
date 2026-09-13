@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 function Footer() {
@@ -9,15 +9,49 @@ function Footer() {
         { label: "Accessibility", path: "/accessibility" },
     ];
 
-    return (
-        <footer className="bg-navy text-white py-12 px-8">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    const footerRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
 
+    useEffect(() => {
+        const node = footerRef.current;
+        if (!node) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.2 }
+        );
+
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <footer
+            ref={footerRef}
+            className="bg-navy text-white py-12 px-8 overflow-hidden"
+        >
+            <div
+                className={`
+                    max-w-7xl mx-auto flex flex-col md:flex-row justify-between
+                    items-start md:items-center gap-6
+                    transition-all duration-700 ease-out
+                    ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
+                `}
+            >
                 {/* Brand */}
                 <div>
                     <Link
                         to="/"
-                        className="font-serif italic text-2xl text-gold"
+                        className="
+                            font-serif italic text-2xl text-gold inline-block
+                            transition-transform duration-300 ease-out
+                            hover:-translate-y-0.5
+                        "
                     >
                         Timeora
                     </Link>
@@ -34,18 +68,19 @@ function Footer() {
                         <Link
                             key={item.label}
                             to={item.path}
-                            className="
-                                text-sm
-                                text-white/60
-                                hover:text-white
-                                transition
-                            "
+                            className="relative text-sm text-white/60 hover:text-white transition-colors duration-300 group"
                         >
                             {item.label}
+                            <span
+                                className="
+                                    absolute left-0 -bottom-1 h-px w-0 bg-gold
+                                    transition-all duration-300 ease-out
+                                    group-hover:w-full
+                                "
+                            />
                         </Link>
                     ))}
                 </nav>
-
             </div>
         </footer>
     );

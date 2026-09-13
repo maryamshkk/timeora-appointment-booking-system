@@ -41,3 +41,56 @@ body {
   color: #000C1E;
   margin: 0;
 }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes pulseSoft {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.04); }
+}
+
+@keyframes slideInRow {
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+    animation: pulseSoft 2.4s ease-in-out infinite;
+}
+
+.animate-slide-in-row {
+    animation: slideInRow 0.5s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-float,
+    .animate-pulse-soft,
+    .animate-slide-in-row {
+        animation: none;
+    }
+}
+
+@keyframes slotIn {
+    0% { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slot-in {
+    animation: slotIn 0.4s ease-out both;
+}
+
+@keyframes pulseSoft {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.04); }
+}
+
+.animate-pulse-soft {
+    animation: pulseSoft 2.4s ease-in-out infinite;
+}

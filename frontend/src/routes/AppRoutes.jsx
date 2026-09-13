@@ -60,7 +60,7 @@ function AppRoutes() {
                 <Route path="/" element={<LandingPage />} />
 
                 {/* Auth */}
-                <Route path="/" element={<RoleSelectionPage />} />
+                <Route path="/roleselection" element={<RoleSelectionPage />} />
                 <Route path="/register" element={<RoleSelectionPage />} />
 
                 {/* Company registration flow */}
