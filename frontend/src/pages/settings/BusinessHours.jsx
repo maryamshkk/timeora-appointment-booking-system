@@ -170,6 +170,46 @@ function BusinessHours() {
         // TODO: Add confirmation dialog before copying hours to all days.
     }
 
+    function convertToTimeInput(value) {
+        if (!value) {
+            return "";
+        }
+
+        const [time, modifier] = value.split(" ");
+        let [hours, minutes] = time.split(":");
+
+        hours = parseInt(hours, 10);
+
+        if (modifier === "PM" && hours !== 12) {
+            hours += 12;
+        }
+
+        if (modifier === "AM" && hours === 12) {
+            hours = 0;
+        }
+
+        return `${String(hours).padStart(2, "0")}:${minutes}`;
+    }
+
+    function convertFromTimeInput(value) {
+        if (!value) {
+            return "";
+        }
+
+        let [hours, minutes] = value.split(":");
+        hours = parseInt(hours, 10);
+
+        const modifier = hours >= 12 ? "PM" : "AM";
+
+        if (hours === 0) {
+            hours = 12;
+        } else if (hours > 12) {
+            hours -= 12;
+        }
+
+        return `${String(hours).padStart(2, "0")}:${minutes} ${modifier}`;
+    }
+
     function getScheduleSummary() {
         const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday"];
 
@@ -483,10 +523,14 @@ function BusinessHours() {
                                                             </label>
 
                                                             <input
-                                                                type="text"
-                                                                value={dayData.open}
+                                                                type="time"
+                                                                value={convertToTimeInput(dayData.open)}
                                                                 onChange={(event) =>
-                                                                    handleTimeChange(day, "open", event.target.value)
+                                                                    handleTimeChange(
+                                                                        day,
+                                                                        "open",
+                                                                        convertFromTimeInput(event.target.value)
+                                                                    )
                                                                 }
                                                                 className="
                                                                     w-[120px]
@@ -511,10 +555,14 @@ function BusinessHours() {
                                                             </label>
 
                                                             <input
-                                                                type="text"
-                                                                value={dayData.close}
+                                                                type="time"
+                                                                value={convertToTimeInput(dayData.close)}
                                                                 onChange={(event) =>
-                                                                    handleTimeChange(day, "close", event.target.value)
+                                                                    handleTimeChange(
+                                                                        day,
+                                                                        "close",
+                                                                        convertFromTimeInput(event.target.value)
+                                                                    )
                                                                 }
                                                                 className="
                                                                     w-[120px]
