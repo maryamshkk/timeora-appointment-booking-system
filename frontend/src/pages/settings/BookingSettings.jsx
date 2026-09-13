@@ -3,6 +3,7 @@ import {
     CheckCircle2,
     ChevronDown,
     ChevronRight,
+    Info,
     Save,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -50,12 +51,19 @@ function BookingSettings() {
     }
 
     function handleSave(event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
 
-        setSavedSnapshot(formData);
+        setSavedSnapshot({
+            ...formData,
+        });
 
         // TODO: axios PUT /api/company/booking-settings
-        // Send the complete formData payload to the backend.
+        // Payload:
+        // {
+        //     ...formData
+        // }
     }
 
     return (
@@ -166,7 +174,6 @@ function BookingSettings() {
 
                             {/* Status Summary */}
                             <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6">
-
                                 <div className="flex flex-wrap items-center gap-5 sm:gap-6">
 
                                     <div className="flex items-center gap-3">
@@ -180,9 +187,7 @@ function BookingSettings() {
                                             </p>
 
                                             <p className="text-xs text-slate">
-                                                {formData.onlineBookingEnabled
-                                                    ? "Enabled"
-                                                    : "Disabled"}
+                                                {formData.onlineBookingEnabled ? "Enabled" : "Disabled"}
                                             </p>
                                         </div>
                                     </div>
@@ -221,7 +226,6 @@ function BookingSettings() {
                                     </div>
 
                                 </div>
-
                             </div>
 
                             {/* Online Booking */}
@@ -495,9 +499,7 @@ function BookingSettings() {
                                     Appointment Rules
                                 </h2>
 
-                                {/* Same-Day Booking */}
                                 <div className="flex items-center justify-between gap-4 mb-5">
-
                                     <p className="text-sm font-bold text-navy">
                                         Same-Day Booking
                                     </p>
@@ -518,14 +520,10 @@ function BookingSettings() {
                                             `}
                                         />
                                     </button>
-
                                 </div>
 
-                                {/* Appointment Buffer */}
                                 <div>
-
                                     <div className="flex items-center justify-between gap-4">
-
                                         <p className="text-sm font-bold text-navy">
                                             Appointment Buffer
                                         </p>
@@ -546,13 +544,10 @@ function BookingSettings() {
                                                 `}
                                             />
                                         </button>
-
                                     </div>
 
-                                    {/* Buffer Duration */}
                                     {formData.appointmentBufferEnabled && (
                                         <div className="flex items-center gap-2 mt-3">
-
                                             <input
                                                 type="number"
                                                 min="0"
@@ -566,11 +561,92 @@ function BookingSettings() {
                                             <span className="text-sm text-slate">
                                                 minutes between
                                             </span>
-
                                         </div>
                                     )}
+                                </div>
+
+                            </div>
+
+                            {/* Auto Confirmation */}
+                            <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6">
+
+                                <div className="flex items-center justify-between gap-4 mb-2">
+
+                                    <h2 className="font-serif text-lg text-navy sm:text-xl">
+                                        Auto Confirmation
+                                    </h2>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleToggle("autoConfirmationEnabled")}
+                                        className={`
+                                            relative w-12 h-6 rounded-full transition flex-shrink-0
+                                            ${formData.autoConfirmationEnabled ? "bg-navy" : "bg-gray/30"}
+                                        `}
+                                        aria-label="Toggle auto confirmation"
+                                    >
+                                        <span
+                                            className={`
+                                                absolute top-1 w-4 h-4 rounded-full bg-white transition-transform
+                                                ${formData.autoConfirmationEnabled ? "translate-x-7" : "translate-x-1"}
+                                            `}
+                                        />
+                                    </button>
 
                                 </div>
+
+                                <p className="text-sm text-slate leading-relaxed">
+                                    Automatically confirm valid online bookings without manual review.
+                                </p>
+
+                            </div>
+
+                            {/* Required Details */}
+                            <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6">
+
+                                <h2 className="font-serif text-lg text-navy sm:text-xl mb-4">
+                                    Required Details
+                                </h2>
+
+                                <div className="flex flex-col gap-2.5">
+
+                                    <div className="flex items-center gap-2.5">
+                                        <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+
+                                        <span className="text-sm text-navy">
+                                            Customer Name
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2.5">
+                                        <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+
+                                        <span className="text-sm text-navy">
+                                            Email Address
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2.5">
+                                        <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+
+                                        <span className="text-sm text-navy">
+                                            Phone Number
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {/* Availability Info */}
+                            <div className="bg-gray/10 rounded-xl p-[18px] flex items-start gap-3">
+
+                                <Info className="w-[18px] h-[18px] text-navy flex-shrink-0 mt-px" />
+
+                                <p className="text-sm text-slate leading-relaxed">
+                                    Availability is calculated dynamically based on Business Hours,
+                                    Staff Schedules, Service Durations, and the Booking Rules set here.
+                                </p>
 
                             </div>
 
