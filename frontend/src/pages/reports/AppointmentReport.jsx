@@ -5,7 +5,6 @@ import {
     Calendar,
     CalendarCheck,
     CheckCircle2,
-    ChevronDown,
     ChevronRight,
     Clock,
     Download,
@@ -18,9 +17,20 @@ import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
 import api from "../../services/api";
 
-function AppointmentReport() {
+// Reference "today" — mock data Aug 2026 ka hai
+const REFERENCE_TODAY = new Date("2026-08-21T00:00:00");
 
+function toISODate(date) {
+    const d = new Date(date);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+function AppointmentReport() {
     const [periodFilter, setPeriodFilter] = useState("month");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const [dateRange, setDateRange] = useState({
         start: "2026-08-01",
@@ -41,6 +51,7 @@ function AppointmentReport() {
         {
             date: "21 Aug 2026",
             time: "09:00 AM",
+            iso: "2026-08-21",
             id: "#APP-1042",
             customer: "Eleanor Vance",
             service: "Initial Consultation",
@@ -51,6 +62,7 @@ function AppointmentReport() {
         {
             date: "21 Aug 2026",
             time: "10:30 AM",
+            iso: "2026-08-21",
             id: "#APP-1043",
             customer: "Marcus Sterling",
             service: "Follow-up Review",
@@ -61,6 +73,7 @@ function AppointmentReport() {
         {
             date: "20 Aug 2026",
             time: "02:15 PM",
+            iso: "2026-08-20",
             id: "#APP-1040",
             customer: "Clara Bow",
             service: "Specialist Therapy",
@@ -71,6 +84,7 @@ function AppointmentReport() {
         {
             date: "20 Aug 2026",
             time: "04:00 PM",
+            iso: "2026-08-20",
             id: "#APP-1041",
             customer: "Julian Beck",
             service: "Standard Checkup",
@@ -81,6 +95,7 @@ function AppointmentReport() {
         {
             date: "19 Aug 2026",
             time: "11:00 AM",
+            iso: "2026-08-19",
             id: "#APP-1038",
             customer: "Victoria Page",
             service: "Initial Consultation",
@@ -92,6 +107,7 @@ function AppointmentReport() {
         {
             date: "18 Aug 2026",
             time: "09:30 AM",
+            iso: "2026-08-18",
             id: "#APP-1037",
             customer: "Daniel Brooks",
             service: "Standard Checkup",
@@ -102,6 +118,7 @@ function AppointmentReport() {
         {
             date: "18 Aug 2026",
             time: "01:00 PM",
+            iso: "2026-08-18",
             id: "#APP-1036",
             customer: "Amelia Rose",
             service: "Follow-up Review",
@@ -112,6 +129,7 @@ function AppointmentReport() {
         {
             date: "17 Aug 2026",
             time: "03:30 PM",
+            iso: "2026-08-17",
             id: "#APP-1035",
             customer: "Henry Adams",
             service: "Specialist Therapy",
@@ -184,8 +202,38 @@ function AppointmentReport() {
         currentPage,
     ]);
 
-    const filteredAppointments = appointments.filter((appointment) => {
+    // Period → actual date range
+    function getPeriodRange() {
+        const today = new Date(REFERENCE_TODAY);
 
+        if (periodFilter === "today") {
+            const iso = toISODate(today);
+            return { start: iso, end: iso };
+        }
+
+        if (periodFilter === "week") {
+            const start = new Date(today);
+            start.setDate(start.getDate() - 6);
+
+            return {
+                start: toISODate(start),
+                end: toISODate(today),
+            };
+        }
+
+        // month
+        const start = new Date(today.getFullYear(), today.getMonth(), 1);
+        const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        return {
+            start: toISODate(start),
+            end: toISODate(end),
+        };
+    }
+
+    const periodRange = getPeriodRange();
+
+    const filteredAppointments = appointments.filter((appointment) => {
         const matchesStaff =
             staffFilter === "all" ||
             appointment.staff === staffFilter;
@@ -198,10 +246,20 @@ function AppointmentReport() {
             statusFilter === "all" ||
             appointment.status === statusFilter;
 
+        const matchesPeriod =
+            appointment.iso >= periodRange.start &&
+            appointment.iso <= periodRange.end;
+
+        const matchesDateRange =
+            appointment.iso >= dateRange.start &&
+            appointment.iso <= dateRange.end;
+
         return (
             matchesStaff &&
             matchesService &&
-            matchesStatus
+            matchesStatus &&
+            matchesPeriod &&
+            matchesDateRange
         );
     });
 
@@ -294,7 +352,6 @@ function AppointmentReport() {
     }
 
     function getStatusStyle(status) {
-
         if (status === "Completed") {
             return "bg-green-50 text-green-700";
         }
@@ -317,29 +374,53 @@ function AppointmentReport() {
     return (
         <div className="min-h-screen flex bg-beige">
 
-            <Sidebar
-                companyName="Shifa Clinic"
-                activeItem="Reports"
-            />
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block lg:flex-shrink-0">
+                <Sidebar
+                    companyName="Shifa Clinic"
+                    activeItem="Reports"
+                />
+            </div>
 
-            <div className="flex-1 min-w-0">
+            {/* Mobile / Tablet Sidebar — overlay drawer */}
+            {sidebarOpen && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
+                        aria-label="Close menu"
+                    />
+
+                    <div className="fixed left-0 top-0 z-40 h-screen w-64 max-w-[80vw] overflow-y-auto lg:hidden">
+                        <Sidebar
+                            companyName="Shifa Clinic"
+                            activeItem="Reports"
+                        />
+                    </div>
+                </>
+            )}
+
+            {/* Main Area */}
+            <div className="flex min-w-0 flex-1 flex-col">
 
                 <Topbar
+                    onMenuClick={() => setSidebarOpen(true)}
                     showBell
                     simpleProfileIcon
                     searchPlaceholder="Search..."
                 />
 
-                <main className="bg-beige px-4 sm:px-6 lg:px-8 py-6">
+                <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
 
                     {/* Breadcrumb */}
-                    <div className="flex items-center gap-2 mb-5">
+                    <div className="flex flex-wrap items-center gap-2 mb-5">
 
                         <Link
                             to="/reports"
                             className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
                         >
-                            Reports & Analytics
+                            Reports &amp; Analytics
                         </Link>
 
                         <ChevronRight className="w-3 h-3 text-gray" />
@@ -351,10 +432,9 @@ function AppointmentReport() {
                     </div>
 
                     {/* Header */}
-                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5 mb-6">
+                    <div className="flex flex-col gap-5 mb-6 lg:flex-row lg:items-start lg:justify-between">
 
                         <div>
-
                             <Link
                                 to="/reports"
                                 className="inline-flex items-center gap-1.5 text-xs font-bold text-slate hover:text-navy transition mb-3"
@@ -363,7 +443,7 @@ function AppointmentReport() {
                                 Back to Reports
                             </Link>
 
-                            <h1 className="font-serif text-4xl text-navy">
+                            <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                                 Appointment Report
                             </h1>
 
@@ -371,24 +451,46 @@ function AppointmentReport() {
                                 Detailed overview of scheduled, completed,
                                 cancelled, and missed appointments.
                             </p>
-
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
 
-                            {/* Date Range */}
-                            <button
-                                type="button"
-                                className="bg-white border border-gray/30 rounded-lg px-4 py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-navy hover:border-navy transition"
-                            >
-                                <Calendar className="w-4 h-4" />
+                            {/* Date Range — real date pickers */}
+                            <div className="bg-white border border-gray/30 rounded-lg px-3 py-2 flex items-center gap-2 text-sm font-bold text-navy hover:border-navy transition">
 
-                                <span>
-                                    {dateRange.start} — {dateRange.end}
-                                </span>
+                                <Calendar className="w-4 h-4 shrink-0 text-slate" />
 
-                                <ChevronDown className="w-3.5 h-3.5" />
-                            </button>
+                                <input
+                                    type="date"
+                                    value={dateRange.start}
+                                    max={dateRange.end}
+                                    onChange={(event) => {
+                                        setDateRange((prev) => ({
+                                            ...prev,
+                                            start: event.target.value,
+                                        }));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="bg-transparent text-xs font-bold text-navy outline-none w-[110px]"
+                                />
+
+                                <span className="text-slate">—</span>
+
+                                <input
+                                    type="date"
+                                    value={dateRange.end}
+                                    min={dateRange.start}
+                                    onChange={(event) => {
+                                        setDateRange((prev) => ({
+                                            ...prev,
+                                            end: event.target.value,
+                                        }));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="bg-transparent text-xs font-bold text-navy outline-none w-[110px]"
+                                />
+
+                            </div>
 
                             {/* Export */}
                             <button
@@ -408,20 +510,10 @@ function AppointmentReport() {
                     <div className="flex items-center gap-6 border-b border-gray/20 pb-3 mb-6 overflow-x-auto">
 
                         {[
-                            {
-                                key: "today",
-                                label: "Today",
-                            },
-                            {
-                                key: "week",
-                                label: "This Week",
-                            },
-                            {
-                                key: "month",
-                                label: "Monthly",
-                            },
+                            { key: "today", label: "Today" },
+                            { key: "week", label: "This Week" },
+                            { key: "month", label: "Monthly" },
                         ].map((period) => {
-
                             const isActive =
                                 periodFilter === period.key;
 
@@ -475,12 +567,12 @@ function AppointmentReport() {
                     <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
 
                         {/* Report Header */}
-                        <div className="p-6 border-b border-gray/20">
+                        <div className="p-5 sm:p-6 border-b border-gray/20">
 
-                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
                                 <div>
-                                    <h2 className="font-serif text-xl text-navy">
+                                    <h2 className="font-serif text-lg text-navy sm:text-xl">
                                         Appointment Details
                                     </h2>
 
@@ -493,96 +585,48 @@ function AppointmentReport() {
                                 {/* Filters */}
                                 <div className="flex flex-wrap gap-3">
 
-                                    {/* Staff */}
                                     <select
                                         value={staffFilter}
                                         onChange={(event) => {
-                                            setStaffFilter(
-                                                event.target.value
-                                            );
+                                            setStaffFilter(event.target.value);
                                             setCurrentPage(1);
                                         }}
                                         className="h-9 rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy outline-none focus:border-navy"
                                     >
-                                        <option value="all">
-                                            All Staff
-                                        </option>
-
-                                        <option value="Dr. Aris Thorne">
-                                            Dr. Aris Thorne
-                                        </option>
-
-                                        <option value="Dr. Sarah Chen">
-                                            Dr. Sarah Chen
-                                        </option>
-
-                                        <option value="Dr. James Wilson">
-                                            Dr. James Wilson
-                                        </option>
+                                        <option value="all">All Staff</option>
+                                        <option value="Dr. Aris Thorne">Dr. Aris Thorne</option>
+                                        <option value="Dr. Sarah Chen">Dr. Sarah Chen</option>
+                                        <option value="Dr. James Wilson">Dr. James Wilson</option>
                                     </select>
 
-                                    {/* Service */}
                                     <select
                                         value={serviceFilter}
                                         onChange={(event) => {
-                                            setServiceFilter(
-                                                event.target.value
-                                            );
+                                            setServiceFilter(event.target.value);
                                             setCurrentPage(1);
                                         }}
                                         className="h-9 rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy outline-none focus:border-navy"
                                     >
-                                        <option value="all">
-                                            All Services
-                                        </option>
-
-                                        <option value="Initial Consultation">
-                                            Initial Consultation
-                                        </option>
-
-                                        <option value="Follow-up Review">
-                                            Follow-up Review
-                                        </option>
-
-                                        <option value="Specialist Therapy">
-                                            Specialist Therapy
-                                        </option>
-
-                                        <option value="Standard Checkup">
-                                            Standard Checkup
-                                        </option>
+                                        <option value="all">All Services</option>
+                                        <option value="Initial Consultation">Initial Consultation</option>
+                                        <option value="Follow-up Review">Follow-up Review</option>
+                                        <option value="Specialist Therapy">Specialist Therapy</option>
+                                        <option value="Standard Checkup">Standard Checkup</option>
                                     </select>
 
-                                    {/* Status */}
                                     <select
                                         value={statusFilter}
                                         onChange={(event) => {
-                                            setStatusFilter(
-                                                event.target.value
-                                            );
+                                            setStatusFilter(event.target.value);
                                             setCurrentPage(1);
                                         }}
                                         className="h-9 rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy outline-none focus:border-navy"
                                     >
-                                        <option value="all">
-                                            All Status
-                                        </option>
-
-                                        <option value="Completed">
-                                            Completed
-                                        </option>
-
-                                        <option value="Pending">
-                                            Pending
-                                        </option>
-
-                                        <option value="Cancelled">
-                                            Cancelled
-                                        </option>
-
-                                        <option value="No-show">
-                                            No-show
-                                        </option>
+                                        <option value="all">All Status</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                        <option value="No-show">No-show</option>
                                     </select>
 
                                 </div>
@@ -606,142 +650,105 @@ function AppointmentReport() {
                             <table className="w-full min-w-[1100px]">
 
                                 <thead>
-
                                     <tr className="bg-beige/50">
-
                                         <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Date
                                         </th>
-
                                         <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Appointment ID
                                         </th>
-
                                         <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Customer
                                         </th>
-
                                         <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Service
                                         </th>
-
                                         <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Staff
                                         </th>
-
                                         <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Status
                                         </th>
-
                                         <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Payment
                                         </th>
-
                                     </tr>
-
                                 </thead>
 
                                 <tbody className="divide-y divide-gray/10">
 
                                     {filteredAppointments.length > 0 ? (
-                                        filteredAppointments.map(
-                                            (appointment) => (
-                                                <tr
-                                                    key={appointment.id}
-                                                    className="hover:bg-beige/30 transition"
-                                                >
+                                        filteredAppointments.map((appointment) => (
+                                            <tr
+                                                key={appointment.id}
+                                                className="hover:bg-beige/30 transition"
+                                            >
 
-                                                    {/* Date */}
-                                                    <td className="px-6 py-4">
+                                                <td className="px-6 py-4">
+                                                    <p className="text-sm font-bold text-navy">
+                                                        {appointment.date}
+                                                    </p>
 
-                                                        <p className="text-sm font-bold text-navy">
-                                                            {appointment.date}
-                                                        </p>
+                                                    <p className="text-xs text-slate mt-0.5">
+                                                        {appointment.time}
+                                                    </p>
+                                                </td>
 
-                                                        <p className="text-xs text-slate mt-0.5">
-                                                            {appointment.time}
-                                                        </p>
+                                                <td className="px-6 py-4 text-sm font-bold text-navy">
+                                                    {appointment.id}
+                                                </td>
 
-                                                    </td>
+                                                <td className="px-6 py-4 text-sm font-bold text-navy">
+                                                    {appointment.customer}
+                                                </td>
 
-                                                    {/* ID */}
-                                                    <td className="px-6 py-4 text-sm font-bold text-navy">
-                                                        {appointment.id}
-                                                    </td>
+                                                <td className="px-6 py-4 text-sm text-slate">
+                                                    {appointment.service}
+                                                </td>
 
-                                                    {/* Customer */}
-                                                    <td className="px-6 py-4">
+                                                <td className="px-6 py-4 text-sm text-slate">
+                                                    {appointment.staff}
+                                                </td>
 
-                                                        <p className="text-sm font-bold text-navy">
-                                                            {appointment.customer}
-                                                        </p>
+                                                <td className="px-6 py-4">
+                                                    <span
+                                                        className={`
+                                                            inline-flex
+                                                            rounded-full
+                                                            px-2.5
+                                                            py-1
+                                                            text-xs
+                                                            font-bold
+                                                            uppercase
+                                                            ${getStatusStyle(appointment.status)}
+                                                        `}
+                                                    >
+                                                        {appointment.status}
+                                                    </span>
+                                                </td>
 
-                                                    </td>
+                                                <td className="px-6 py-4">
+                                                    {appointment.payment ? (
+                                                        <div>
+                                                            <p className="text-sm font-bold text-navy">
+                                                                {appointment.payment}
+                                                            </p>
 
-                                                    {/* Service */}
-                                                    <td className="px-6 py-4 text-sm text-slate">
-                                                        {appointment.service}
-                                                    </td>
-
-                                                    {/* Staff */}
-                                                    <td className="px-6 py-4 text-sm text-slate">
-                                                        {appointment.staff}
-                                                    </td>
-
-                                                    {/* Status */}
-                                                    <td className="px-6 py-4">
-
-                                                        <span
-                                                            className={`
-                                                                inline-flex
-                                                                rounded-full
-                                                                px-2.5
-                                                                py-1
-                                                                text-xs
-                                                                font-bold
-                                                                uppercase
-                                                                ${getStatusStyle(
-                                                                    appointment.status
-                                                                )}
-                                                            `}
-                                                        >
-                                                            {appointment.status}
-                                                        </span>
-
-                                                    </td>
-
-                                                    {/* Payment */}
-                                                    <td className="px-6 py-4">
-
-                                                        {appointment.payment ? (
-                                                            <div>
-
-                                                                <p className="text-sm font-bold text-navy">
-                                                                    {
-                                                                        appointment.payment
-                                                                    }
+                                                            {appointment.paymentNote && (
+                                                                <p className="text-xs text-gray mt-0.5">
+                                                                    {appointment.paymentNote}
                                                                 </p>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-sm text-gray">
+                                                            —
+                                                        </span>
+                                                    )}
+                                                </td>
 
-                                                                {appointment.paymentNote && (
-                                                                    <p className="text-xs text-gray mt-0.5">
-                                                                        {
-                                                                            appointment.paymentNote
-                                                                        }
-                                                                    </p>
-                                                                )}
-
-                                                            </div>
-                                                        ) : (
-                                                            <span className="text-sm text-gray">
-                                                                —
-                                                            </span>
-                                                        )}
-
-                                                    </td>
-
-                                                </tr>
-                                            )
-                                        )
+                                            </tr>
+                                        ))
                                     ) : (
                                         <tr>
                                             <td
@@ -766,7 +773,7 @@ function AppointmentReport() {
                         </div>
 
                         {/* Pagination */}
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-4 border-t border-gray/20">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 sm:px-6 py-4 border-t border-gray/20">
 
                             <p className="text-xs text-slate">
                                 Showing 1 to {filteredAppointments.length} of{" "}
@@ -774,7 +781,7 @@ function AppointmentReport() {
                                 entries
                             </p>
 
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 flex-wrap">
 
                                 <button
                                     type="button"
@@ -793,9 +800,7 @@ function AppointmentReport() {
                                     <button
                                         key={page}
                                         type="button"
-                                        onClick={() =>
-                                            setCurrentPage(page)
-                                        }
+                                        onClick={() => setCurrentPage(page)}
                                         className={`
                                             w-8
                                             h-8
@@ -821,9 +826,7 @@ function AppointmentReport() {
                                 <button
                                     type="button"
                                     onClick={() =>
-                                        setCurrentPage(
-                                            (page) => page + 1
-                                        )
+                                        setCurrentPage((page) => page + 1)
                                     }
                                     className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige transition"
                                 >

@@ -18,9 +18,100 @@ import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
 import api from "../../services/api";
 
-function ServiceReport() {
+const mockServiceData = [
+    {
+        serviceId: "SRV-0001",
+        name: "Initial Consultation",
+        category: "Consultation",
+        bookings: 42,
+        completed: 35,
+        cancelled: 4,
+        noShow: 3,
+        duration: "60 min",
+        revenue: "Rs. 210,000",
+    },
+    {
+        serviceId: "SRV-0002",
+        name: "Specialist Therapy",
+        category: "Therapy",
+        bookings: 31,
+        completed: 27,
+        cancelled: 2,
+        noShow: 2,
+        duration: "90 min",
+        revenue: "Rs. 320,000",
+    },
+    {
+        serviceId: "SRV-0003",
+        name: "Standard Checkup",
+        category: "General",
+        bookings: 25,
+        completed: 21,
+        cancelled: 3,
+        noShow: 1,
+        duration: "30 min",
+        revenue: "Rs. 125,000",
+    },
+    {
+        serviceId: "SRV-0004",
+        name: "Follow-up Review",
+        category: "Consultation",
+        bookings: 22,
+        completed: 19,
+        cancelled: 2,
+        noShow: 1,
+        duration: "45 min",
+        revenue: "Rs. 132,000",
+    },
+    {
+        serviceId: "SRV-0005",
+        name: "Wellness Assessment",
+        category: "Wellness",
+        bookings: 18,
+        completed: 15,
+        cancelled: 2,
+        noShow: 1,
+        duration: "60 min",
+        revenue: "Rs. 108,000",
+    },
+    {
+        serviceId: "SRV-0006",
+        name: "Physical Therapy",
+        category: "Therapy",
+        bookings: 15,
+        completed: 12,
+        cancelled: 2,
+        noShow: 1,
+        duration: "60 min",
+        revenue: "Rs. 90,000",
+    },
+    {
+        serviceId: "SRV-0007",
+        name: "Health Screening",
+        category: "Screening",
+        bookings: 11,
+        completed: 9,
+        cancelled: 1,
+        noShow: 1,
+        duration: "45 min",
+        revenue: "Rs. 66,000",
+    },
+    {
+        serviceId: "SRV-0008",
+        name: "Nutrition Consultation",
+        category: "Wellness",
+        bookings: 9,
+        completed: 8,
+        cancelled: 1,
+        noShow: 0,
+        duration: "45 min",
+        revenue: "Rs. 54,000",
+    },
+];
 
+function ServiceReport() {
     const [periodFilter, setPeriodFilter] = useState("month");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const [dateRange, setDateRange] = useState({
         start: "2026-08-01",
@@ -34,97 +125,6 @@ function ServiceReport() {
     const [reportSummary, setReportSummary] = useState(null);
     const [serviceData, setServiceData] = useState([]);
     const [loading, setLoading] = useState(false);
-
-    const mockServiceData = [
-        {
-            serviceId: "SRV-0001",
-            name: "Initial Consultation",
-            category: "Consultation",
-            bookings: 42,
-            completed: 35,
-            cancelled: 4,
-            noShow: 3,
-            duration: "60 min",
-            revenue: "Rs. 210,000",
-        },
-        {
-            serviceId: "SRV-0002",
-            name: "Specialist Therapy",
-            category: "Therapy",
-            bookings: 31,
-            completed: 27,
-            cancelled: 2,
-            noShow: 2,
-            duration: "90 min",
-            revenue: "Rs. 320,000",
-        },
-        {
-            serviceId: "SRV-0003",
-            name: "Standard Checkup",
-            category: "General",
-            bookings: 25,
-            completed: 21,
-            cancelled: 3,
-            noShow: 1,
-            duration: "30 min",
-            revenue: "Rs. 125,000",
-        },
-        {
-            serviceId: "SRV-0004",
-            name: "Follow-up Review",
-            category: "Consultation",
-            bookings: 22,
-            completed: 19,
-            cancelled: 2,
-            noShow: 1,
-            duration: "45 min",
-            revenue: "Rs. 132,000",
-        },
-        {
-            serviceId: "SRV-0005",
-            name: "Wellness Assessment",
-            category: "Wellness",
-            bookings: 18,
-            completed: 15,
-            cancelled: 2,
-            noShow: 1,
-            duration: "60 min",
-            revenue: "Rs. 108,000",
-        },
-        {
-            serviceId: "SRV-0006",
-            name: "Physical Therapy",
-            category: "Therapy",
-            bookings: 15,
-            completed: 12,
-            cancelled: 2,
-            noShow: 1,
-            duration: "60 min",
-            revenue: "Rs. 90,000",
-        },
-        {
-            serviceId: "SRV-0007",
-            name: "Health Screening",
-            category: "Screening",
-            bookings: 11,
-            completed: 9,
-            cancelled: 1,
-            noShow: 1,
-            duration: "45 min",
-            revenue: "Rs. 66,000",
-        },
-        {
-            serviceId: "SRV-0008",
-            name: "Nutrition Consultation",
-            category: "Wellness",
-            bookings: 9,
-            completed: 8,
-            cancelled: 1,
-            noShow: 0,
-            duration: "45 min",
-            revenue: "Rs. 54,000",
-        },
-    ];
 
     useEffect(() => {
         setServiceData(mockServiceData);
@@ -181,7 +181,6 @@ function ServiceReport() {
     ]);
 
     const filteredServices = serviceData.filter((service) => {
-
         if (serviceFilter === "all") {
             return true;
         }
@@ -272,7 +271,6 @@ function ServiceReport() {
     }
 
     function getCompletionRate(service) {
-
         if (!service.bookings) {
             return 0;
         }
@@ -285,29 +283,53 @@ function ServiceReport() {
     return (
         <div className="min-h-screen flex bg-beige">
 
-            <Sidebar
-                companyName="Shifa Clinic"
-                activeItem="Reports"
-            />
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block lg:flex-shrink-0">
+                <Sidebar
+                    companyName="Shifa Clinic"
+                    activeItem="Reports"
+                />
+            </div>
 
-            <div className="flex-1 min-w-0">
+            {/* Mobile / Tablet Sidebar — overlay drawer */}
+            {sidebarOpen && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
+                        aria-label="Close menu"
+                    />
+
+                    <div className="fixed left-0 top-0 z-40 h-screen w-64 max-w-[80vw] overflow-y-auto lg:hidden">
+                        <Sidebar
+                            companyName="Shifa Clinic"
+                            activeItem="Reports"
+                        />
+                    </div>
+                </>
+            )}
+
+            {/* Main Area */}
+            <div className="flex min-w-0 flex-1 flex-col">
 
                 <Topbar
+                    onMenuClick={() => setSidebarOpen(true)}
                     showBell
                     simpleProfileIcon
                     searchPlaceholder="Search..."
                 />
 
-                <main className="bg-beige px-4 sm:px-6 lg:px-8 py-6">
+                <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
 
                     {/* Breadcrumb */}
-                    <div className="flex items-center gap-2 mb-5">
+                    <div className="flex flex-wrap items-center gap-2 mb-5">
 
                         <Link
                             to="/reports"
                             className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
                         >
-                            Reports & Analytics
+                            Reports &amp; Analytics
                         </Link>
 
                         <ChevronRight className="w-3 h-3 text-gray" />
@@ -319,10 +341,9 @@ function ServiceReport() {
                     </div>
 
                     {/* Header */}
-                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5 mb-6">
+                    <div className="flex flex-col gap-5 mb-6 lg:flex-row lg:items-start lg:justify-between">
 
                         <div>
-
                             <Link
                                 to="/reports"
                                 className="inline-flex items-center gap-1.5 text-xs font-bold text-slate hover:text-navy transition mb-3"
@@ -331,7 +352,7 @@ function ServiceReport() {
                                 Back to Reports
                             </Link>
 
-                            <h1 className="font-serif text-4xl text-navy">
+                            <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                                 Service Report
                             </h1>
 
@@ -339,24 +360,25 @@ function ServiceReport() {
                                 Analyze service popularity, appointment
                                 performance, and revenue generated.
                             </p>
-
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
 
+                            {/* Date Range */}
                             <button
                                 type="button"
                                 className="bg-white border border-gray/30 rounded-lg px-4 py-2.5 flex items-center justify-center gap-2 text-sm font-bold text-navy hover:border-navy transition"
                             >
-                                <Calendar className="w-4 h-4" />
+                                <Calendar className="w-4 h-4 shrink-0" />
 
-                                <span>
+                                <span className="whitespace-nowrap">
                                     {dateRange.start} — {dateRange.end}
                                 </span>
 
-                                <ChevronDown className="w-3.5 h-3.5" />
+                                <ChevronDown className="w-3.5 h-3.5 shrink-0" />
                             </button>
 
+                            {/* Export */}
                             <button
                                 type="button"
                                 onClick={handleExport}
@@ -374,20 +396,10 @@ function ServiceReport() {
                     <div className="flex items-center gap-6 border-b border-gray/20 pb-3 mb-6 overflow-x-auto">
 
                         {[
-                            {
-                                key: "today",
-                                label: "Today",
-                            },
-                            {
-                                key: "week",
-                                label: "This Week",
-                            },
-                            {
-                                key: "month",
-                                label: "Monthly",
-                            },
+                            { key: "today", label: "Today" },
+                            { key: "week", label: "This Week" },
+                            { key: "month", label: "Monthly" },
                         ].map((period) => {
-
                             const isActive =
                                 periodFilter === period.key;
 
@@ -396,9 +408,7 @@ function ServiceReport() {
                                     key={period.key}
                                     type="button"
                                     onClick={() => {
-                                        setPeriodFilter(
-                                            period.key
-                                        );
+                                        setPeriodFilter(period.key);
                                         setCurrentPage(1);
                                     }}
                                     className={`
@@ -443,12 +453,12 @@ function ServiceReport() {
                     <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
 
                         {/* Header */}
-                        <div className="p-6 border-b border-gray/20">
+                        <div className="p-5 sm:p-6 border-b border-gray/20">
 
-                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
                                 <div>
-                                    <h2 className="font-serif text-xl text-navy">
+                                    <h2 className="font-serif text-lg text-navy sm:text-xl">
                                         Service Performance
                                     </h2>
 
@@ -461,9 +471,7 @@ function ServiceReport() {
                                 <select
                                     value={serviceFilter}
                                     onChange={(event) => {
-                                        setServiceFilter(
-                                            event.target.value
-                                        );
+                                        setServiceFilter(event.target.value);
                                         setCurrentPage(1);
                                     }}
                                     className="h-9 w-full sm:w-auto rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy outline-none focus:border-navy"
@@ -551,7 +559,6 @@ function ServiceReport() {
 
                                                 {/* Service */}
                                                 <td className="px-6 py-4">
-
                                                     <p className="text-sm font-bold text-navy">
                                                         {service.name}
                                                     </p>
@@ -563,7 +570,6 @@ function ServiceReport() {
                                                     <p className="text-[11px] text-gray mt-0.5">
                                                         {service.serviceId}
                                                     </p>
-
                                                 </td>
 
                                                 {/* Bookings */}
@@ -573,22 +579,18 @@ function ServiceReport() {
 
                                                 {/* Completed */}
                                                 <td className="px-6 py-4">
-
                                                     <span className="inline-flex items-center gap-1.5 text-sm font-bold text-green-700">
                                                         <CheckCircle2 className="w-4 h-4" />
                                                         {service.completed}
                                                     </span>
-
                                                 </td>
 
                                                 {/* Cancelled */}
                                                 <td className="px-6 py-4">
-
                                                     <span className="inline-flex items-center gap-1.5 text-sm font-bold text-red-600">
                                                         <XCircle className="w-4 h-4" />
                                                         {service.cancelled}
                                                     </span>
-
                                                 </td>
 
                                                 {/* No Show */}
@@ -598,21 +600,14 @@ function ServiceReport() {
 
                                                 {/* Completion */}
                                                 <td className="px-6 py-4">
-
                                                     <div className="w-28">
-
                                                         <div className="flex items-center justify-between mb-1">
-
                                                             <span className="text-xs font-bold text-navy">
-                                                                {getCompletionRate(
-                                                                    service
-                                                                )}%
+                                                                {getCompletionRate(service)}%
                                                             </span>
-
                                                         </div>
 
                                                         <div className="h-1.5 bg-beige rounded-full overflow-hidden">
-
                                                             <div
                                                                 className="h-full bg-navy rounded-full"
                                                                 style={{
@@ -621,21 +616,16 @@ function ServiceReport() {
                                                                     )}%`,
                                                                 }}
                                                             />
-
                                                         </div>
-
                                                     </div>
-
                                                 </td>
 
                                                 {/* Duration */}
                                                 <td className="px-6 py-4">
-
                                                     <span className="inline-flex items-center gap-1.5 text-sm text-slate">
                                                         <Clock className="w-4 h-4" />
                                                         {service.duration}
                                                     </span>
-
                                                 </td>
 
                                                 {/* Revenue */}
@@ -647,7 +637,6 @@ function ServiceReport() {
                                         ))
                                     ) : (
                                         <tr>
-
                                             <td
                                                 colSpan="8"
                                                 className="px-6 py-12 text-center"
@@ -661,7 +650,6 @@ function ServiceReport() {
                                                     service.
                                                 </p>
                                             </td>
-
                                         </tr>
                                     )}
 
@@ -672,7 +660,7 @@ function ServiceReport() {
                         </div>
 
                         {/* Footer */}
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-4 border-t border-gray/20">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 sm:px-6 py-4 border-t border-gray/20">
 
                             <p className="text-xs text-slate">
                                 Showing 1 to {filteredServices.length} of{" "}
@@ -680,17 +668,14 @@ function ServiceReport() {
                                 services
                             </p>
 
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1 flex-wrap">
 
                                 <button
                                     type="button"
                                     disabled={currentPage === 1}
                                     onClick={() =>
                                         setCurrentPage((page) =>
-                                            Math.max(
-                                                1,
-                                                page - 1
-                                            )
+                                            Math.max(1, page - 1)
                                         )
                                     }
                                     className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige disabled:opacity-40 disabled:cursor-not-allowed transition"
@@ -730,9 +715,7 @@ function ServiceReport() {
                                 <button
                                     type="button"
                                     onClick={() =>
-                                        setCurrentPage(
-                                            (page) => page + 1
-                                        )
+                                        setCurrentPage((page) => page + 1)
                                     }
                                     className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige transition"
                                 >

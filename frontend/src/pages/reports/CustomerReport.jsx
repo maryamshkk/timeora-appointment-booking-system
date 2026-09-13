@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
+    ArrowLeft,
+    Calendar,
     CalendarCheck,
     CheckCircle2,
+    ChevronRight,
     Clock,
     Users,
     XCircle,
@@ -14,6 +18,7 @@ import api from "../../services/api";
 
 function CustomerReport() {
     const [periodFilter, setPeriodFilter] = useState("month");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const [dateRange, setDateRange] = useState({
         start: "2026-08-01",
@@ -178,88 +183,142 @@ function CustomerReport() {
               );
 
     return (
-        <div className="min-h-screen bg-beige flex">
-            <Sidebar activeItem="Reports" />
+        <div className="min-h-screen flex bg-beige">
 
-            <div className="flex-1 min-w-0">
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block lg:flex-shrink-0">
+                <Sidebar activeItem="Reports" />
+            </div>
+
+            {/* Mobile / Tablet Sidebar — overlay drawer */}
+            {sidebarOpen && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setSidebarOpen(false)}
+                        className="fixed inset-0 z-30 bg-navy/50 lg:hidden"
+                        aria-label="Close menu"
+                    />
+
+                    <div className="fixed left-0 top-0 z-40 h-screen w-64 max-w-[80vw] overflow-y-auto lg:hidden">
+                        <Sidebar activeItem="Reports" />
+                    </div>
+                </>
+            )}
+
+            {/* Main Area */}
+            <div className="flex min-w-0 flex-1 flex-col">
+
                 <Topbar
+                    onMenuClick={() => setSidebarOpen(true)}
                     showBell
                     simpleProfileIcon
                     searchPlaceholder="Search..."
                 />
 
-                <main className="p-6 md:p-8">
+                <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
+
                     {/* Breadcrumb */}
-                    <div className="flex items-center gap-2 text-xs text-slate mb-4">
-                        <span>Reports</span>
-                        <span>/</span>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate mb-4">
+
+                        <Link
+                            to="/reports"
+                            className="transition hover:text-navy"
+                        >
+                            Reports
+                        </Link>
+
+                        <ChevronRight className="w-3 h-3 text-gray" />
+
                         <span className="text-navy font-bold">
                             Customer Report
                         </span>
+
                     </div>
 
                     {/* Header */}
-                    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-7">
+                    <div className="flex flex-col gap-5 mb-7 lg:flex-row lg:items-start lg:justify-between">
+
                         <div>
-                            <h1 className="font-serif text-3xl text-navy">
+                            <Link
+                                to="/reports"
+                                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate hover:text-navy transition mb-3"
+                            >
+                                <ArrowLeft className="w-3.5 h-3.5" />
+                                Back to Reports
+                            </Link>
+
+                            <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                                 Customer Report
                             </h1>
 
-                            <p className="text-sm text-slate mt-1">
+                            <p className="text-sm text-slate mt-1.5 max-w-[520px]">
                                 Analyze customer activity, retention and spending.
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
+
+                            {/* Date Range */}
+                            <div className="bg-white border border-gray/30 rounded-lg px-3 py-2 flex items-center gap-2 text-sm font-bold text-navy hover:border-navy transition">
+
+                                <Calendar className="w-4 h-4 shrink-0 text-slate" />
+
                                 <input
                                     type="date"
                                     value={dateRange.start}
-                                    onChange={(event) =>
-                                        setDateRange({
-                                            ...dateRange,
+                                    max={dateRange.end}
+                                    onChange={(event) => {
+                                        setDateRange((prev) => ({
+                                            ...prev,
                                             start: event.target.value,
-                                        })
-                                    }
-                                    className="h-10 rounded-lg border border-gray/40 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
+                                        }));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="bg-transparent text-xs font-bold text-navy outline-none w-[110px]"
                                 />
 
-                                <span className="text-sm text-slate">
-                                    to
-                                </span>
+                                <span className="text-slate">—</span>
 
                                 <input
                                     type="date"
                                     value={dateRange.end}
-                                    onChange={(event) =>
-                                        setDateRange({
-                                            ...dateRange,
+                                    min={dateRange.start}
+                                    onChange={(event) => {
+                                        setDateRange((prev) => ({
+                                            ...prev,
                                             end: event.target.value,
-                                        })
-                                    }
-                                    className="h-10 rounded-lg border border-gray/40 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
+                                        }));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="bg-transparent text-xs font-bold text-navy outline-none w-[110px]"
                                 />
+
                             </div>
 
+                            {/* Export */}
                             <button
                                 type="button"
                                 onClick={handleExport}
-                                className="h-10 rounded-lg bg-navy px-4 text-sm font-bold text-white transition hover:bg-gold hover:text-navy"
+                                className="bg-navy text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-gold hover:text-navy transition"
                             >
                                 Export
                             </button>
+
                         </div>
+
                     </div>
 
                     {/* Period Filters */}
-                    <div className="flex items-center gap-2 mb-7">
+                    <div className="flex items-center gap-2 mb-7 overflow-x-auto pb-1">
+
                         {["today", "week", "month"].map((period) => (
                             <button
                                 key={period}
                                 type="button"
                                 onClick={() => handlePeriodChange(period)}
                                 className={`
-                                    px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition
+                                    px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition whitespace-nowrap
                                     ${
                                         periodFilter === period
                                             ? "bg-navy text-white"
@@ -270,10 +329,12 @@ function CustomerReport() {
                                 {period}
                             </button>
                         ))}
+
                     </div>
 
                     {/* Stats */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+
                         <StatCard
                             value="312"
                             label="Total Customers"
@@ -314,11 +375,14 @@ function CustomerReport() {
                             iconBg="bg-gold/20"
                             iconColor="text-navy"
                         />
+
                     </div>
 
                     {/* Filters */}
-                    <div className="bg-white border border-gray/20 rounded-xl shadow-sm p-5 mb-6">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="bg-white border border-gray/20 rounded-xl shadow-sm p-4 sm:p-5 mb-6">
+
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
                             <div>
                                 <h2 className="font-serif text-lg text-navy">
                                     Customer Activity
@@ -330,61 +394,54 @@ function CustomerReport() {
                             </div>
 
                             <div className="flex items-center gap-3">
+
                                 <select
                                     value={statusFilter}
                                     onChange={(event) => {
                                         setStatusFilter(event.target.value);
                                         setCurrentPage(1);
                                     }}
-                                    className="h-10 rounded-lg border border-gray/40 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
+                                    className="h-10 w-full sm:w-auto rounded-lg border border-gray/40 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
                                 >
-                                    <option value="all">
-                                        All Customers
-                                    </option>
-                                    <option value="Active">
-                                        Active
-                                    </option>
-                                    <option value="Returning">
-                                        Returning
-                                    </option>
-                                    <option value="New">
-                                        New
-                                    </option>
+                                    <option value="all">All Customers</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Returning">Returning</option>
+                                    <option value="New">New</option>
                                 </select>
+
                             </div>
+
                         </div>
+
                     </div>
 
                     {/* Customer Table */}
                     <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
+
                         <div className="overflow-x-auto">
+
                             <table className="w-full min-w-[1000px]">
+
                                 <thead>
                                     <tr className="border-b border-gray/20 bg-surface">
                                         <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
                                             Customer
                                         </th>
-
                                         <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
                                             Appointments
                                         </th>
-
                                         <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
                                             Completed
                                         </th>
-
                                         <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
                                             Cancelled
                                         </th>
-
                                         <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
                                             Last Visit
                                         </th>
-
                                         <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
                                             Total Spent
                                         </th>
-
                                         <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
                                             Status
                                         </th>
@@ -441,16 +498,20 @@ function CustomerReport() {
                                         </tr>
                                     ))}
                                 </tbody>
+
                             </table>
+
                         </div>
 
                         {/* Pagination */}
-                        <div className="flex items-center justify-between border-t border-gray/20 px-5 py-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray/20 px-4 sm:px-5 py-4">
+
                             <p className="text-xs text-slate">
                                 Showing {filteredCustomers.length} of 312 customers
                             </p>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+
                                 <button
                                     type="button"
                                     disabled={currentPage === 1}
@@ -459,7 +520,7 @@ function CustomerReport() {
                                             Math.max(1, page - 1)
                                         )
                                     }
-                                    className="px-3 py-2 rounded-lg border border-gray/30 text-xs font-bold text-slate disabled:opacity-40 hover:border-navy hover:text-navy"
+                                    className="px-3 py-2 rounded-lg border border-gray/30 text-xs font-bold text-slate disabled:opacity-40 hover:border-navy hover:text-navy transition"
                                 >
                                     Previous
                                 </button>
@@ -473,15 +534,21 @@ function CustomerReport() {
                                     onClick={() =>
                                         setCurrentPage((page) => page + 1)
                                     }
-                                    className="px-3 py-2 rounded-lg border border-gray/30 text-xs font-bold text-slate hover:border-navy hover:text-navy"
+                                    className="px-3 py-2 rounded-lg border border-gray/30 text-xs font-bold text-slate hover:border-navy hover:text-navy transition"
                                 >
                                     Next
                                 </button>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </main>
+
             </div>
+
         </div>
     );
 }
