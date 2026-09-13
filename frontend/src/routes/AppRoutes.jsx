@@ -33,16 +33,20 @@ import CustomerDetails from "../pages/customers/CustomerDetails";
 
 import AvailabilityManagement from "../pages/availability/AvailabilityManagement";
 
+
+import Notifications from "../pages/notifications/Notifications";
+
 import Reports from "../pages/reports/Reports";
 import AppointmentReport from "../pages/reports/AppointmentReport";
 import StaffReport from "../pages/reports/StaffReport";
 import ServiceReport from "../pages/reports/ServiceReport";
 import CustomerReport from "../pages/reports/CustomerReport";
 
+
+import HelpCenter from "../pages/help/HelpCenter";
+
 import CompanySettings from "../pages/settings/CompanySettings";
 import CompanyProfile from "../pages/settings/CompanyProfile";
-import Notifications from "../pages/notifications/Notifications";
-
 
 function AppRoutes() {
     return (
@@ -114,6 +118,9 @@ function AppRoutes() {
 
                 {/* Company-notifications */}
                 <Route path="/company/notifications" element={<Notifications />}/>
+
+                {/* Company-help */}
+                <Route path="/company/help" element={<HelpCenter />}/>
 
                 {/* Company - Settings */}
                 <Route path="/company/settings" element={<CompanySettings />} />
