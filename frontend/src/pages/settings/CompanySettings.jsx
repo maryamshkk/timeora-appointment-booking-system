@@ -19,7 +19,7 @@ const settingsCards = [
         label: "IDENTITY",
         value: "Shifa Clinic, Lahore, Pakistan",
         buttonText: "Manage Profile",
-        linkPath: "/settings/profile",
+        linkPath: "/company/settings/profile",
         hasStatus: true,
     },
     {
@@ -28,7 +28,7 @@ const settingsCards = [
         label: "OPERATING DAYS",
         value: "Mon-Fri 09:00-18:00, Sat 09:00-14:00, Sun Closed",
         buttonText: "Manage Hours",
-        linkPath: "/settings/hours",
+        linkPath: "/company/settings/hours",
         hasStatus: false,
     },
     {
@@ -37,7 +37,7 @@ const settingsCards = [
         label: "RULES",
         value: "Booking Enabled, Cancellation 24h, Rescheduling Allowed",
         buttonText: "Manage Settings",
-        linkPath: "/settings/booking",
+        linkPath: "/company/settings/booking",
         hasStatus: false,
     },
     {
@@ -46,7 +46,7 @@ const settingsCards = [
         label: "ALERTS",
         value: "Appointment, Payment, and Staff Alerts Enabled",
         buttonText: "Manage Notifications",
-        linkPath: "/settings/notifications",
+        linkPath: "/company/settings/notifications",
         hasStatus: false,
     },
 ];

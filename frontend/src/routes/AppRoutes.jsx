@@ -38,8 +38,9 @@ import AppointmentReport from "../pages/reports/AppointmentReport";
 import StaffReport from "../pages/reports/StaffReport";
 import ServiceReport from "../pages/reports/ServiceReport";
 import CustomerReport from "../pages/reports/CustomerReport";
-import CompanySettings from "../pages/settings/CompanySettings";
 
+import CompanySettings from "../pages/settings/CompanySettings";
+import CompanyProfile from "../pages/settings/CompanyProfile";
 
 function AppRoutes() {
     return (
@@ -112,6 +113,7 @@ function AppRoutes() {
 
                 {/* Company - Settings */}
                 <Route path="/company/settings" element={<CompanySettings />} />
+                <Route path="/company/settings/profile" element={<CompanyProfile />} />
 
                 {/* Fallback */}
                 <Route path="*" element={<RoleSelectionPage />} />

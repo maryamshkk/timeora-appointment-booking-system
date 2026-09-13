@@ -6,12 +6,12 @@ function SettingsNav({ activeSection = "overview" }) {
         {
             key: "overview",
             label: "Overview",
-            path: "/settings",
+            path: "/company/settings",
         },
         {
             key: "profile",
             label: "Company Profile",
-            path: "/settings/profile",
+            path: "/company/settings/profile",
         },
         {
             key: "hours",
