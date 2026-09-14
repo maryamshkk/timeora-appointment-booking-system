@@ -17,6 +17,7 @@ import {
 import StaffSidebar from "../../components/staff/StaffSidebar";
 import StaffTopbar from "../../components/staff/StaffTopbar";
 import StatCard from "../../components/dashboard/StatCard";
+import AppointmentsTable from "../../components/staff/AppointmentsTable";
 
 function StaffDashboard() {
     const navigate = useNavigate();
@@ -39,6 +40,7 @@ function StaffDashboard() {
             time: "09:00 AM",
             customerName: "Ayesha Khan",
             service: "Consultation",
+            staff: "Dr. Sara Ahmed",
             status: "Completed",
             avatarUrl: "",
         },
@@ -47,6 +49,7 @@ function StaffDashboard() {
             time: "10:00 AM",
             customerName: "Hina Malik",
             service: "Follow-up",
+            staff: "Dr. Sara Ahmed",
             status: "Next",
             avatarUrl: "",
         },
@@ -55,6 +58,7 @@ function StaffDashboard() {
             time: "11:30 AM",
             customerName: "Kamran Ali",
             service: "Routine Check",
+            staff: "Dr. Sara Ahmed",
             status: "Confirmed",
             avatarUrl: "",
         },
@@ -63,6 +67,7 @@ function StaffDashboard() {
             time: "02:00 PM",
             customerName: "Zainab Raza",
             service: "Consultation",
+            staff: "Dr. Sara Ahmed",
             status: "Confirmed",
             avatarUrl: "",
         },
@@ -115,6 +120,15 @@ function StaffDashboard() {
             path: "/staff/customers",
         },
     ];
+
+    // Map the shared appointments shape into the AppointmentsTable shape
+    const tableAppointments = appointments.map((appointment) => ({
+        time: appointment.time,
+        customer: appointment.customerName,
+        service: appointment.service,
+        staff: appointment.staff,
+        status: appointment.status,
+    }));
 
     function getGreeting() {
         const currentHour = new Date().getHours();
@@ -376,125 +390,9 @@ function StaffDashboard() {
                                     </div>
                                 )}
 
-                                {/* Today's Appointments Table */}
-                                <div className="mb-6 overflow-hidden rounded-xl border border-gray/20 bg-white shadow-sm">
-
-                                    <div className="flex items-center justify-between border-b border-gray/20 px-5 py-4 sm:px-6">
-
-                                        <h2 className="font-serif text-lg font-bold text-navy sm:text-xl">
-                                            Today's Appointments
-                                        </h2>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => navigate("/staff/appointments")}
-                                            className="flex items-center gap-1.5 text-sm font-bold text-navy transition hover:text-gold"
-                                        >
-                                            <span>View All</span>
-                                            <ArrowRight className="h-3.5 w-3.5" />
-                                        </button>
-
-                                    </div>
-
-                                    <div className="overflow-x-auto">
-                                        <div className="min-w-[640px]">
-
-                                            <div className="grid grid-cols-[90px_1fr_1fr_110px] items-center bg-beige/40 px-5 py-3 sm:px-6">
-
-                                                <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                                                    Time
-                                                </p>
-
-                                                <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                                                    Customer
-                                                </p>
-
-                                                <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                                                    Service
-                                                </p>
-
-                                                <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                                                    Status
-                                                </p>
-
-                                            </div>
-
-                                            {appointments.map((appointment) => {
-                                                const isNext =
-                                                    appointment.id === nextAppointment?.id;
-
-                                                return (
-                                                    <div
-                                                        key={appointment.id}
-                                                        className="
-                                                            grid grid-cols-[90px_1fr_1fr_110px]
-                                                            items-center border-b border-gray/20
-                                                            px-5 py-4 transition last:border-b-0
-                                                            hover:bg-beige/20 sm:px-6
-                                                        "
-                                                    >
-
-                                                        <p className="text-sm text-navy">
-                                                            {appointment.time}
-                                                        </p>
-
-                                                        <div className="flex min-w-0 items-center gap-3">
-
-                                                            {appointment.avatarUrl ? (
-                                                                <img
-                                                                    src={appointment.avatarUrl}
-                                                                    alt={appointment.customerName}
-                                                                    className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
-                                                                />
-                                                            ) : (
-                                                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-beige">
-                                                                    <span className="text-xs font-bold text-navy">
-                                                                        {appointment.customerName
-                                                                            .charAt(0)
-                                                                            .toUpperCase()}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-
-                                                            <p
-                                                                className={`
-                                                                    truncate text-sm text-navy
-                                                                    ${isNext ? "font-bold" : ""}
-                                                                `}
-                                                            >
-                                                                {appointment.customerName}
-                                                            </p>
-
-                                                        </div>
-
-                                                        <p className="truncate text-sm text-slate">
-                                                            {appointment.service}
-                                                        </p>
-
-                                                        <div>
-                                                            <span
-                                                                className={`
-                                                                    inline-block rounded-full px-3 py-1 text-xs font-bold
-                                                                    ${
-                                                                        appointment.status === "Completed"
-                                                                            ? "bg-gray/10 text-slate"
-                                                                            : appointment.status === "Next"
-                                                                            ? "bg-gold/20 text-navy"
-                                                                            : "bg-blue-50 text-blue-700"
-                                                                    }
-                                                                `}
-                                                            >
-                                                                {appointment.status}
-                                                            </span>
-                                                        </div>
-
-                                                    </div>
-                                                );
-                                            })}
-
-                                        </div>
-                                    </div>
-
+                                {/* Today's Appointments — now using reusable AppointmentsTable */}
+                                <div className="mb-6">
+                                    <AppointmentsTable appointments={tableAppointments} />
                                 </div>
 
                             </div>

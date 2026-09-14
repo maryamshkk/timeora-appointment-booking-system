@@ -22,7 +22,7 @@ function StatCard({
                 <div
                     className={`mb-4 flex h-9 w-9 items-center justify-center rounded-lg ${iconBg}`}
                 >
-                    <Icon className={`h-4.5 w-4.5 ${iconColor}`} />
+                    <Icon className={`h-[18px] w-[18px] ${iconColor}`} />
                 </div>
             )}
 

@@ -60,6 +60,7 @@ import NotificationSettings from "../pages/settings/NotificationSettings";
 // Staff Dashboard
 import StaffDashboard from "../pages/staff/StaffDashboard";
 import StaffCalendar from "../pages/staff/StaffCalendar";
+import StaffAppointments from "../components/staff/StaffAppointment";
 
 function AppRoutes() {
     return (
@@ -200,6 +201,8 @@ function AppRoutes() {
                 {/* Staff - Dashboard */}
                 <Route path="/staff/dashboard" element={<StaffDashboard />}/>
                 <Route path="/staff/calendar" element={<StaffCalendar />}/>
+                <Route path="/staff/appointments" element={<StaffAppointments />}/>
+
 
                 {/* Fallback */}
                 <Route path="*" element={<RoleSelectionPage />} />
