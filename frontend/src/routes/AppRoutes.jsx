@@ -76,6 +76,8 @@ import StaffAvailability from "../pages/staff/StaffAvailability";
 
 import StaffReports from "../pages/staff/StaffReports";
 
+import StaffNotifications from "../pages/staff/StaffNotifications";
+
 
 function AppRoutes() {
     return (
@@ -249,6 +251,11 @@ function AppRoutes() {
                 <Route
                     path="/staff/reports"
                     element={<StaffReports />} />
+
+                <Route
+                    path="/staff/notifications"
+                    element={<StaffNotifications />}
+                />
 
                 {/* Fallback */}
                 <Route path="*" element={<RoleSelectionPage />} />
