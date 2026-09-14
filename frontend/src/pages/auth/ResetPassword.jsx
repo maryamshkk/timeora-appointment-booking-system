@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
     Lock,
     RotateCw,
@@ -8,26 +8,32 @@ import {
     CheckCircle2,
 } from "lucide-react";
 import Button from "../../components/common/Button";
+import { useResetPassword } from "../../hooks/authHook";
 
 function ResetPassword() {
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const token = searchParams.get('token');
+    const location = useLocation();
 
+    const [email, setEmail] = useState(location.state?.email || "");
+    const [otp, setOtp] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState("");
+    const [localError, setLocalError] = useState("");
 
-    // Password requirements
+    const {
+        mutate: resetPassword,
+        isPending,
+        error,
+        reset,
+    } = useResetPassword();
+
     const hasMinLength = newPassword.length >= 8;
     const hasUppercase = /[A-Z]/.test(newPassword);
     const hasLowercase = /[a-z]/.test(newPassword);
     const hasNumber = /[0-9]/.test(newPassword);
 
-    // Password strength
     const strengthScore = [
         hasMinLength,
         hasUppercase,
@@ -35,105 +41,86 @@ function ResetPassword() {
         hasNumber,
     ].filter(Boolean).length;
 
-    const barFillCount = Math.min(
-        Math.floor(strengthScore / 1.5),
-        3
-    );
+    const barFillCount = Math.min(Math.floor(strengthScore / 1.5), 3);
 
-    // Confirm password validation
     const passwordsMatch =
-        confirmPassword.length > 0 &&
-        newPassword === confirmPassword;
+        confirmPassword.length > 0 && newPassword === confirmPassword;
 
-    // Final form validation
-    const isFormValid =
+    const isPasswordValid =
         hasMinLength &&
         hasUppercase &&
         hasLowercase &&
         hasNumber &&
         passwordsMatch;
 
-    // Password requirement list
+    const isOtpValid = /^\d{6}$/.test(otp);
+
     const requirements = [
-        {
-            label: "At least 8 characters",
-            met: hasMinLength,
-        },
-        {
-            label: "1 uppercase letter",
-            met: hasUppercase,
-        },
-        {
-            label: "1 lowercase letter",
-            met: hasLowercase,
-        },
-        {
-            label: "1 number",
-            met: hasNumber,
-        },
+        { label: "At least 8 characters", met: hasMinLength },
+        { label: "1 uppercase letter", met: hasUppercase },
+        { label: "1 lowercase letter", met: hasLowercase },
+        { label: "1 number", met: hasNumber },
     ];
 
-    // Get strength text
-    const getStrengthText = () => {
+    function getStrengthText() {
         if (newPassword.length === 0) return "Password strength";
         if (strengthScore <= 1) return "Password strength — Weak";
         if (strengthScore <= 2) return "Password strength — Medium";
         return "Password strength — Strong";
-    };
+    }
 
-    const getStrengthColor = () => {
+    function getStrengthColor() {
         if (newPassword.length === 0) return "text-slate";
         if (strengthScore <= 1) return "text-red-500";
         if (strengthScore <= 2) return "text-gold";
         return "text-green-600";
-    };
+    }
 
-    // Submit handler
     function handleSubmit(e) {
         e.preventDefault();
-        setError("");
 
-        if (!token) {
-            setError("Invalid reset link. Please request a new password reset.");
+        setLocalError("");
+        reset();
+
+        if (!email) {
+            setLocalError("Email is required. Please start the reset process again.");
             return;
         }
 
-        if (!isFormValid) {
-            setError("Please meet all password requirements.");
+        if (!isOtpValid) {
+            setLocalError("Please enter the 6-digit code sent to your email.");
             return;
         }
 
-        setIsSubmitting(true);
+        if (!isPasswordValid) {
+            setLocalError("Please meet all password requirements.");
+            return;
+        }
 
-        // TODO: API call will be added in the next step
-        // axios POST /api/auth/company/reset-password
-        // {
-        //     token: token,
-        //     newPassword: newPassword
-        // }
-
-        setTimeout(() => {
-            setIsSubmitting(false);
-            navigate("/login", {
-                state: {
-                    message: "Password reset successful. Please log in with your new password."
-                }
-            });
-        }, 1500);
+        resetPassword({
+            email,
+            otp,
+            password: newPassword,
+            passwordConfirmation: confirmPassword,
+        });
     }
+
+    const apiErrorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "";
+
+    const displayError = localError || apiErrorMessage;
 
     return (
         <div className="min-h-screen bg-beige flex flex-col">
-            {/* Top Bar */}
             <div className="flex justify-between items-center px-8 md:px-16 pt-8 pb-4">
-                {/* Logo */}
                 <div className="flex items-center gap-2.5">
                     <span className="font-serif text-xl font-bold text-navy">
                         Timeora
                     </span>
                 </div>
 
-                {/* Back to Login */}
                 <div className="flex items-center gap-4">
                     <span className="hidden sm:block text-sm text-slate">
                         Remember your password?
@@ -148,32 +135,24 @@ function ResetPassword() {
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="flex-1 flex flex-col md:flex-row w-full">
-                {/* Left Column - Centered with margin */}
                 <div className="w-full md:w-1/2 flex flex-col justify-center px-8 md:px-16 py-12 md:py-16">
                     <div className="max-w-[440px] mx-auto md:mx-0 md:ml-auto md:mr-8">
-                        {/* Eyebrow */}
                         <p className="text-xs font-bold uppercase tracking-widest text-brown mb-4">
                             PASSWORD RESET
                         </p>
 
-                        {/* Heading */}
                         <h1 className="font-serif text-4xl md:text-5xl text-navy leading-tight mb-5">
                             Create A New Password.
                         </h1>
 
-                        {/* Description */}
                         <p className="text-base text-slate leading-relaxed mb-20">
                             Choose a strong password to protect access to your Timeora company workspace.
                         </p>
 
-                        {/* Stacked Cards Illustration */}
                         <div className="hidden md:block relative h-64 w-full max-w-[380px]">
-                            {/* Back Card */}
                             <div className="absolute top-0 left-0 w-44 h-56 bg-beige/60 rounded-xl border border-gray/30 rotate-[-6deg] translate-x-4 translate-y-4"></div>
-                            
-                            {/* Front Card */}
+
                             <div className="absolute top-0 left-6 w-48 h-60 bg-white rounded-xl shadow-md border border-gray/20 flex items-center justify-center">
                                 <div className="w-20 h-20 bg-white border-2 border-gold rounded-lg flex items-center justify-center relative">
                                     <Lock className="w-6 h-6 text-navy" />
@@ -186,24 +165,51 @@ function ResetPassword() {
                     </div>
                 </div>
 
-                {/* Vertical Divider */}
                 <div className="hidden md:block border-l border-gray/30"></div>
 
-                {/* Right Column */}
                 <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-16 py-12 md:py-16">
                     <div className="w-full max-w-[440px] bg-white rounded-2xl shadow-lg border border-gray/20 p-8 md:p-10">
-                        {/* Small Label */}
                         <p className="text-xs font-bold uppercase tracking-wide text-slate mb-2">
                             Company Administrator
                         </p>
 
-                        {/* Heading */}
                         <h2 className="font-serif text-2xl md:text-3xl text-navy mb-7">
                             Reset Your Password
                         </h2>
 
                         <form onSubmit={handleSubmit}>
-                            {/* New Password Field */}
+                            <div className="mb-5">
+                                <label className="text-xs font-bold uppercase tracking-wide text-navy mb-2 block">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="name@company.com"
+                                    required
+                                    className="w-full border border-gray rounded-lg px-4 py-3 text-navy placeholder:text-slate outline-none focus:border-navy focus:ring-2 focus:ring-gold transition font-serif"
+                                />
+                            </div>
+
+                            <div className="mb-5">
+                                <label className="text-xs font-bold uppercase tracking-wide text-navy mb-2 block">
+                                    Verification Code
+                                </label>
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    maxLength={6}
+                                    value={otp}
+                                    onChange={(e) =>
+                                        setOtp(e.target.value.replace(/\D/g, ""))
+                                    }
+                                    placeholder="6-digit code"
+                                    required
+                                    className="w-full border border-gray rounded-lg px-4 py-3 tracking-[0.5em] text-center text-navy placeholder:text-slate placeholder:tracking-normal outline-none focus:border-navy focus:ring-2 focus:ring-gold transition font-serif"
+                                />
+                            </div>
+
                             <div className="mb-5">
                                 <label className="text-xs font-bold uppercase tracking-wide text-navy mb-2 block">
                                     New Password
@@ -232,7 +238,6 @@ function ResetPassword() {
                                     </button>
                                 </div>
 
-                                {/* Password Strength Bar */}
                                 <div className="mt-2.5">
                                     <div className="flex gap-1.5">
                                         {[0, 1, 2].map((index) => (
@@ -252,7 +257,6 @@ function ResetPassword() {
                                 </div>
                             </div>
 
-                            {/* Confirm Password Field */}
                             <div className="mb-5">
                                 <label className="text-xs font-bold uppercase tracking-wide text-navy mb-2 block">
                                     Confirm New Password
@@ -284,7 +288,6 @@ function ResetPassword() {
                                 </div>
                             </div>
 
-                            {/* Password Requirements */}
                             <div className="bg-beige rounded-lg border border-gray/30 p-5 mb-6">
                                 <p className="text-xs font-bold uppercase tracking-wide text-navy mb-3">
                                     Password Requirements
@@ -317,19 +320,18 @@ function ResetPassword() {
                                 </div>
                             </div>
 
-                            {error && (
+                            {displayError && (
                                 <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-                                    <p className="text-sm text-red-700">{error}</p>
+                                    <p className="text-sm text-red-700">{displayError}</p>
                                 </div>
                             )}
 
-                            {/* Submit Button */}
                             <Button
                                 type="submit"
-                                disabled={!isFormValid || isSubmitting}
+                                disabled={!isPasswordValid || !isOtpValid || !email || isPending}
                                 className="w-full"
                             >
-                                {isSubmitting ? "Resetting..." : "Reset Password"}
+                                {isPending ? "Resetting..." : "Reset Password"}
                             </Button>
                         </form>
                     </div>

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-    ArrowLeft,
     Calendar,
     CalendarCheck,
     CheckCircle2,
     ChevronRight,
     Clock,
     Users,
-    XCircle,
+    Loader2,
+    AlertCircle,
 } from "lucide-react";
 import {
     AreaChart, Area, BarChart, Bar, Cell,
@@ -18,9 +18,8 @@ import {
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
-import api from "../../services/api";
+import { useCustomerReport } from "../../hooks/company/useReports";
 
-/* Trend + segment charts — mock for now, API will replace */
 const customerTrendData = [
     { date: "01 Aug", newCustomers: 3, returning: 8 },
     { date: "05 Aug", newCustomers: 5, returning: 10 },
@@ -28,13 +27,6 @@ const customerTrendData = [
     { date: "13 Aug", newCustomers: 7, returning: 14 },
     { date: "17 Aug", newCustomers: 6, returning: 13 },
     { date: "21 Aug", newCustomers: 8, returning: 16 },
-];
-
-const segmentData = [
-    { segment: "New", count: 48 },
-    { segment: "Returning", count: 196 },
-    { segment: "Active", count: 68 },
-    { segment: "Inactive", count: 20 },
 ];
 
 const segmentColors = {
@@ -56,124 +48,77 @@ function CustomerReport() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
 
-    const customers = [
-        {
-            id: 1,
-            name: "Eleanor Vance",
-            email: "eleanor@example.com",
-            appointments: 18,
-            completed: 15,
-            cancelled: 2,
-            lastVisit: "21 Aug 2026",
-            totalSpent: "Rs. 245,000",
-            status: "Active",
-        },
-        {
-            id: 2,
-            name: "Marcus Sterling",
-            email: "marcus@example.com",
-            appointments: 14,
-            completed: 11,
-            cancelled: 2,
-            lastVisit: "21 Aug 2026",
-            totalSpent: "Rs. 198,000",
-            status: "Active",
-        },
-        {
-            id: 3,
-            name: "Clara Bow",
-            email: "clara@example.com",
-            appointments: 12,
-            completed: 10,
-            cancelled: 1,
-            lastVisit: "20 Aug 2026",
-            totalSpent: "Rs. 176,000",
-            status: "Returning",
-        },
-        {
-            id: 4,
-            name: "Julian Beck",
-            email: "julian@example.com",
-            appointments: 9,
-            completed: 7,
-            cancelled: 2,
-            lastVisit: "20 Aug 2026",
-            totalSpent: "Rs. 142,000",
-            status: "Active",
-        },
-        {
-            id: 5,
-            name: "Victoria Page",
-            email: "victoria@example.com",
-            appointments: 11,
-            completed: 9,
-            cancelled: 1,
-            lastVisit: "19 Aug 2026",
-            totalSpent: "Rs. 155,000",
-            status: "Returning",
-        },
-        {
-            id: 6,
-            name: "Henry Collins",
-            email: "henry@example.com",
-            appointments: 7,
-            completed: 5,
-            cancelled: 1,
-            lastVisit: "18 Aug 2026",
-            totalSpent: "Rs. 98,000",
-            status: "Active",
-        },
-        {
-            id: 7,
-            name: "Amelia Rose",
-            email: "amelia@example.com",
-            appointments: 5,
-            completed: 4,
-            cancelled: 1,
-            lastVisit: "16 Aug 2026",
-            totalSpent: "Rs. 76,000",
-            status: "New",
-        },
-        {
-            id: 8,
-            name: "Daniel Hayes",
-            email: "daniel@example.com",
-            appointments: 4,
-            completed: 3,
-            cancelled: 1,
-            lastVisit: "14 Aug 2026",
-            totalSpent: "Rs. 61,000",
-            status: "New",
-        },
-    ];
+    const {
+        data: customerResponse,
+        isLoading,
+        isError,
+        error,
+    } = useCustomerReport({
+        from: dateRange.start,
+        to: dateRange.end,
+    });
 
-    useEffect(() => {
-        /*
-        API integration:
+    const report = customerResponse?.data;
 
-        async function fetchCustomerReport() {
-            try {
-                const response = await api.get(
-                    "/company/reports/customers",
-                    {
-                        params: {
-                            start_date: dateRange.start,
-                            end_date: dateRange.end,
-                            status: statusFilter,
-                            period: periodFilter,
-                        },
-                    }
-                );
+    const topCustomers = useMemo(() => {
+        const raw = report?.top_customers || [];
 
-                // set customer report data here
-            } catch (error) {
-                // handle API error here
-            }
-        }
+        return raw.map((row) => ({
+            id: row.customer_id,
+            name: row.customer?.name || "Unknown",
+            email: row.customer?.email || "—",
+            appointments: row.appointment_count ?? 0,
+        }));
+    }, [report]);
 
-        fetchCustomerReport();
-        */
-    }, [dateRange, statusFilter, periodFilter]);
+    const filteredCustomers = useMemo(() => {
+        if (statusFilter === "all") return topCustomers;
+        return topCustomers;
+    }, [topCustomers, statusFilter]);
+
+    const statCards = useMemo(() => {
+        return [
+            {
+                value: report?.total_customers ?? 0,
+                label: "Total Customers",
+                icon: Users,
+                iconBg: "bg-beige",
+                iconColor: "text-navy",
+            },
+            {
+                value: 0,
+                label: "New Customers",
+                icon: Users,
+                valueColor: "text-gold",
+                iconBg: "bg-gold/20",
+                iconColor: "text-navy",
+            },
+            {
+                value: report?.customers_with_appointments ?? 0,
+                label: "With Appointments",
+                icon: CheckCircle2,
+                iconBg: "bg-green-50",
+                iconColor: "text-green-700",
+            },
+            {
+                value: topCustomers.reduce(
+                    (sum, row) => sum + row.appointments,
+                    0
+                ),
+                label: "Total Appointments",
+                icon: CalendarCheck,
+                iconBg: "bg-beige",
+                iconColor: "text-navy",
+            },
+            {
+                value: "—",
+                label: "Total Spent",
+                icon: Clock,
+                iconBg: "bg-gold/20",
+                iconColor: "text-navy",
+            },
+        ];
+    }, [report, topCustomers]);
 
     function handlePeriodChange(period) {
         setPeriodFilter(period);
@@ -181,47 +126,20 @@ function CustomerReport() {
     }
 
     function handleExport() {
-        window.open(
-            `${import.meta.env.VITE_API_URL}/company/reports/customers/export?format=csv`,
-            "_blank"
-        );
+        // TODO: no export endpoint
     }
 
-    function getStatusStyle(status) {
-        if (status === "Active") {
-            return "bg-green-50 text-green-700";
-        }
-
-        if (status === "Returning") {
-            return "bg-gold/20 text-amber-700";
-        }
-
-        if (status === "New") {
-            return "bg-blue-50 text-blue-700";
-        }
-
-        return "bg-gray/20 text-slate";
-    }
-
-    const filteredCustomers =
-        statusFilter === "all"
-            ? customers
-            : customers.filter(
-                  (customer) => customer.status === statusFilter
-              );
+    const apiErrorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "";
 
     return (
         <div className="min-h-screen flex bg-beige">
-
-            {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
-                <Sidebar
-                    companyName="Shifa Clinic"
-                    activeItem="Reports"
-                />
+                <Sidebar companyName="Shifa Clinic" activeItem="Reports" />
             </div>
 
-            {/* Mobile / Tablet Sidebar — overlay drawer */}
             {sidebarOpen && (
                 <>
                     <button
@@ -232,17 +150,12 @@ function CustomerReport() {
                     />
 
                     <div className="fixed left-0 top-0 z-40 h-screen w-64 max-w-[80vw] overflow-y-auto lg:hidden">
-                        <Sidebar
-                            companyName="Shifa Clinic"
-                            activeItem="Reports"
-                        />
+                        <Sidebar companyName="Shifa Clinic" activeItem="Reports" />
                     </div>
                 </>
             )}
 
-            {/* Main Area */}
             <div className="flex min-w-0 flex-1 flex-col">
-
                 <Topbar
                     onMenuClick={() => setSidebarOpen(true)}
                     showBell
@@ -251,10 +164,7 @@ function CustomerReport() {
                 />
 
                 <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
-
-                    {/* Breadcrumb */}
                     <div className="flex flex-wrap items-center gap-2 mb-5">
-
                         <Link
                             to="/company/reports"
                             className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
@@ -264,17 +174,11 @@ function CustomerReport() {
 
                         <ChevronRight className="w-3 h-3 text-gray" />
 
-                        <span className="text-xs text-navy">
-                            Customer Report
-                        </span>
-
+                        <span className="text-xs text-navy">Customer Report</span>
                     </div>
 
-                    {/* Header */}
                     <div className="flex flex-col gap-5 mb-6 lg:flex-row lg:items-start lg:justify-between">
-
                         <div>
-
                             <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                                 Customer Report
                             </h1>
@@ -285,10 +189,7 @@ function CustomerReport() {
                         </div>
 
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
-
-                            {/* Date Range */}
                             <div className="bg-white border border-gray/30 rounded-lg px-3 py-2 flex items-center gap-2 text-sm font-bold text-navy hover:border-navy transition">
-
                                 <Calendar className="w-4 h-4 shrink-0 text-slate" />
 
                                 <input
@@ -320,10 +221,8 @@ function CustomerReport() {
                                     }}
                                     className="bg-transparent text-xs font-bold text-navy outline-none w-[110px]"
                                 />
-
                             </div>
 
-                            {/* Export */}
                             <button
                                 type="button"
                                 onClick={handleExport}
@@ -331,104 +230,66 @@ function CustomerReport() {
                             >
                                 Export
                             </button>
-
                         </div>
-
                     </div>
 
-                    {/* Period Filter */}
                     <div className="flex items-center gap-6 border-b border-gray/20 pb-3 mb-6 overflow-x-auto">
-
                         {[
                             { key: "today", label: "Today" },
                             { key: "week", label: "This Week" },
                             { key: "month", label: "Monthly" },
                         ].map((period) => {
-                            const isActive =
-                                periodFilter === period.key;
+                            const isActive = periodFilter === period.key;
 
                             return (
                                 <button
                                     key={period.key}
                                     type="button"
-                                    onClick={() => {
-                                        setPeriodFilter(period.key);
-                                        setCurrentPage(1);
-                                    }}
-                                    className={`
-                                        text-sm
-                                        font-bold
-                                        whitespace-nowrap
-                                        pb-3
-                                        -mb-3
-                                        border-b-2
-                                        transition
-                                        ${
-                                            isActive
-                                                ? "text-navy border-navy"
-                                                : "text-slate border-transparent hover:text-navy"
-                                        }
-                                    `}
+                                    onClick={() => handlePeriodChange(period.key)}
+                                    className={`text-sm font-bold whitespace-nowrap pb-3 -mb-3 border-b-2 transition ${
+                                        isActive
+                                            ? "text-navy border-navy"
+                                            : "text-slate border-transparent hover:text-navy"
+                                    }`}
                                 >
                                     {period.label}
                                 </button>
                             );
                         })}
-
                     </div>
 
-                    {/* Summary Cards */}
+                    {isError && !isLoading && (
+                        <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                            <p className="text-sm text-red-700">
+                                {apiErrorMessage || "Failed to load customer report."}
+                            </p>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-
-                        <StatCard
-                            value="312"
-                            label="Total Customers"
-                            icon={Users}
-                            iconBg="bg-beige"
-                            iconColor="text-navy"
-                        />
-
-                        <StatCard
-                            value="48"
-                            label="New Customers"
-                            icon={Users}
-                            valueColor="text-gold"
-                            iconBg="bg-gold/20"
-                            iconColor="text-navy"
-                        />
-
-                        <StatCard
-                            value="196"
-                            label="Returning Customers"
-                            icon={CheckCircle2}
-                            iconBg="bg-green-50"
-                            iconColor="text-green-700"
-                        />
-
-                        <StatCard
-                            value="428"
-                            label="Total Appointments"
-                            icon={CalendarCheck}
-                            iconBg="bg-beige"
-                            iconColor="text-navy"
-                        />
-
-                        <StatCard
-                            value="Rs. 1,850,000"
-                            label="Total Spent"
-                            icon={Clock}
-                            iconBg="bg-gold/20"
-                            iconColor="text-navy"
-                        />
-
+                        {isLoading ? (
+                            <div className="col-span-full flex items-center justify-center gap-3 rounded-xl border border-gray/20 bg-white py-10">
+                                <Loader2 className="h-5 w-5 animate-spin text-navy" />
+                                <span className="text-sm text-slate">Loading customer report...</span>
+                            </div>
+                        ) : (
+                            statCards.map((card, index) => (
+                                <StatCard
+                                    key={`${card.label}-${index}`}
+                                    value={card.value}
+                                    label={card.label}
+                                    icon={card.icon}
+                                    valueColor={card.valueColor}
+                                    iconBg={card.iconBg}
+                                    iconColor={card.iconColor}
+                                />
+                            ))
+                        )}
                     </div>
 
-                    {/* Charts Row */}
                     <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-
-                        {/* Customer Growth Trend */}
                         <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
-
                             <h2 className="font-serif text-lg font-bold text-navy mb-1">
                                 Customer Growth
                             </h2>
@@ -443,57 +304,18 @@ function CustomerReport() {
                                         data={customerTrendData}
                                         margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                                     >
-                                        <CartesianGrid
-                                            strokeDasharray="4 4"
-                                            vertical={false}
-                                            stroke="#E4E2DD"
-                                        />
-                                        <XAxis
-                                            dataKey="date"
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fontSize: 12, fill: "#43474E" }}
-                                        />
-                                        <YAxis
-                                            axisLine={false}
-                                            tickLine={false}
-                                            allowDecimals={false}
-                                            tick={{ fontSize: 12, fill: "#43474E" }}
-                                        />
-                                        <Tooltip
-                                            contentStyle={{
-                                                borderRadius: 8,
-                                                border: "1px solid #C3C6CF",
-                                                fontSize: 12,
-                                            }}
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="newCustomers"
-                                            stroke="#000C1E"
-                                            strokeWidth={2}
-                                            fill="#000C1E"
-                                            fillOpacity={0.06}
-                                            name="New Customers"
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="returning"
-                                            stroke="#16a34a"
-                                            strokeWidth={2}
-                                            fill="#16a34a"
-                                            fillOpacity={0.05}
-                                            name="Returning"
-                                        />
+                                        <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#E4E2DD" />
+                                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#43474E" }} />
+                                        <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 12, fill: "#43474E" }} />
+                                        <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #C3C6CF", fontSize: 12 }} />
+                                        <Area type="monotone" dataKey="newCustomers" stroke="#000C1E" strokeWidth={2} fill="#000C1E" fillOpacity={0.06} name="New Customers" />
+                                        <Area type="monotone" dataKey="returning" stroke="#16a34a" strokeWidth={2} fill="#16a34a" fillOpacity={0.05} name="Returning" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
-
                         </div>
 
-                        {/* Customer Segments */}
                         <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
-
                             <h2 className="font-serif text-lg font-bold text-navy mb-1">
                                 Customer Segments
                             </h2>
@@ -505,65 +327,39 @@ function CustomerReport() {
                             <div className="h-[240px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart
-                                        data={segmentData}
+                                        data={[
+                                            { segment: "New", count: 0 },
+                                            { segment: "Returning", count: report?.customers_with_appointments ?? 0 },
+                                            { segment: "Active", count: 0 },
+                                            { segment: "Inactive", count: 0 },
+                                        ]}
                                         margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                                     >
-                                        <CartesianGrid
-                                            strokeDasharray="4 4"
-                                            vertical={false}
-                                            stroke="#E4E2DD"
-                                        />
-                                        <XAxis
-                                            dataKey="segment"
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fontSize: 12, fill: "#43474E" }}
-                                        />
-                                        <YAxis
-                                            axisLine={false}
-                                            tickLine={false}
-                                            allowDecimals={false}
-                                            tick={{ fontSize: 12, fill: "#43474E" }}
-                                        />
-                                        <Tooltip
-                                            cursor={{ fill: "rgba(254,212,136,0.15)" }}
-                                            contentStyle={{
-                                                borderRadius: 8,
-                                                border: "1px solid #C3C6CF",
-                                                fontSize: 12,
-                                            }}
-                                        />
+                                        <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#E4E2DD" />
+                                        <XAxis dataKey="segment" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#43474E" }} />
+                                        <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 12, fill: "#43474E" }} />
+                                        <Tooltip cursor={{ fill: "rgba(254,212,136,0.15)" }} contentStyle={{ borderRadius: 8, border: "1px solid #C3C6CF", fontSize: 12 }} />
                                         <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                                            {segmentData.map((entry) => (
-                                                <Cell
-                                                    key={entry.segment}
-                                                    fill={segmentColors[entry.segment]}
-                                                />
+                                            {["New", "Returning", "Active", "Inactive"].map((segment) => (
+                                                <Cell key={segment} fill={segmentColors[segment]} />
                                             ))}
                                         </Bar>
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
-
                         </div>
-
                     </div>
 
-                    {/* Customer Activity */}
                     <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
-
-                        {/* Header */}
                         <div className="p-5 sm:p-6 border-b border-gray/20">
-
                             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-
                                 <div>
                                     <h2 className="font-serif text-lg text-navy sm:text-xl">
-                                        Customer Activity
+                                        Top Customers
                                     </h2>
 
                                     <p className="text-xs text-slate mt-1">
-                                        Customer-level appointment and spending data.
+                                        Highest-volume customers for this period.
                                     </p>
                                 </div>
 
@@ -576,122 +372,74 @@ function CustomerReport() {
                                     className="h-9 w-full sm:w-auto rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy outline-none focus:border-navy"
                                 >
                                     <option value="all">All Customers</option>
-                                    <option value="Active">Active</option>
-                                    <option value="Returning">Returning</option>
-                                    <option value="New">New</option>
                                 </select>
-
                             </div>
-
                         </div>
 
-                        {/* Table */}
                         <div className="overflow-x-auto">
-
                             <table className="w-full min-w-[1000px]">
-
                                 <thead>
                                     <tr className="bg-beige/50">
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
-                                            Customer
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
-                                            Appointments
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
-                                            Completed
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
-                                            Cancelled
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
-                                            Last Visit
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
-                                            Total Spent
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
-                                            Status
-                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Customer</th>
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Appointments</th>
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Completed</th>
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Cancelled</th>
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Last Visit</th>
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Total Spent</th>
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Status</th>
                                     </tr>
                                 </thead>
 
                                 <tbody className="divide-y divide-gray/10">
-                                    {filteredCustomers.map((customer) => (
-                                        <tr
-                                            key={customer.id}
-                                            className="hover:bg-beige/30 transition"
-                                        >
-                                            <td className="px-6 py-4">
+                                    {filteredCustomers.length > 0 ? (
+                                        filteredCustomers.map((customer) => (
+                                            <tr key={customer.id} className="hover:bg-beige/30 transition">
+                                                <td className="px-6 py-4">
+                                                    <p className="text-sm font-bold text-navy">
+                                                        {customer.name}
+                                                    </p>
+                                                    <p className="text-xs text-slate mt-0.5">
+                                                        {customer.email}
+                                                    </p>
+                                                </td>
+
+                                                <td className="px-6 py-4 text-sm font-bold text-navy">
+                                                    {customer.appointments}
+                                                </td>
+
+                                                <td className="px-6 py-4 text-sm text-gray">—</td>
+                                                <td className="px-6 py-4 text-sm text-gray">—</td>
+                                                <td className="px-6 py-4 text-sm text-gray">—</td>
+                                                <td className="px-6 py-4 text-sm text-gray">—</td>
+                                                <td className="px-6 py-4 text-sm text-gray">—</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="7" className="px-6 py-12 text-center">
                                                 <p className="text-sm font-bold text-navy">
-                                                    {customer.name}
+                                                    No customer data found.
                                                 </p>
-
-                                                <p className="text-xs text-slate mt-0.5">
-                                                    {customer.email}
+                                                <p className="text-xs text-slate mt-1">
+                                                    Try adjusting the date range.
                                                 </p>
-                                            </td>
-
-                                            <td className="px-6 py-4 text-sm font-bold text-navy">
-                                                {customer.appointments}
-                                            </td>
-
-                                            <td className="px-6 py-4">
-                                                <span className="inline-flex items-center gap-1.5 text-sm font-bold text-green-700">
-                                                    <CheckCircle2 className="w-4 h-4" />
-                                                    {customer.completed}
-                                                </span>
-                                            </td>
-
-                                            <td className="px-6 py-4">
-                                                <span className="inline-flex items-center gap-1.5 text-sm font-bold text-red-600">
-                                                    <XCircle className="w-4 h-4" />
-                                                    {customer.cancelled}
-                                                </span>
-                                            </td>
-
-                                            <td className="px-6 py-4 text-sm text-slate">
-                                                {customer.lastVisit}
-                                            </td>
-
-                                            <td className="px-6 py-4 text-sm font-bold text-navy">
-                                                {customer.totalSpent}
-                                            </td>
-
-                                            <td className="px-6 py-4">
-                                                <span
-                                                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold uppercase ${getStatusStyle(
-                                                        customer.status
-                                                    )}`}
-                                                >
-                                                    {customer.status}
-                                                </span>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
-
                             </table>
-
                         </div>
 
-                        {/* Footer */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 sm:px-6 py-4 border-t border-gray/20">
-
                             <p className="text-xs text-slate">
-                                Showing 1 to {filteredCustomers.length} of 312 customers
+                                Showing 1 to {filteredCustomers.length} of {report?.total_customers ?? 0} customers
                             </p>
 
                             <div className="flex items-center gap-1 flex-wrap">
-
                                 <button
                                     type="button"
                                     disabled={currentPage === 1}
-                                    onClick={() =>
-                                        setCurrentPage((page) =>
-                                            Math.max(1, page - 1)
-                                        )
-                                    }
+                                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                                     className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige disabled:opacity-40 disabled:cursor-not-allowed transition"
                                 >
                                     Prev
@@ -701,51 +449,31 @@ function CustomerReport() {
                                     <button
                                         key={page}
                                         type="button"
-                                        onClick={() =>
-                                            setCurrentPage(page)
-                                        }
-                                        className={`
-                                            w-8
-                                            h-8
-                                            rounded-md
-                                            text-xs
-                                            font-bold
-                                            transition
-                                            ${
-                                                currentPage === page
-                                                    ? "bg-navy text-white"
-                                                    : "text-slate hover:bg-beige"
-                                            }
-                                        `}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={`w-8 h-8 rounded-md text-xs font-bold transition ${
+                                            currentPage === page
+                                                ? "bg-navy text-white"
+                                                : "text-slate hover:bg-beige"
+                                        }`}
                                     >
                                         {page}
                                     </button>
                                 ))}
 
-                                <span className="px-2 text-xs text-slate">
-                                    ...
-                                </span>
+                                <span className="px-2 text-xs text-slate">...</span>
 
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setCurrentPage((page) => page + 1)
-                                    }
+                                    onClick={() => setCurrentPage((page) => page + 1)}
                                     className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige transition"
                                 >
                                     Next
                                 </button>
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </main>
-
             </div>
-
         </div>
     );
 }

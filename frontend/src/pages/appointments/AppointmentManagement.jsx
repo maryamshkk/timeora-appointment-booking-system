@@ -9,6 +9,8 @@ import {
     Plus,
     Search,
     SlidersHorizontal,
+    Loader2,
+    AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,131 +18,39 @@ import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
 import CalendarScheduleView from "../../components/dashboard/CalendarScheduleView";
+import {
+    useAppointments,
+    useCancelAppointment,
+} from "../../hooks/company/useAppointments";
 
-// TODO: axios GET /api/company/bookings
-// Query params: date, search, page
-const bookings = [
-    {
-        id: 1,
-        date: "2026-09-12",
-        time: "09:00 - 10:00",
-        customer: "Ayesha Khan",
-        service: "Consultation",
-        staff: "Dr. Sara Ahmed",
-        status: "Confirmed",
-        payment: { type: "method", value: "Cash on Reception" },
-    },
-    {
-        id: 2,
-        date: "2026-09-12",
-        time: "10:30 - 11:30",
-        customer: "Hina Malik",
-        service: "Follow-up",
-        staff: "Dr. Sara Ahmed",
-        status: "Completed",
-        payment: { type: "paid" },
-    },
-    {
-        id: 3,
-        date: "2026-09-13",
-        time: "13:00 - 14:00",
-        customer: "Maham Ali",
-        service: "Consultation",
-        staff: "Ali Khan",
-        status: "Cancelled",
-        payment: { type: "none" },
-    },
-    {
-        id: 4,
-        date: "2026-09-13",
-        time: "15:00 - 15:30",
-        customer: "Omar Tariq",
-        service: "Consultation",
-        staff: "Ali Khan",
-        status: "Pending",
-        payment: { type: "none" },
-    },
-    {
-        id: 5,
-        date: "2026-09-14",
-        time: "11:00 - 12:00",
-        customer: "Sana Iqbal",
-        service: "Follow-up",
-        staff: "Dr. Sara Ahmed",
-        status: "Confirmed",
-        payment: { type: "paid" },
-    },
-    {
-        id: 6,
-        date: "2026-09-14",
-        time: "14:00 - 15:00",
-        customer: "Bilal Raza",
-        service: "Consultation",
-        staff: "Ali Khan",
-        status: "Confirmed",
-        payment: { type: "method", value: "Cash on Reception" },
-    },
-    {
-        id: 7,
-        date: "2026-09-15",
-        time: "09:30 - 10:00",
-        customer: "Fatima Noor",
-        service: "Follow-up",
-        staff: "Dr. Sara Ahmed",
-        status: "Pending",
-        payment: { type: "none" },
-    },
-    {
-        id: 8,
-        date: "2026-09-15",
-        time: "12:00 - 13:00",
-        customer: "Usman Shah",
-        service: "Consultation",
-        staff: "Ali Khan",
-        status: "Completed",
-        payment: { type: "paid" },
-    },
-    {
-        id: 9,
-        date: "2026-09-16",
-        time: "10:00 - 11:00",
-        customer: "Nida Rehman",
-        service: "Consultation",
-        staff: "Dr. Sara Ahmed",
-        status: "Cancelled",
-        payment: { type: "none" },
-    },
-    {
-        id: 10,
-        date: "2026-09-16",
-        time: "16:00 - 17:00",
-        customer: "Kamran Yousaf",
-        service: "Follow-up",
-        staff: "Ali Khan",
-        status: "Confirmed",
-        payment: { type: "method", value: "Cash on Reception" },
-    },
-    {
-        id: 11,
-        date: "2026-09-17",
-        time: "11:30 - 12:30",
-        customer: "Rabia Saeed",
-        service: "Consultation",
-        staff: "Dr. Sara Ahmed",
-        status: "Completed",
-        payment: { type: "paid" },
-    },
-    {
-        id: 12,
-        date: "2026-09-17",
-        time: "15:00 - 16:00",
-        customer: "Hamza Iqbal",
-        service: "Follow-up",
-        staff: "Ali Khan",
-        status: "Pending",
-        payment: { type: "none" },
-    },
-];
+function statusLabel(status) {
+    if (!status) return "";
+    return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function mapAppointment(appointment) {
+    return {
+        id: appointment.id,
+        date: appointment.appointment_date,
+        time: `${appointment.start_time?.slice(0, 5) || ""} - ${
+            appointment.end_time?.slice(0, 5) || ""
+        }`,
+        customer: appointment.customer?.name || "Unknown",
+        service: appointment.service?.name || "Service",
+        staff: appointment.staff
+            ? `${appointment.staff.first_name || ""} ${
+                  appointment.staff.last_name || ""
+              }`.trim()
+            : "Unassigned",
+        status: statusLabel(appointment.status),
+        payment: appointment.payment
+            ? {
+                  type: appointment.payment.status === "paid" ? "paid" : "method",
+                  value: appointment.payment.method || "",
+              }
+            : { type: "none" },
+    };
+}
 
 function AppointmentManagement() {
     const navigate = useNavigate();
@@ -160,8 +70,32 @@ function AppointmentManagement() {
 
     const [openActionId, setOpenActionId] = useState(null);
 
-    // TODO: axios GET /api/company/bookings
-    // Query params: date, search, page
+    const {
+        data: appointmentsResponse,
+        isLoading,
+        isError,
+        error,
+    } = useAppointments();
+
+    const cancelMutation = useCancelAppointment();
+
+    const bookings = useMemo(() => {
+        const raw = appointmentsResponse?.data || [];
+        return raw.map(mapAppointment);
+    }, [appointmentsResponse]);
+
+    const staffOptions = useMemo(() => {
+        const set = new Set();
+        bookings.forEach((b) => b.staff && set.add(b.staff));
+        return Array.from(set);
+    }, [bookings]);
+
+    const serviceOptions = useMemo(() => {
+        const set = new Set();
+        bookings.forEach((b) => b.service && set.add(b.service));
+        return Array.from(set);
+    }, [bookings]);
+
     const filteredBookings = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
 
@@ -188,8 +122,7 @@ function AppointmentManagement() {
                 staffFilter === "all" || booking.staff === staffFilter;
 
             const matchesService =
-                serviceFilter === "all" ||
-                booking.service === serviceFilter;
+                serviceFilter === "all" || booking.service === serviceFilter;
 
             const matchesPayment =
                 paymentFilter === "all" ||
@@ -205,6 +138,7 @@ function AppointmentManagement() {
             );
         });
     }, [
+        bookings,
         searchQuery,
         bookingDate,
         statusFilter,
@@ -213,7 +147,6 @@ function AppointmentManagement() {
         paymentFilter,
     ]);
 
-    // Pagination
     const itemsPerPage = 10;
 
     const totalPages = Math.max(
@@ -235,18 +168,36 @@ function AppointmentManagement() {
         (serviceFilter !== "all" ? 1 : 0) +
         (paymentFilter !== "all" ? 1 : 0);
 
+    const statusCounts = useMemo(() => {
+        const counts = { today: 0, upcoming: 0, completed: 0, cancelled: 0 };
+        const todayIso = new Date().toISOString().slice(0, 10);
+
+        bookings.forEach((b) => {
+            if (b.date === todayIso) counts.today += 1;
+            if (b.status === "Pending" || b.status === "Accepted") {
+                counts.upcoming += 1;
+            }
+            if (b.status === "Completed") counts.completed += 1;
+            if (b.status === "Cancelled") counts.cancelled += 1;
+        });
+
+        return counts;
+    }, [bookings]);
+
     function getStatusAccent(status) {
-        if (status === "Confirmed") return "bg-navy";
+        if (status === "Accepted" || status === "Confirmed") return "bg-navy";
         if (status === "Completed") return "bg-gray";
-        if (status === "Cancelled") return "bg-red-400";
+        if (status === "Cancelled" || status === "Rejected") return "bg-red-400";
         if (status === "Pending") return "bg-gold";
         return "bg-gray";
     }
 
     function getStatusStyle(status) {
-        if (status === "Confirmed") return "bg-navy/10 text-navy";
+        if (status === "Accepted" || status === "Confirmed")
+            return "bg-navy/10 text-navy";
         if (status === "Completed") return "bg-gray/15 text-slate";
-        if (status === "Cancelled") return "bg-red-50 text-red-600";
+        if (status === "Cancelled" || status === "Rejected")
+            return "bg-red-50 text-red-600";
         if (status === "Pending") return "bg-gold/20 text-amber-700";
         return "bg-gray/15 text-slate";
     }
@@ -262,8 +213,7 @@ function AppointmentManagement() {
     }
 
     function handleToday() {
-        const today = new Date();
-        const iso = today.toISOString().slice(0, 10);
+        const iso = new Date().toISOString().slice(0, 10);
         setBookingDate(iso);
         setCurrentPage(1);
     }
@@ -281,21 +231,15 @@ function AppointmentManagement() {
             `Cancel appointment for ${booking.customer}?`
         );
 
-        if (!confirmed) {
-            return;
-        }
+        if (!confirmed) return;
 
-        // TODO: axios PATCH /api/company/appointments/${booking.id}/cancel
-        // On success: refresh the bookings list
-
-        window.alert(
-            "Appointment cancelled. (API not connected yet.)"
-        );
+        cancelMutation.mutate(booking.id, {
+            onSuccess: () => setOpenActionId(null),
+        });
     }
 
     return (
         <div className="flex min-h-screen bg-beige">
-            {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
                 <Sidebar
                     companyName="Shifa Clinic"
@@ -305,7 +249,6 @@ function AppointmentManagement() {
                 />
             </div>
 
-            {/* Mobile Sidebar — overlay */}
             {sidebarOpen && (
                 <>
                     <button
@@ -336,7 +279,6 @@ function AppointmentManagement() {
                 />
 
                 <main className="flex-1 bg-beige px-3 py-4 sm:px-4 sm:py-5 md:px-6 lg:px-8 lg:py-6">
-                    {/* Header */}
                     <div className="mb-4 flex flex-col gap-3 sm:mb-6 md:flex-row md:items-start md:justify-between">
                         <div>
                             <h1 className="font-serif text-2xl text-navy sm:text-3xl lg:text-4xl">
@@ -358,19 +300,15 @@ function AppointmentManagement() {
                         </button>
                     </div>
 
-                    {/* Stat Cards */}
                     <div className="mb-4 grid grid-cols-2 gap-3 sm:gap-4 md:mb-6 lg:grid-cols-4">
-                        <StatCard value={24} label="Today" accentColor="bg-navy" />
-                        <StatCard value={12} label="Upcoming" accentColor="bg-gold" />
-                        <StatCard value={8} label="Completed" accentColor="bg-gray" />
-                        <StatCard value={2} label="Cancelled" accentColor="bg-red-400" />
+                        <StatCard value={statusCounts.today} label="Today" accentColor="bg-navy" />
+                        <StatCard value={statusCounts.upcoming} label="Upcoming" accentColor="bg-gold" />
+                        <StatCard value={statusCounts.completed} label="Completed" accentColor="bg-gray" />
+                        <StatCard value={statusCounts.cancelled} label="Cancelled" accentColor="bg-red-400" />
                     </div>
 
-                    {/* Toolbar */}
                     <div className="mb-4 flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:justify-between">
-                        {/* Left Controls */}
                         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-                            {/* View Toggle */}
                             <div className="flex w-full overflow-hidden rounded-lg border border-gray/30 bg-white sm:w-auto">
                                 <button
                                     type="button"
@@ -399,7 +337,6 @@ function AppointmentManagement() {
                                 </button>
                             </div>
 
-                            {/* Date Picker */}
                             <div className="flex w-full items-center gap-2 sm:w-auto">
                                 <div className="relative flex-1 sm:flex-none">
                                     <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate" />
@@ -439,9 +376,7 @@ function AppointmentManagement() {
                             </div>
                         </div>
 
-                        {/* Right Controls */}
                         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-                            {/* Search */}
                             <div className="relative w-full sm:w-auto sm:min-w-[220px]">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate" />
 
@@ -457,12 +392,9 @@ function AppointmentManagement() {
                                 />
                             </div>
 
-                            {/* Filters */}
                             <button
                                 type="button"
-                                onClick={() =>
-                                    setShowFilters((current) => !current)
-                                }
+                                onClick={() => setShowFilters((current) => !current)}
                                 className={`flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold transition sm:w-auto ${
                                     showFilters || activeFilterCount > 0
                                         ? "border-navy bg-navy text-white"
@@ -481,11 +413,9 @@ function AppointmentManagement() {
                         </div>
                     </div>
 
-                    {/* Filter Panel */}
                     {showFilters && (
                         <div className="mb-4 rounded-xl border border-gray/20 bg-beige/30 p-3 sm:p-4">
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-                                {/* Status */}
                                 <div>
                                     <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate">
                                         Status
@@ -500,14 +430,14 @@ function AppointmentManagement() {
                                         className="h-10 w-full rounded-lg border border-gray/30 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
                                     >
                                         <option value="all">All Statuses</option>
-                                        <option value="Confirmed">Confirmed</option>
                                         <option value="Pending">Pending</option>
+                                        <option value="Accepted">Accepted</option>
                                         <option value="Completed">Completed</option>
                                         <option value="Cancelled">Cancelled</option>
+                                        <option value="Rejected">Rejected</option>
                                     </select>
                                 </div>
 
-                                {/* Staff */}
                                 <div>
                                     <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate">
                                         Staff
@@ -522,12 +452,14 @@ function AppointmentManagement() {
                                         className="h-10 w-full rounded-lg border border-gray/30 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
                                     >
                                         <option value="all">All Staff</option>
-                                        <option value="Dr. Sara Ahmed">Dr. Sara Ahmed</option>
-                                        <option value="Ali Khan">Ali Khan</option>
+                                        {staffOptions.map((staff) => (
+                                            <option key={staff} value={staff}>
+                                                {staff}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
-                                {/* Service */}
                                 <div>
                                     <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate">
                                         Service
@@ -542,12 +474,14 @@ function AppointmentManagement() {
                                         className="h-10 w-full rounded-lg border border-gray/30 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
                                     >
                                         <option value="all">All Services</option>
-                                        <option value="Consultation">Consultation</option>
-                                        <option value="Follow-up">Follow-up</option>
+                                        {serviceOptions.map((service) => (
+                                            <option key={service} value={service}>
+                                                {service}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
-                                {/* Payment */}
                                 <div>
                                     <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate">
                                         Payment
@@ -569,7 +503,6 @@ function AppointmentManagement() {
                                 </div>
                             </div>
 
-                            {/* Clear Filters */}
                             <div className="mt-3 flex justify-end sm:mt-4">
                                 <button
                                     type="button"
@@ -582,238 +515,246 @@ function AppointmentManagement() {
                         </div>
                     )}
 
-                    {/* Booking Content */}
                     {viewMode === "list" ? (
                         <div className="overflow-hidden rounded-xl border border-gray/20 bg-white shadow-sm">
-                            <div className="overflow-x-auto">
-                                <div className="min-w-[1050px]">
-                                    {/* Header */}
-                                    <div className="grid grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 border-b border-gray/20 bg-beige/40 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate sm:px-5 sm:py-3.5">
-                                        <span></span>
-                                        <span>Time</span>
-                                        <span>Customer</span>
-                                        <span>Service</span>
-                                        <span>Staff</span>
-                                        <span>Status</span>
-                                        <span>Payment</span>
-                                        <span>Actions</span>
-                                    </div>
+                            {isLoading && (
+                                <div className="flex items-center justify-center gap-3 py-16">
+                                    <Loader2 className="h-5 w-5 animate-spin text-navy" />
+                                    <span className="text-sm text-slate">
+                                        Loading appointments...
+                                    </span>
+                                </div>
+                            )}
 
-                                    {/* Rows */}
-                                    {paginatedBookings.length > 0 ? (
-                                        paginatedBookings.map((booking, index) => (
-                                            <div
-                                                key={booking.id}
-                                                onClick={() => goToDetails(booking.id)}
-                                                className={`relative grid cursor-pointer grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 px-4 py-4 transition hover:bg-beige/20 sm:px-5 ${
-                                                    index !== paginatedBookings.length - 1
-                                                        ? "border-b border-gray/10"
-                                                        : ""
-                                                }`}
-                                            >
-                                                {/* Status Accent */}
-                                                <span
-                                                    className={`absolute bottom-2 left-0 top-2 w-1 rounded-full ${getStatusAccent(
-                                                        booking.status
-                                                    )}`}
-                                                />
+                            {isError && !isLoading && (
+                                <div className="flex items-start gap-3 px-5 py-6">
+                                    <AlertCircle className="h-5 w-5 shrink-0 text-red-600" />
+                                    <p className="text-sm text-red-700">
+                                        {error?.response?.data?.message ||
+                                            error?.message ||
+                                            "Failed to load appointments."}
+                                    </p>
+                                </div>
+                            )}
 
-                                                {/* Gutter */}
+                            {!isLoading && !isError && (
+                                <>
+                                    <div className="overflow-x-auto">
+                                        <div className="min-w-[1050px]">
+                                            <div className="grid grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 border-b border-gray/20 bg-beige/40 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate sm:px-5 sm:py-3.5">
                                                 <span></span>
+                                                <span>Time</span>
+                                                <span>Customer</span>
+                                                <span>Service</span>
+                                                <span>Staff</span>
+                                                <span>Status</span>
+                                                <span>Payment</span>
+                                                <span>Actions</span>
+                                            </div>
 
-                                                {/* Time */}
-                                                <span
-                                                    className={`text-sm font-bold ${
-                                                        booking.status === "Cancelled"
-                                                            ? "text-gray line-through"
-                                                            : "text-navy"
-                                                    }`}
-                                                >
-                                                    {booking.time}
-                                                </span>
-
-                                                {/* Customer */}
-                                                <span className="text-sm font-bold text-navy">
-                                                    {booking.customer}
-                                                </span>
-
-                                                {/* Service */}
-                                                <span
-                                                    className={`text-sm ${
-                                                        booking.status === "Cancelled"
-                                                            ? "text-gray line-through"
-                                                            : "text-navy"
-                                                    }`}
-                                                >
-                                                    {booking.service}
-                                                </span>
-
-                                                {/* Staff */}
-                                                <span className="text-sm text-navy">
-                                                    {booking.staff}
-                                                </span>
-
-                                                {/* Status */}
-                                                <span
-                                                    className={`w-fit whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${getStatusStyle(
-                                                        booking.status
-                                                    )}`}
-                                                >
-                                                    {booking.status}
-                                                </span>
-
-                                                {/* Payment */}
-                                                <div>
-                                                    {booking.payment.type === "paid" && (
-                                                        <span className="flex items-center gap-1.5 text-sm font-bold text-navy">
-                                                            <CheckCircle2 className="h-3.5 w-3.5 text-navy" />
-                                                            Paid
-                                                        </span>
-                                                    )}
-
-                                                    {booking.payment.type === "method" && (
-                                                        <span className="text-sm text-slate">
-                                                            {booking.payment.value}
-                                                        </span>
-                                                    )}
-
-                                                    {booking.payment.type === "none" && (
-                                                        <span className="text-sm text-gray">—</span>
-                                                    )}
-                                                </div>
-
-                                                {/* Actions */}
-                                                <div className="relative flex justify-end">
-                                                    <button
-                                                        type="button"
-                                                        onClick={(event) => {
-                                                            event.stopPropagation();
-                                                            setOpenActionId(
-                                                                openActionId === booking.id
-                                                                    ? null
-                                                                    : booking.id
-                                                            );
-                                                        }}
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate transition hover:bg-beige hover:text-navy"
-                                                        aria-label="More actions"
+                                            {paginatedBookings.length > 0 ? (
+                                                paginatedBookings.map((booking, index) => (
+                                                    <div
+                                                        key={booking.id}
+                                                        onClick={() => goToDetails(booking.id)}
+                                                        className={`relative grid cursor-pointer grid-cols-[8px_140px_1.3fr_1fr_1.2fr_120px_1.2fr_60px] items-center gap-4 px-4 py-4 transition hover:bg-beige/20 sm:px-5 ${
+                                                            index !== paginatedBookings.length - 1
+                                                                ? "border-b border-gray/10"
+                                                                : ""
+                                                        }`}
                                                     >
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </button>
+                                                        <span
+                                                            className={`absolute bottom-2 left-0 top-2 w-1 rounded-full ${getStatusAccent(
+                                                                booking.status
+                                                            )}`}
+                                                        />
 
-                                                    {openActionId === booking.id && (
-                                                        <div
-                                                            onClick={(event) => event.stopPropagation()}
-                                                            className="absolute right-0 top-9 z-30 w-44 rounded-lg border border-gray/20 bg-white py-1 shadow-lg"
+                                                        <span></span>
+
+                                                        <span
+                                                            className={`text-sm font-bold ${
+                                                                booking.status === "Cancelled"
+                                                                    ? "text-gray line-through"
+                                                                    : "text-navy"
+                                                            }`}
                                                         >
-                                                            {/* View Details */}
+                                                            {booking.time}
+                                                        </span>
+
+                                                        <span className="text-sm font-bold text-navy">
+                                                            {booking.customer}
+                                                        </span>
+
+                                                        <span
+                                                            className={`text-sm ${
+                                                                booking.status === "Cancelled"
+                                                                    ? "text-gray line-through"
+                                                                    : "text-navy"
+                                                            }`}
+                                                        >
+                                                            {booking.service}
+                                                        </span>
+
+                                                        <span className="text-sm text-navy">
+                                                            {booking.staff}
+                                                        </span>
+
+                                                        <span
+                                                            className={`w-fit whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${getStatusStyle(
+                                                                booking.status
+                                                            )}`}
+                                                        >
+                                                            {booking.status}
+                                                        </span>
+
+                                                        <div>
+                                                            {booking.payment.type === "paid" && (
+                                                                <span className="flex items-center gap-1.5 text-sm font-bold text-navy">
+                                                                    <CheckCircle2 className="h-3.5 w-3.5 text-navy" />
+                                                                    Paid
+                                                                </span>
+                                                            )}
+
+                                                            {booking.payment.type === "method" && (
+                                                                <span className="text-sm text-slate">
+                                                                    {booking.payment.value}
+                                                                </span>
+                                                            )}
+
+                                                            {booking.payment.type === "none" && (
+                                                                <span className="text-sm text-gray">—</span>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="relative flex justify-end">
                                                             <button
                                                                 type="button"
                                                                 onClick={(event) => {
                                                                     event.stopPropagation();
-                                                                    setOpenActionId(null);
-                                                                    goToDetails(booking.id);
+                                                                    setOpenActionId(
+                                                                        openActionId === booking.id
+                                                                            ? null
+                                                                            : booking.id
+                                                                    );
                                                                 }}
-                                                                className="w-full px-4 py-2.5 text-left text-sm text-navy hover:bg-beige"
+                                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate transition hover:bg-beige hover:text-navy"
+                                                                aria-label="More actions"
                                                             >
-                                                                View Details
+                                                                <MoreHorizontal className="h-4 w-4" />
                                                             </button>
 
-                                                            {/* Edit / Reschedule */}
-                                                            <button
-                                                                type="button"
-                                                                onClick={(event) => {
-                                                                    event.stopPropagation();
-                                                                    setOpenActionId(null);
-                                                                    goToReschedule(booking.id);
-                                                                }}
-                                                                className="w-full px-4 py-2.5 text-left text-sm text-navy hover:bg-beige"
-                                                            >
-                                                                Edit / Reschedule
-                                                            </button>
-
-                                                            {/* Cancel Appointment */}
-                                                            {booking.status !== "Cancelled" &&
-                                                                booking.status !== "Completed" && (
+                                                            {openActionId === booking.id && (
+                                                                <div
+                                                                    onClick={(event) => event.stopPropagation()}
+                                                                    className="absolute right-0 top-9 z-30 w-44 rounded-lg border border-gray/20 bg-white py-1 shadow-lg"
+                                                                >
                                                                     <button
                                                                         type="button"
                                                                         onClick={(event) => {
                                                                             event.stopPropagation();
                                                                             setOpenActionId(null);
-                                                                            handleCancelBooking(booking);
+                                                                            goToDetails(booking.id);
                                                                         }}
-                                                                        className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
+                                                                        className="w-full px-4 py-2.5 text-left text-sm text-navy hover:bg-beige"
                                                                     >
-                                                                        Cancel Appointment
+                                                                        View Details
                                                                     </button>
-                                                                )}
+
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(event) => {
+                                                                            event.stopPropagation();
+                                                                            setOpenActionId(null);
+                                                                            goToReschedule(booking.id);
+                                                                        }}
+                                                                        className="w-full px-4 py-2.5 text-left text-sm text-navy hover:bg-beige"
+                                                                    >
+                                                                        Edit / Reschedule
+                                                                    </button>
+
+                                                                    {booking.status !== "Cancelled" &&
+                                                                        booking.status !== "Completed" &&
+                                                                        booking.status !== "Rejected" && (
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={(event) => {
+                                                                                    event.stopPropagation();
+                                                                                    handleCancelBooking(booking);
+                                                                                }}
+                                                                                className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
+                                                                            >
+                                                                                Cancel Appointment
+                                                                            </button>
+                                                                        )}
+                                                                </div>
+                                                            )}
                                                         </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="px-5 py-12 text-center">
+                                                    <p className="text-sm text-slate">
+                                                        No bookings found.
+                                                    </p>
+
+                                                    {activeFilterCount > 0 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={clearFilters}
+                                                            className="mt-3 text-xs font-bold text-navy hover:underline"
+                                                        >
+                                                            Clear filters
+                                                        </button>
                                                     )}
                                                 </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="px-5 py-12 text-center">
-                                            <p className="text-sm text-slate">
-                                                No bookings found.
-                                            </p>
-
-                                            {activeFilterCount > 0 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={clearFilters}
-                                                    className="mt-3 text-xs font-bold text-navy hover:underline"
-                                                >
-                                                    Clear filters
-                                                </button>
                                             )}
                                         </div>
-                                    )}
-                                </div>
-                            </div>
+                                    </div>
 
-                            {/* Footer — Dynamic Pagination */}
-                            <div className="flex flex-col items-center gap-3 border-t border-gray/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-                                <p className="text-xs text-slate sm:text-sm">
-                                    {filteredBookings.length === 0
-                                        ? "0 bookings"
-                                        : `${startIndex + 1}-${Math.min(
-                                              startIndex + itemsPerPage,
-                                              filteredBookings.length
-                                          )} of ${filteredBookings.length}`}
-                                </p>
+                                    <div className="flex flex-col items-center gap-3 border-t border-gray/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                                        <p className="text-xs text-slate sm:text-sm">
+                                            {filteredBookings.length === 0
+                                                ? "0 bookings"
+                                                : `${startIndex + 1}-${Math.min(
+                                                      startIndex + itemsPerPage,
+                                                      filteredBookings.length
+                                                  )} of ${filteredBookings.length}`}
+                                        </p>
 
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        disabled={currentPage === 1}
-                                        onClick={() =>
-                                            setCurrentPage((page) =>
-                                                Math.max(1, page - 1)
-                                            )
-                                        }
-                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
-                                        aria-label="Previous page"
-                                    >
-                                        <ChevronLeft className="h-4 w-4" />
-                                    </button>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                disabled={currentPage === 1}
+                                                onClick={() =>
+                                                    setCurrentPage((page) =>
+                                                        Math.max(1, page - 1)
+                                                    )
+                                                }
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
+                                                aria-label="Previous page"
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                            </button>
 
-                                    <span className="text-xs font-bold text-navy sm:text-sm">
-                                        {currentPage} / {totalPages}
-                                    </span>
+                                            <span className="text-xs font-bold text-navy sm:text-sm">
+                                                {currentPage} / {totalPages}
+                                            </span>
 
-                                    <button
-                                        type="button"
-                                        disabled={currentPage === totalPages}
-                                        onClick={() =>
-                                            setCurrentPage((page) => page + 1)
-                                        }
-                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
-                                        aria-label="Next page"
-                                    >
-                                        <ChevronRight className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
+                                            <button
+                                                type="button"
+                                                disabled={currentPage === totalPages}
+                                                onClick={() =>
+                                                    setCurrentPage((page) => page + 1)
+                                                }
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray/30 text-slate transition hover:bg-beige disabled:cursor-not-allowed disabled:opacity-40"
+                                                aria-label="Next page"
+                                            >
+                                                <ChevronRight className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     ) : (
                         <CalendarScheduleView

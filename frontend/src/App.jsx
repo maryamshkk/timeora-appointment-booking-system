@@ -1,16 +1,12 @@
-import { useState } from 'react'
-import axios from "axios";
 import AppRoutes from "./routes/AppRoutes";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
-
-  return (
-    <>
-    <AppRoutes />
-      
-
-    </>
-  )
+    return (
+        <AuthProvider>
+            <AppRoutes />
+        </AuthProvider>
+    );
 }
 
 export default App;

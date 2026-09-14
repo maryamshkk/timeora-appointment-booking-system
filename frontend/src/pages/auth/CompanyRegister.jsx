@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import RegistrationIntro from "../../components/common/RegistrationIntro";
 import Divider from "../../components/common/ui/Divider";
 import IconBox from "../../components/common/ui/IconBox";
@@ -13,14 +12,18 @@ import {
     EyeOff,
 } from "lucide-react";
 import Button from "../../components/common/Button";
-import { useAuth } from "../../context/AuthContext";
+import { useCompanyRegister } from "../../hooks/authHook";
 
 function CompanyRegistration() {
-    const navigate = useNavigate();
-    const { registerCompany, loading, error } = useAuth();
+    const {
+        mutate: registerCompany,
+        isPending,
+        error,
+        reset,
+    } = useCompanyRegister();
+
     const [formError, setFormError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
 
     const [formData, setFormData] = useState({
         companyName: "",
@@ -44,45 +47,32 @@ function CompanyRegistration() {
         }));
     }
 
-    async function handleSubmit(event) {
+    function handleSubmit(event) {
         event.preventDefault();
 
         setFormError("");
-        setSuccessMessage("");
+        reset();
 
         if (formData.password !== formData.confirmPassword) {
             setFormError("Passwords do not match.");
             return;
         }
 
-        try {
-            const response = await registerCompany(formData);
-
-            setSuccessMessage(
-                response.message || "Registration successful."
-            );
-
-            navigate("/register/verify-otp", {
-                state: {
-                    companyId: response?.data?.company_id,
-                    adminEmail: response?.data?.admin_email,
-                },
-            });
-        } catch (error) {
-            setFormError(
-                error.message ||
-                    "Registration failed. Please check your information."
-            );
-        }
+        registerCompany(formData);
     }
+
+    const apiErrorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "";
+
+    const displayError = formError || apiErrorMessage;
 
     return (
         <div className="min-h-screen bg-beige px-3 py-6 sm:px-4 sm:py-8 md:px-6 md:py-10 lg:px-10">
             <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-6 md:gap-8 lg:flex-row lg:items-start lg:gap-10">
-                {/* Left Section */}
                 <RegistrationIntro />
 
-                {/* Right Section — Form */}
                 <form
                     onSubmit={handleSubmit}
                     className="w-full max-w-[640px] rounded-2xl bg-white p-4 shadow-lg sm:p-6 md:p-8 lg:w-[58%] lg:max-w-none lg:p-12"
@@ -97,7 +87,6 @@ function CompanyRegistration() {
 
                     <div className="mb-6 border-b border-gray/30 md:mb-8" />
 
-                    {/* Company Information */}
                     <div className="mb-5 flex items-center gap-2 md:mb-6">
                         <IconBox>
                             <Building2 className="h-4 w-4 text-brown" />
@@ -108,7 +97,6 @@ function CompanyRegistration() {
                         </h3>
                     </div>
 
-                    {/* Company Name */}
                     <div className="mb-4 md:mb-5">
                         <Input
                             label="Company Name"
@@ -121,7 +109,6 @@ function CompanyRegistration() {
                         />
                     </div>
 
-                    {/* Business Email */}
                     <div className="mb-4 md:mb-5">
                         <Input
                             label="Business Email"
@@ -134,16 +121,13 @@ function CompanyRegistration() {
                         />
                     </div>
 
-                    {/* Phone + Business Type */}
                     <div className="mb-4 grid grid-cols-1 gap-4 md:mb-5 md:grid-cols-2 md:gap-5">
-                        {/* Phone Number */}
                         <div>
                             <label className="mb-2 block font-serif text-sm text-navy">
                                 Phone Number
                             </label>
 
                             <div className="flex h-11">
-                                {/* Country Code */}
                                 <select
                                     name="countryCode"
                                     value={formData.countryCode}
@@ -158,7 +142,6 @@ function CompanyRegistration() {
                                     <option value="+91">+91</option>
                                 </select>
 
-                                {/* Phone Input */}
                                 <input
                                     type="tel"
                                     name="phone"
@@ -171,7 +154,6 @@ function CompanyRegistration() {
                             </div>
                         </div>
 
-                        {/* Business Type */}
                         <div>
                             <label className="mb-2 block font-serif text-sm text-navy">
                                 Business Type
@@ -203,7 +185,6 @@ function CompanyRegistration() {
 
                     <div className="my-5 border-b border-gray/30 md:my-7" />
 
-                    {/* Company Administrator */}
                     <div className="mb-5 flex items-center gap-2 md:mb-6">
                         <IconBox>
                             <IdCard className="h-4 w-4 text-brown" />
@@ -214,7 +195,6 @@ function CompanyRegistration() {
                         </h3>
                     </div>
 
-                    {/* Full Name */}
                     <div className="mb-4 md:mb-5">
                         <Input
                             label="Full Name"
@@ -227,7 +207,6 @@ function CompanyRegistration() {
                         />
                     </div>
 
-                    {/* Admin Email */}
                     <Input
                         label="Admin Email (Login)"
                         type="email"
@@ -238,9 +217,7 @@ function CompanyRegistration() {
                         required
                     />
 
-                    {/* Password Fields */}
                     <div className="mt-4 grid grid-cols-1 gap-4 md:mt-5 md:grid-cols-2 md:gap-5">
-                        {/* Password */}
                         <div>
                             <label className="mb-2 block font-serif text-sm text-navy">
                                 Password
@@ -260,7 +237,11 @@ function CompanyRegistration() {
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate hover:text-navy"
-                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    aria-label={
+                                        showPassword
+                                            ? "Hide password"
+                                            : "Show password"
+                                    }
                                 >
                                     {showPassword ? (
                                         <EyeOff className="h-4 w-4" />
@@ -270,13 +251,11 @@ function CompanyRegistration() {
                                 </button>
                             </div>
 
-                            {/* Password Strength */}
                             <div className="mt-2 h-[2px] w-full bg-gray/20">
                                 <div className="h-full w-[40%] bg-gold" />
                             </div>
                         </div>
 
-                        {/* Confirm Password */}
                         <div>
                             <label className="mb-2 block font-serif text-sm text-navy">
                                 Confirm Password
@@ -293,7 +272,6 @@ function CompanyRegistration() {
                         </div>
                     </div>
 
-                    {/* Terms & Privacy */}
                     <div className="mt-6 flex items-start gap-3 md:mt-7">
                         <input
                             type="checkbox"
@@ -323,22 +301,22 @@ function CompanyRegistration() {
                         </p>
                     </div>
 
-                    {/* Submit */}
                     <div className="mt-6 md:mt-8">
                         <Button
                             type="submit"
-                            disabled={loading}
+                            disabled={isPending}
                             className="w-full"
                         >
-                            {loading ? "Creating Account..." : "Create Company Account"}
+                            {isPending
+                                ? "Creating Account..."
+                                : "Create Company Account"}
                         </Button>
                     </div>
 
-                    {/* Error */}
-                    {(formError || error?.message) && (
+                    {displayError && (
                         <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
                             <p className="font-serif text-sm text-red-700">
-                                {formError || error?.message}
+                                {displayError}
                             </p>
                         </div>
                     )}

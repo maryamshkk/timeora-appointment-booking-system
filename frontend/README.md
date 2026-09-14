@@ -96,3 +96,18 @@ http://localhost:5173
 
 ---
 
+
+
+
+{
+    companyName: "Nova Wellness Center",
+    businessEmail: "contact@novawellness.com",
+    countryCode: "+92",
+    phone: "3219876543",
+    businessType: "beauty",
+    fullName: "Sara Ahmed",
+    adminEmail: "sara@novawellness.com",
+    password: "NovaTime@2026#Secure",
+    confirmPassword: "NovaTime@2026#Secure",
+    agreedToTerms: true
+}

@@ -35,48 +35,47 @@ class OtpService
         );
     }
 
-        public function verifyOtp($ownerType, $ownerId, $code)
-    {
-        $otp = Otp::where('owner_type', $ownerType)
-            ->where('owner_id', $ownerId)
-            ->where('purpose', 'email_verification')
-            ->whereNull('verified_at')
-            ->latest()
-            ->first();
+public function verifyOtp($ownerType, $ownerId, $code, $purpose = 'email_verification')
+{
+    $otp = Otp::where('owner_type', $ownerType)
+        ->where('owner_id', $ownerId)
+        ->where('purpose', $purpose)
+        ->whereNull('verified_at')
+        ->latest()
+        ->first();
 
-        if (!$otp || $otp->expires_at->isPast()) {
-            return [
-                'success' => false,
-                'message' => 'This code has expired. Please request a new one.',
-            ];
-        }
-
-        if ($otp->attempts >= 5) {
-            return [
-                'success' => false,
-                'message' => 'Too many incorrect attempts. Please request a new code.',
-            ];
-        }
-
-        if ($otp->code != $code) {
-
-            $otp->increment('attempts');
-
-            return [
-                'success' => false,
-                'message' => 'Invalid code.',
-            ];
-        }
-
-        $otp->update([
-            'verified_at' => now(),
-        ]);
-
+    if (!$otp || $otp->expires_at->isPast()) {
         return [
-            'success' => true,
-            'message' => 'OTP verified successfully.',
+            'success' => false,
+            'message' => 'This code has expired. Please request a new one.',
         ];
     }
 
+    if ($otp->attempts >= 5) {
+        return [
+            'success' => false,
+            'message' => 'Too many incorrect attempts. Please request a new code.',
+        ];
+    }
+
+    if ($otp->code != $code) {
+
+        $otp->increment('attempts');
+
+        return [
+            'success' => false,
+            'message' => 'Invalid code.',
+        ];
+    }
+
+    $otp->update([
+        'verified_at' => now(),
+    ]);
+
+    return [
+        'success' => true,
+        'message' => 'OTP verified successfully.',
+    ];
+}
 
 }

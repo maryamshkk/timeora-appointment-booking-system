@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
     Calendar,
@@ -11,16 +11,18 @@ import {
     UserX,
     XCircle,
     ArrowRight,
+    Loader2,
+    AlertCircle,
 } from "lucide-react";
 import {
     AreaChart, Area, BarChart, Bar,
     CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
 
-import api from "../../services/api";
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
+import { useReportOverview } from "../../hooks/company/useReports";
 
 const activityData = [
     { date: "21 Aug", time: "09:00 AM", id: "#APP-1042", customer: "Eleanor Vance", service: "Initial Consultation", staff: "Dr. Aris Thorne", status: "Completed", payment: "Rs. 15,000", iso: "2026-08-21" },
@@ -62,11 +64,19 @@ function Reports() {
     const [serviceFilter, setServiceFilter] = useState("all");
     const [statusFilter, setStatusFilter] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
-    const [reportSummary] = useState(null);
-    const [activity] = useState(activityData);
-    const [loading] = useState(false);
 
-    /* Close date picker on outside click / Escape */
+    const {
+        data: overviewResponse,
+        isLoading,
+        isError,
+        error,
+    } = useReportOverview({
+        from: dateRange.start,
+        to: dateRange.end,
+    });
+
+    const overview = overviewResponse?.data;
+
     useEffect(() => {
         const onDown = (e) => !e.target.closest("[data-date-picker]") && setIsDatePickerOpen(false);
         const onEsc = (e) => e.key === "Escape" && setIsDatePickerOpen(false);
@@ -78,31 +88,47 @@ function Reports() {
         };
     }, []);
 
-    /* API is commented out — mock data chalta rahega */
-    useEffect(() => {
-        // TODO: enable when backend report APIs are ready
-        // async function fetchReports() {
-        //     setLoading(true);
-        //     try {
-        //         const params = { period: periodFilter, start_date: dateRange.start, end_date: dateRange.end, page: currentPage };
-        //         const [s, a] = await Promise.all([
-        //             api.get("/company/reports/summary", { params }),
-        //             api.get("/company/reports/activity", { params }),
-        //         ]);
-        //         setReportSummary(s.data);
-        //         setActivity(a.data.data || []);
-        //     } catch {} finally { setLoading(false); }
-        // }
-        // fetchReports();
-    }, [periodFilter, dateRange.start, dateRange.end, staffFilter, serviceFilter, statusFilter, currentPage]);
+    const statCards = useMemo(() => {
+        const appointments = overview?.appointments || {};
 
-    const statCards = [
-        { label: "TOTAL APPTS", value: reportSummary?.total_appointments ?? 128, icon: CalendarDays, iconBg: "bg-gray/10", iconColor: "text-slate" },
-        { label: "COMPLETED", value: reportSummary?.completed ?? 94, icon: CheckCircle2, iconBg: "bg-green-50", iconColor: "text-green-600" },
-        { label: "CANCELLED", value: reportSummary?.cancelled ?? 12, icon: XCircle, iconBg: "bg-red-50", iconColor: "text-red-500" },
-        { label: "NO-SHOW", value: reportSummary?.no_show ?? 7, icon: UserX, iconBg: "bg-gold/15", iconColor: "text-amber-600" },
-        { label: "PENDING", value: reportSummary?.pending ?? 15, icon: Clock, iconBg: "bg-gray/10", iconColor: "text-slate" },
-    ];
+        return [
+            {
+                label: "TOTAL APPTS",
+                value: appointments.total ?? 0,
+                icon: CalendarDays,
+                iconBg: "bg-gray/10",
+                iconColor: "text-slate",
+            },
+            {
+                label: "COMPLETED",
+                value: appointments.completed ?? 0,
+                icon: CheckCircle2,
+                iconBg: "bg-green-50",
+                iconColor: "text-green-600",
+            },
+            {
+                label: "CANCELLED",
+                value: appointments.cancelled ?? 0,
+                icon: XCircle,
+                iconBg: "bg-red-50",
+                iconColor: "text-red-500",
+            },
+            {
+                label: "REJECTED",
+                value: appointments.rejected ?? 0,
+                icon: UserX,
+                iconBg: "bg-gold/15",
+                iconColor: "text-amber-600",
+            },
+            {
+                label: "PENDING",
+                value: appointments.pending ?? 0,
+                icon: Clock,
+                iconBg: "bg-gray/10",
+                iconColor: "text-slate",
+            },
+        ];
+    }, [overview]);
 
     const reportCategories = [
         { title: "Appointment Report", description: "Detailed breakdown of all scheduled, completed, and missed appointments.", metric: "128 Entries", path: "/company/reports/appointments" },
@@ -111,7 +137,6 @@ function Reports() {
         { title: "Customer Report", description: "Client retention, new acquisitions, and individual lifetime value.", metric: "312 Clients", path: "/company/reports/customers" },
     ];
 
-    /* Period range */
     const getPeriodRange = () => {
         const t = new Date(REFERENCE_TODAY);
         if (periodFilter === "today") return { start: toISO(t), end: toISO(t) };
@@ -124,7 +149,7 @@ function Reports() {
 
     const periodRange = getPeriodRange();
 
-    const filteredActivity = activity.filter((item) =>
+    const filteredActivity = activityData.filter((item) =>
         (staffFilter === "all" || item.staff === staffFilter) &&
         (serviceFilter === "all" || item.service === serviceFilter) &&
         (statusFilter === "all" || item.status === statusFilter) &&
@@ -132,18 +157,21 @@ function Reports() {
         item.iso >= dateRange.start && item.iso <= dateRange.end
     );
 
-    const handleExport = async () => {
-        // TODO: axios GET /api/company/reports/export?format=csv
-    };
+    function handleExport() {
+        // TODO: no export endpoint yet on the backend
+    }
+
+    const apiErrorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "";
 
     return (
         <div className="min-h-screen flex bg-beige">
-            {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
                 <Sidebar companyName="Shifa Clinic" activeItem="Reports" />
             </div>
 
-            {/* Mobile / Tablet Sidebar */}
             {sidebarOpen && (
                 <>
                     <button onClick={() => setSidebarOpen(false)} className="fixed inset-0 z-30 bg-navy/50 lg:hidden" aria-label="Close menu" />
@@ -157,14 +185,12 @@ function Reports() {
                 <Topbar onMenuClick={() => setSidebarOpen(true)} showBell simpleProfileIcon searchPlaceholder="Search..." />
 
                 <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
-                    {/* Breadcrumb */}
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className="text-xs font-bold uppercase tracking-wide text-slate">Reports &amp; Analytics</span>
                         <ChevronRight className="w-3 h-3 text-gray" />
                         <span className="text-xs text-navy">Reports</span>
                     </div>
 
-                    {/* Header */}
                     <div className="flex flex-col gap-5 mb-6 lg:flex-row lg:items-start lg:justify-between">
                         <div>
                             <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">Reports</h1>
@@ -172,7 +198,6 @@ function Reports() {
                         </div>
 
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
-                            {/* Date Range */}
                             <div className="relative" data-date-picker>
                                 <button onClick={() => setIsDatePickerOpen(!isDatePickerOpen)} className="flex items-center gap-2 rounded-lg border border-gray/30 bg-white px-4 py-2.5 text-sm font-bold text-navy hover:border-navy transition">
                                     <Calendar className="h-4 w-4 shrink-0 text-slate" />
@@ -191,14 +216,12 @@ function Reports() {
                                 )}
                             </div>
 
-                            {/* Export */}
                             <button onClick={handleExport} className="flex items-center justify-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-bold text-white hover:bg-gold hover:text-navy transition">
                                 <Download className="h-4 w-4" /> Export
                             </button>
                         </div>
                     </div>
 
-                    {/* Period Filter */}
                     <div className="flex items-center gap-6 border-b border-gray/20 pb-3 mb-6 overflow-x-auto">
                         {[{ key: "today", label: "Today" }, { key: "week", label: "This Week" }, { key: "month", label: "Monthly" }].map((p) => (
                             <button key={p.key} onClick={() => { setPeriodFilter(p.key); setCurrentPage(1); }} className={`text-sm font-bold whitespace-nowrap pb-3 -mb-3 border-b-2 transition ${periodFilter === p.key ? "text-navy border-navy" : "text-slate border-transparent hover:text-navy"}`}>
@@ -207,16 +230,29 @@ function Reports() {
                         ))}
                     </div>
 
-                    {/* Statistics */}
+                    {isError && !isLoading && (
+                        <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                            <p className="text-sm text-red-700">
+                                {apiErrorMessage || "Failed to load report overview."}
+                            </p>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                        {statCards.map((c) => (
-                            <StatCard key={c.label} label={c.label} value={c.value} icon={c.icon} iconBg={c.iconBg} iconColor={c.iconColor} />
-                        ))}
+                        {isLoading ? (
+                            <div className="col-span-full flex items-center justify-center gap-3 rounded-xl border border-gray/20 bg-white py-10">
+                                <Loader2 className="h-5 w-5 animate-spin text-navy" />
+                                <span className="text-sm text-slate">Loading overview...</span>
+                            </div>
+                        ) : (
+                            statCards.map((c) => (
+                                <StatCard key={c.label} label={c.label} value={c.value} icon={c.icon} iconBg={c.iconBg} iconColor={c.iconColor} />
+                            ))
+                        )}
                     </div>
 
-                    {/* Charts Row */}
                     <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        {/* Trend */}
                         <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
                             <h2 className="font-serif text-lg font-bold text-navy mb-1">Appointment Trend</h2>
                             <p className="text-xs text-slate mb-5">Scheduled vs completed</p>
@@ -235,7 +271,6 @@ function Reports() {
                             </div>
                         </div>
 
-                        {/* Busiest Days */}
                         <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
                             <h2 className="font-serif text-lg font-bold text-navy mb-1">Busiest Days</h2>
                             <p className="text-xs text-slate mb-5">Appointments per weekday</p>
@@ -254,7 +289,6 @@ function Reports() {
                         </div>
                     </div>
 
-                    {/* Report Categories */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
                         {reportCategories.map((r) => (
                             <div key={r.title} className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 flex flex-col hover:border-navy hover:shadow-md transition">
@@ -271,7 +305,6 @@ function Reports() {
                         ))}
                     </div>
 
-                    {/* Recent Activity */}
                     <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
                         <div className="p-5 sm:p-6 border-b border-gray/20">
                             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -300,12 +333,6 @@ function Reports() {
                                 </div>
                             </div>
                         </div>
-
-                        {loading && (
-                            <div className="px-6 py-3 border-b border-gray/20 bg-beige/30">
-                                <p className="text-xs font-bold text-slate">Loading report data...</p>
-                            </div>
-                        )}
 
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-[1000px]">
@@ -356,9 +383,8 @@ function Reports() {
                             </table>
                         </div>
 
-                        {/* Pagination */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 sm:px-6 py-4 border-t border-gray/20">
-                            <p className="text-xs text-slate">Showing 1 to {filteredActivity.length} of {reportSummary?.total_appointments ?? 128} entries</p>
+                            <p className="text-xs text-slate">Showing 1 to {filteredActivity.length} of {overview?.appointments?.total ?? 0} entries</p>
 
                             <div className="flex items-center gap-1 flex-wrap">
                                 <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige disabled:opacity-40 disabled:cursor-not-allowed transition">Prev</button>

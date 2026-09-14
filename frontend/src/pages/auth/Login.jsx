@@ -51,7 +51,6 @@ function CompanyLogin() {
 
     return (
         <div className="min-h-screen bg-beige flex flex-col">
-            {/* Top Bar */}
             <div className="flex justify-between items-center px-6 md:px-10 lg:px-[40px] pt-8">
                 <Link to="/" className="font-serif italic text-xl text-navy">
                     Timeora
@@ -68,9 +67,7 @@ function CompanyLogin() {
                 </p>
             </div>
 
-            {/* Main Content */}
             <div className="flex-1 flex flex-col md:flex-row">
-                {/* Left Column - Dashboard Preview */}
                 <div className="hidden md:flex md:w-1/2 items-center py-12 md:py-16 px-4 lg:px-8">
                     <div className="w-full max-w-[440px] mx-auto">
                         <p className="text-xs font-bold uppercase tracking-widest text-slate mb-4">
@@ -130,7 +127,6 @@ function CompanyLogin() {
 
                 <div className="hidden md:block border-l border-gray/30 mx-4 lg:mx-6" />
 
-                {/* Right Column - Login Form */}
                 <div className="w-full md:w-1/2 flex items-center justify-center py-12 md:py-16 px-6 md:px-8 lg:px-10">
                     <div className="w-full max-w-[420px]">
                         <div className="inline-block bg-white border border-gray/30 rounded-full px-3 py-1 mb-4">
@@ -147,7 +143,6 @@ function CompanyLogin() {
                             Sign in to your Timeora company account.
                         </p>
 
-                        {/* Error Message */}
                         {displayError && (
                             <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
                                 <p className="text-sm text-red-700">
@@ -156,9 +151,7 @@ function CompanyLogin() {
                             </div>
                         )}
 
-                        {/* Login Form */}
                         <form onSubmit={handleSubmit}>
-                            {/* Business Email Field */}
                             <div className="mb-5">
                                 <label className="text-sm font-bold text-navy mb-2 block">
                                     Business Email
@@ -178,7 +171,6 @@ function CompanyLogin() {
                                 </div>
                             </div>
 
-                            {/* Password Field */}
                             <div className="mb-4">
                                 <label className="text-sm font-bold text-navy mb-2 block">
                                     Password
@@ -214,7 +206,6 @@ function CompanyLogin() {
                                 </div>
                             </div>
 
-                            {/* Remember Me & Forgot Password */}
                             <div className="flex justify-between items-center mb-6">
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
@@ -230,14 +221,13 @@ function CompanyLogin() {
                                     </span>
                                 </label>
                                 <Link
-                                    to="/forgot-password"
+                                    to="/forget-password"
                                     className="text-sm font-bold text-navy hover:underline"
                                 >
                                     Forgot Password?
                                 </Link>
                             </div>
 
-                            {/* Submit Button */}
                             <button
                                 type="submit"
                                 disabled={isPending}
@@ -257,7 +247,6 @@ function CompanyLogin() {
                             </button>
                         </form>
 
-                        {/* Security Note */}
                         <div className="mt-6 flex items-center justify-center gap-2">
                             <Lock className="w-[14px] h-[14px] text-slate" />
                             <span className="text-xs text-slate">

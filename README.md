@@ -1,168 +1,348 @@
-# TIMEORA
-
-**by Tiemio** — One Platform. Every Appointment.
-
-TIMEORA is a dual-sided appointment booking and business management platform. It combines full business booking/management software (in the spirit of SimplyBook.me) with a customer-facing discovery experience, so businesses can manage their operations while customers can discover and book professionals across companies from one place.
-
-> **Positioning:**  TIMEORA is intentionally dual-sided: **Business side** — "Manage my appointments," and **Customer side** — "Find and book an appointment."
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [System Architecture](#system-architecture)
-- [User Roles](#user-roles)
-- [Booking & Scheduling Model](#booking--scheduling-model)
-- [Payments & Receipts](#payments--receipts)
-- [Notifications](#notifications)
-- [Tech Stack](#tech-stack)
-- [Project Status](#project-status)
-- [Roadmap / Out of Scope for V1](#roadmap--out-of-scope-for-v1)
-- [Documentation](#documentation)
-- [Author](#author)
-
----
-
-## Overview
-
-TIMEORA follows a clear system hierarchy. Registration on the landing page branches into two independent paths — a business registers as a Company, while a Customer registers separately to discover and book services:
-
-                        Super Admin
-                             │
-                Landing Page Registration
-                 ┌───────────┴───────────┐
-              Company                 Customer
-                 │                       │
-               Staff                     │
-                 │                       │
-              Services                   │
-                 └───────────┬───────────┘
-                        Appointments
-Every company on TIMEORA gets its own public booking page (e.g. timeora.com/company/city-care), supports multi-channel booking (TIMEORA page, business website, social media, and eventually a customer app), and funnels every booking into a single, centralized company calendar.
-
-Registration is open to both sides from the landing page — a single Register page lets a user choose Register as Company (to manage a business) or Register as Customer (to find and book appointments), each routing into its own registration flow and portal.
-
-## Key Features
-
-- **Online Booking** — Customers can book appointments 24/7.
-- **Staff Management** — Manage staff members, schedules, and availability.
-- **Services Management** — Create services with pricing, duration, and availability.
-- **Multiple Locations** — Manage multiple branches, each with its own staff, services, and hours.
-- **Smart Scheduling** — Real-time availability calculated from staff schedules, breaks, buffers, holidays, and existing bookings, with double-booking prevention.
-- **Book Anywhere** — One booking engine accessible from multiple channels (TIMEORA page, business website, social, Google), all feeding into one calendar.
-- **Customer Management** — Full customer profiles with appointment history, cancellations, no-shows, and notes.
-- **Automated Reminders & Notifications** — Booking confirmations, reminders (24h and 1h), rescheduling, and cancellation alerts.
-- **Payments (V1: Cash on Reception)** — Invoice and pay-at-appointment options with receipt generation.
-- **Reviews & Feedback** — Post-appointment ratings and reviews.
-- **Reports & Analytics** — Appointment, customer, staff, and business performance dashboards.
-- **Role-Based Portals** — Dedicated, isolated portals for Super Admin, Company Admin, Staff, and Customer.
-
-## System Architecture
 
 ```
-TIMEORA
-├── FRONTEND — React.js / Tailwind CSS / React Router / Axios
-└── BACKEND  — Laravel / PHP + Eloquent ORM / REST API / Sanctum
-        ↓
-      MySQL
+timeora-appointment-booking-system
+├─ backend
+│  ├─ .editorconfig
+│  ├─ .npmrc
+│  ├─ 1
+│  ├─ app
+│  │  ├─ Console
+│  │  │  └─ Commands
+│  │  │     └─ SendAppointmentReminders.php
+│  │  ├─ Http
+│  │  │  ├─ Controllers
+│  │  │  │  ├─ Admin
+│  │  │  │  │  ├─ AdminAnnouncementController.php
+│  │  │  │  │  ├─ AdminAppointmentController.php
+│  │  │  │  │  ├─ AdminCategoryController.php
+│  │  │  │  │  ├─ AdminCompanyController.php
+│  │  │  │  │  ├─ AdminDashboardController.php
+│  │  │  │  │  ├─ AdminProfileController.php
+│  │  │  │  │  ├─ AdminReceiptController.php
+│  │  │  │  │  ├─ AdminReportController.php
+│  │  │  │  │  ├─ AdminSettingsController.php
+│  │  │  │  │  └─ AdminUserController.php
+│  │  │  │  ├─ Auth
+│  │  │  │  │  └─ AuthController.php
+│  │  │  │  ├─ AvailabilityController.php
+│  │  │  │  ├─ AvailabilityExceptionController.php
+│  │  │  │  ├─ BlockedTimeController.php
+│  │  │  │  ├─ Company
+│  │  │  │  │  ├─ AppointmentController.php
+│  │  │  │  │  └─ CompanyReportController.php
+│  │  │  │  ├─ CompanyController.php
+│  │  │  │  ├─ CompanyDashboardController.php
+│  │  │  │  ├─ CompanySettingsController.php
+│  │  │  │  ├─ CompanyWorkingHoursController.php
+│  │  │  │  ├─ Controller.php
+│  │  │  │  ├─ Customer
+│  │  │  │  │  └─ AppointmentController.php
+│  │  │  │  ├─ CustomerDashboardController.php
+│  │  │  │  ├─ CustomerSettingsController.php
+│  │  │  │  ├─ HolidayController.php
+│  │  │  │  ├─ NotificationController.php
+│  │  │  │  ├─ ReceiptController.php
+│  │  │  │  ├─ RoleController.php
+│  │  │  │  ├─ ServiceController.php
+│  │  │  │  ├─ Staff
+│  │  │  │  │  └─ AppointmentController.php
+│  │  │  │  ├─ StaffAvailabilityController.php
+│  │  │  │  ├─ StaffController.php
+│  │  │  │  ├─ StaffDashboardController.php
+│  │  │  │  └─ StaffSettingsController.php
+│  │  │  └─ Middleware
+│  │  │     ├─ RoleMiddleware.php
+│  │  │     └─ SuperAdminMiddleware.php
+│  │  ├─ Models
+│  │  │  ├─ AdminSetting.php
+│  │  │  ├─ Announcement.php
+│  │  │  ├─ Appointment.php
+│  │  │  ├─ AvailabilityException.php
+│  │  │  ├─ BlockedTime.php
+│  │  │  ├─ BusinessWorkingHour.php
+│  │  │  ├─ Category.php
+│  │  │  ├─ Company.php
+│  │  │  ├─ CompanySetting.php
+│  │  │  ├─ Customer.php
+│  │  │  ├─ CustomerSetting.php
+│  │  │  ├─ Holiday.php
+│  │  │  ├─ Otp.php
+│  │  │  ├─ Payment.php
+│  │  │  ├─ Receipt.php
+│  │  │  ├─ Role.php
+│  │  │  ├─ Service.php
+│  │  │  ├─ Staff.php
+│  │  │  ├─ StaffAvailability.php
+│  │  │  ├─ StaffSetting.php
+│  │  │  ├─ SuperAdmin.php
+│  │  │  └─ User.php
+│  │  ├─ Notifications
+│  │  │  ├─ NotificationType.php
+│  │  │  └─ TimeoraNotification.php
+│  │  ├─ Providers
+│  │  │  └─ AppServiceProvider.php
+│  │  └─ Services
+│  │     └─ OtpService.php
+│  ├─ artisan
+│  ├─ bootstrap
+│  │  ├─ app.php
+│  │  ├─ cache
+│  │  └─ providers.php
+│  ├─ cascadeOnDelete()
+│  ├─ composer.json
+│  ├─ composer.lock
+│  ├─ config
+│  │  ├─ app.php
+│  │  ├─ auth.php
+│  │  ├─ cache.php
+│  │  ├─ cors.php
+│  │  ├─ database.php
+│  │  ├─ dompdf.php
+│  │  ├─ filesystems.php
+│  │  ├─ logging.php
+│  │  ├─ mail.php
+│  │  ├─ queue.php
+│  │  ├─ sanctum.php
+│  │  ├─ services.php
+│  │  └─ session.php
+│  ├─ constrained()
+│  ├─ database
+│  │  ├─ factories
+│  │  │  └─ UserFactory.php
+│  │  ├─ migrations
+│  │  │  ├─ 0001_01_01_000000_create_users_table.php
+│  │  │  ├─ 0001_01_01_000001_create_cache_table.php
+│  │  │  ├─ 0001_01_01_000002_create_jobs_table.php
+│  │  │  ├─ 2026_08_21_174141_create_personal_access_tokens_table.php
+│  │  │  ├─ 2026_08_24_121656_create_categories_table.php
+│  │  │  ├─ 2026_08_24_130339_create_companies_table.php
+│  │  │  ├─ 2026_08_24_140916_create_otps_table.php
+│  │  │  ├─ 2026_08_28_114521_create_roles_table.php
+│  │  │  ├─ 2026_08_28_114738_create_services_table.php
+│  │  │  ├─ 2026_08_28_114856_create_staff_table.php
+│  │  │  ├─ 2026_08_28_115019_create_staff_service_table.php
+│  │  │  ├─ 2026_08_28_124136_add_bio_to_staff_table.php
+│  │  │  ├─ 2026_08_28_201003_add_deleted_at_to_staff_table.php
+│  │  │  ├─ 2026_08_28_202841_create_staff_availability_table.php
+│  │  │  ├─ 2026_08_29_115557_update_staff_id_unique_constraint.php
+│  │  │  ├─ 2026_08_30_103853_add_details_to_services_table.php
+│  │  │  ├─ 2026_08_31_105001_create_customers_table.php
+│  │  │  ├─ 2026_08_31_122031_create_business_working_hours_table.php
+│  │  │  ├─ 2026_08_31_140746_update_staff_availabilities_structure.php
+│  │  │  ├─ 2026_08_31_141944_remove_old_columns_from_staff_availability_table.php
+│  │  │  ├─ 2026_08_31_145119_fix_staff_availability_unique_constraint.php
+│  │  │  ├─ 2026_09_01_110726_create_holidays_table.php
+│  │  │  ├─ 2026_09_01_111256_create_blocked_times_table.php
+│  │  │  ├─ 2026_09_01_112842_create_availability_exceptions_table.php
+│  │  │  ├─ 2026_09_02_115035_create_appointments_table.php
+│  │  │  ├─ 2026_09_02_155903_add_details_to_services_table.php.php
+│  │  │  ├─ 2026_09_04_060807_create_payments_table.php
+│  │  │  ├─ 2026_09_04_072634_rename_payment_received_columns_in_payments_table.php
+│  │  │  ├─ 2026_09_04_075734_create_receipts_table.php
+│  │  │  ├─ 2026_09_05_110027_create_notifications_table.php
+│  │  │  ├─ 2026_09_06_011410_create_company_settings_table.php
+│  │  │  ├─ 2026_09_06_112133_create_staff_settings_table.php
+│  │  │  ├─ 2026_09_06_120501_create_customer_settings_table.php
+│  │  │  ├─ 2026_09_06_124208_create_super_admins_table.php
+│  │  │  ├─ 2026_09_06_170228_create_announcements_table.php
+│  │  │  └─ 2026_09_06_175200_create_admin_settings_table.php
+│  │  └─ seeders
+│  │     ├─ CategorySeeder.php
+│  │     └─ DatabaseSeeder.php
+│  ├─ default(true)
+│  ├─ first()
+│  ├─ foreignId('customer_id')
+│  ├─ id()
+│  ├─ notify(
+│  ├─ package.json
+│  ├─ phpunit.xml
+│  ├─ public
+│  │  ├─ .htaccess
+│  │  ├─ favicon.ico
+│  │  ├─ index.php
+│  │  └─ robots.txt
+│  ├─ README.md
+│  ├─ resources
+│  │  ├─ css
+│  │  │  └─ app.css
+│  │  ├─ js
+│  │  │  └─ app.js
+│  │  └─ views
+│  │     ├─ emails
+│  │     │  └─ notifications
+│  │     │     └─ timeora.blade.php
+│  │     ├─ receipts
+│  │     │  └─ pdf.blade.php
+│  │     └─ welcome.blade.php
+│  ├─ routes
+│  │  ├─ api.php
+│  │  ├─ console.php
+│  │  └─ web.php
+│  ├─ storage
+│  │  ├─ app
+│  │  │  ├─ private
+│  │  │  └─ public
+│  │  └─ framework
+│  │     └─ testing
+│  ├─ tests
+│  │  ├─ Feature
+│  │  │  └─ ExampleTest.php
+│  │  ├─ TestCase.php
+│  │  └─ Unit
+│  │     └─ ExampleTest.php
+│  ├─ timestamps()
+│  ├─ unique('customer_id')
+│  ├─ unique(['company_id'
+│  └─ vite.config.js
+├─ documentation
+│  ├─ TIMEORA-Documentation.docx
+│  └─ TIMEORA-Documentation.pdf
+├─ frontend
+│  ├─ eslint.config.js
+│  ├─ index.html
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ pnpm-lock.yaml
+│  ├─ public
+│  │  ├─ favicon.svg
+│  │  └─ icons.svg
+│  ├─ README.md
+│  ├─ src
+│  │  ├─ App.css
+│  │  ├─ App.jsx
+│  │  ├─ assets
+│  │  │  ├─ fonts
+│  │  │  │  ├─ LibreCaslonText-Bold.ttf
+│  │  │  │  ├─ LibreCaslonText-Italic.ttf
+│  │  │  │  └─ LibreCaslonText-Regular.ttf
+│  │  │  ├─ hero.png
+│  │  │  ├─ logo.png
+│  │  │  ├─ react.svg
+│  │  │  └─ vite.svg
+│  │  ├─ components
+│  │  │  ├─ common
+│  │  │  │  ├─ BackToHome.jsx
+│  │  │  │  ├─ Button.jsx
+│  │  │  │  ├─ Input.jsx
+│  │  │  │  ├─ layouts
+│  │  │  │  │  ├─ AuthLayout.jsx
+│  │  │  │  │  ├─ Footer.jsx
+│  │  │  │  │  └─ Navbar.jsx
+│  │  │  │  ├─ Logo.jsx
+│  │  │  │  ├─ RegistrationIntro.jsx
+│  │  │  │  ├─ RegistrationSteps.jsx
+│  │  │  │  └─ ui
+│  │  │  │     ├─ Divider.jsx
+│  │  │  │     └─ IconBox.jsx
+│  │  │  ├─ dashboard
+│  │  │  │  ├─ AppointmentsTable.jsx
+│  │  │  │  ├─ CalendarScheduleView.jsx
+│  │  │  │  ├─ PerformanceChart.jsx
+│  │  │  │  ├─ RecentActivity.jsx
+│  │  │  │  ├─ ScheduleTimeline.jsx
+│  │  │  │  ├─ Sidebar.jsx
+│  │  │  │  ├─ StaffOverview.jsx
+│  │  │  │  ├─ StatCard.jsx
+│  │  │  │  └─ Topbar.jsx
+│  │  │  ├─ public
+│  │  │  │  ├─ AboutSection.jsx
+│  │  │  │  ├─ ContactSection.jsx
+│  │  │  │  ├─ DashboardPreviewMock.jsx
+│  │  │  │  ├─ Footer.jsx
+│  │  │  │  ├─ HowItWorks.jsx
+│  │  │  │  ├─ legal
+│  │  │  │  │  └─ LegalPage.jsx
+│  │  │  │  └─ Navbar.jsx
+│  │  │  ├─ settings
+│  │  │  │  └─ SettingsNav.jsx
+│  │  │  └─ staff
+│  │  │     ├─ calendar
+│  │  │     │  ├─ DayGrid.jsx
+│  │  │     │  └─ MonthGrid.jsx
+│  │  │     ├─ StaffSidebar.jsx
+│  │  │     └─ StaffTopbar.jsx
+│  │  ├─ context
+│  │  │  └─ AuthContext.jsx
+│  │  ├─ hooks
+│  │  │  ├─ authHook.js
+│  │  │  └─ useInView.js
+│  │  ├─ index.css
+│  │  ├─ main.jsx
+│  │  ├─ pages
+│  │  │  ├─ appointments
+│  │  │  │  ├─ AppointmentDetails.jsx
+│  │  │  │  ├─ AppointmentManagement.jsx
+│  │  │  │  ├─ CreateAppointment.jsx
+│  │  │  │  ├─ PaymentCasOnReception.jsx
+│  │  │  │  ├─ PaymentReceipt.jsx
+│  │  │  │  └─ RescheduleAppointment.jsx
+│  │  │  ├─ auth
+│  │  │  │  ├─ AccountCreated.jsx
+│  │  │  │  ├─ CompanyRegister.jsx
+│  │  │  │  ├─ CustomerRegister.jsx
+│  │  │  │  ├─ ForgotPassword.jsx
+│  │  │  │  ├─ Login.jsx
+│  │  │  │  ├─ ResetPassword.jsx
+│  │  │  │  ├─ RoleSelectionPage.jsx
+│  │  │  │  └─ VerifyOtp.jsx
+│  │  │  ├─ availability
+│  │  │  │  └─ AvailabilityManagement.jsx
+│  │  │  ├─ calendar
+│  │  │  │  └─ CalendarSchedule.jsx
+│  │  │  ├─ customers
+│  │  │  │  ├─ AddCustomers.jsx
+│  │  │  │  ├─ CustomerDetails.jsx
+│  │  │  │  └─ CustomerManagement.jsx
+│  │  │  ├─ dashboard
+│  │  │  │  └─ CompanyDashboard.jsx
+│  │  │  ├─ help
+│  │  │  │  └─ HelpCenter.jsx
+│  │  │  ├─ LandingPage.jsx
+│  │  │  ├─ legal
+│  │  │  │  ├─ CookiePolicy.jsx
+│  │  │  │  ├─ PrivacyPolicy.jsx
+│  │  │  │  └─ TermsOfService.jsx
+│  │  │  ├─ notifications
+│  │  │  │  └─ Notifications.jsx
+│  │  │  ├─ reports
+│  │  │  │  ├─ AppointmentReport.jsx
+│  │  │  │  ├─ CustomerReport.jsx
+│  │  │  │  ├─ Reports.jsx
+│  │  │  │  ├─ ServiceReport.jsx
+│  │  │  │  └─ StaffReport.jsx
+│  │  │  ├─ services
+│  │  │  │  ├─ AddService.jsx
+│  │  │  │  └─ ServicesManagement.jsx
+│  │  │  ├─ settings
+│  │  │  │  ├─ BookingSettings.jsx
+│  │  │  │  ├─ BusinessHours.jsx
+│  │  │  │  ├─ CompanyProfile.jsx
+│  │  │  │  ├─ CompanySettings.jsx
+│  │  │  │  └─ NotificationSettings.jsx
+│  │  │  └─ staff
+│  │  │     ├─ AddStaff.jsx
+│  │  │     ├─ EditStaff.jsx
+│  │  │     ├─ StaffAppointmentDetails.jsx
+│  │  │     ├─ StaffAppointments.jsx
+│  │  │     ├─ StaffAvailability.jsx
+│  │  │     ├─ StaffCalendar.jsx
+│  │  │     ├─ StaffCustomerDetails.jsx
+│  │  │     ├─ StaffCustomers.jsx
+│  │  │     ├─ StaffDashboard.jsx
+│  │  │     ├─ StaffDetails.jsx
+│  │  │     ├─ StaffEditCustomer.jsx
+│  │  │     ├─ StaffManagement.jsx
+│  │  │     ├─ StaffNotifications.jsx
+│  │  │     ├─ StaffReports.jsx
+│  │  │     ├─ StaffRescheduleAppointment.jsx
+│  │  │     └─ StaffSettings.jsx
+│  │  ├─ routes
+│  │  │  └─ AppRoutes.jsx
+│  │  ├─ services
+│  │  │  ├─ api.js
+│  │  │  └─ authService.js
+│  │  └─ utils
+│  └─ vite.config.js
+└─ README.md
+
 ```
-
-Every appointment is a single centralized record tied to a customer, company, professional, and service — the same record surfaces automatically across the Customer, Company, and Staff portals:
-
-```
-Appointment
-├── customer_id
-├── company_id
-├── professional_id
-├── service_id
-├── date / time / duration
-├── appointment_status
-└── payment_status
-```
-
-## User Roles
-
-| Role | Responsibility |
-|---|---|
-| **Super Admin** | Manages the TIMEORA platform: companies, global categories, platform settings, audit logs, and platform-wide analytics. Does not operate individual companies. |
-| **Company Admin** | Manages their own company — services, staff, customers, appointments, availability, and business analytics. |
-| **Staff / Professional** | Manages their own profile, schedule, and assigned appointments only. |
-| **Customer** | A global TIMEORA user (not tied to one company) who discovers professionals and requests/manages their own appointments. |
-
-Role separation is strictly enforced — a Company Admin cannot access another company's data, Staff cannot see the full company customer base by default, and Super Admin does not manage day-to-day company operations.
-
-## Booking & Scheduling Model
-
-- **Fixed 1-hour slots** — every appointment in V1 occupies exactly one hour; no variable-duration scheduling.
-- **Request-based booking** — a customer's slot selection creates a *Pending* request; the assigned professional must Accept or Reject it before it becomes *Confirmed*.
-- **Availability calculation** combines company working hours, professional working hours, recurring schedules, exceptions, breaks, blocked time, and existing/pending appointments.
-- **Appointment lifecycle:** `Pending → Confirmed → Checked-in → In Progress → Completed`, with alternate states `Rejected`, `Cancelled`, and `No-show`.
-
-## Payments & Receipts
-
-TIMEORA V1 uses **Cash on Reception** — there is no online payment gateway.
-
-```
-Appointment Confirmed → Payment = Unpaid → Customer Arrives
-→ Cash Received → Authorized User Marks Paid → Receipt Generated
-```
-
-Receipts can be viewed, downloaded, and printed by the customer, and payment history is tracked at the company level.
-
-## Notifications
-
-Notifications are delivered via **in-app** and **email** channels, following a controlled matrix rather than notifying every role about every event:
-
-- Operational activity (booking, confirmation, rescheduling, cancellation, reminders) → In-app + selected email
-- Account/security actions (verification, password reset) → Email
-- System-wide announcements → In-app, with email reserved for important announcements
-
-## Tech Stack
-
-Layer	                Technology
-Frontend	            React.js, Tailwind CSS, React Router, Axios Context API
-Backend	              Laravel (PHP), REST API, Eloquent ORM
-Database	            MySQL
-Authentication	      Laravel Sanctum
-Authorization	        Laravel Middleware
-Notifications	        Laravel Notifications + Mail
-Receipts	            Laravel PDF generation
-Calendar UI	          React Calendar library
-Version Control	      Git + GitHub
-
-## Project Status
-
-📄 **Documentation:** Finalized functional & system specification (V1)
-🚧 **Implementation:** In progress
-
-This repository accompanies the finalized TIMEORA V1 specification, covering the Landing Page, Registration, Authentication, Company Admin, Staff, Customer, Super Admin, Availability & Scheduling, Payments & Receipts, Notifications, and Permissions modules.
-
-## Roadmap / Out of Scope for V1
-
-The following are intentionally excluded from V1 and may be introduced in future versions:
-
-- Online payment gateways (Stripe, PayPal, JazzCash, Easypaisa)
-- Deposits, refunds, cancellation charges
-- Coupons, gift cards, packages, and service add-ons
-- Variable-duration appointment slots
-- AI-powered features
-- Two-factor authentication (architecture supports adding it later)
-
-## Documentation
-
-Full product and system documentation — including detailed flows for every module — is maintained in `TIMEORA-Documentation.docx`.
-
-## Author
-
-**Maryam Sheikh**
-
-- ✉️ Email: [maryamsheikh5245@gmail.com](mailto:maryamsheikh5245@gmail.com)
-- 💻 GitHub: [@maryamshkk](https://github.com/maryamshkk)
-- 🔗 LinkedIn: [maryamsheikh45](https://www.linkedin.com/in/maryamsheikh45/)
-- 📦 Project Repository: [timeora-appointment-booking-system](https://github.com/maryamshkk/timeora-appointment-booking-system-)
-
----
-
-<p align="center">TIMEORA by Tiemio — "One Platform. Every Appointment."</p>

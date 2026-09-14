@@ -340,40 +340,38 @@ class AuthController extends Controller
         ], 200);
     }
 
-    // CUSTOMER RESEND OTP
-    public function customerResendOtp(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
+public function customerResendOtp(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+    ]);
 
-        $customer = User::where('email', $request->email)
-            ->where('user_type', 'customer')
-            ->first();
+    $customer = User::where('email', $request->email)
+        ->where('user_type', 'customer')
+        ->first();
 
-        if (!$customer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid request.',
-            ], 404);
-        }
-
-        $this->otpService->sendOtp(
-             'customer',
-            $customer->id,
-            $customer->email
-        );
-
+    if (!$customer) {
         return response()->json([
-            'success' => true,
-            'message' => 'A new verification code has been sent.',
-            'data' => [
-                'email' => $email,
-                'otp_expires_in_seconds' => 600,
-            ],
-        ], 200);
+            'success' => false,
+            'message' => 'Invalid request.',
+        ], 404);
     }
 
+    $this->otpService->sendOtp(
+        'customer',
+        $customer->id,
+        $customer->email
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'A new verification code has been sent.',
+        'data' => [
+            'email' => $customer->email,
+            'otp_expires_in_seconds' => 600,
+        ],
+    ], 200);
+}
     public function login(Request $request)
     {
         $request->validate([
@@ -624,57 +622,57 @@ class AuthController extends Controller
             ], 200);
     }
 
-    // RESET PASSWORD
-    public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|digits:6',
-            'password' => [
-                'required',
-                'min:8',
-                'regex:/[A-Z]/',
-                'regex:/[a-z]/',
-                'regex:/[0-9]/',
-                'regex:/[^A-Za-z0-9]/',
-            ],
-            'password_confirmation' => 'required|same:password',
-        ]);
+public function resetPassword(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'otp' => 'required|digits:6',
+        'password' => [
+            'required',
+            'min:8',
+            'regex:/[A-Z]/',
+            'regex:/[a-z]/',
+            'regex:/[0-9]/',
+            'regex:/[^A-Za-z0-9]/',
+        ],
+        'password_confirmation' => 'required|same:password',
+    ]);
 
-        $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No account found with this email.',
-                'data' => null,
-                'errors' => null,
-            ], 404);
-        }
-
-        $result = $this->otpService->verifyOtp(
-            $user->email,
-            $user->id,
-            $request->otp,
-            'password_reset'
-        );
-
-        if (!$result['success']) {
-            return response()->json($result, 422);
-        }
-
-        $user->update([
-            'password' => Hash::make($request->password),
-        ]);
-
-        // Delete all tokens after password reset
-        $user->tokens()->delete();
-
+    if (!$user) {
         return response()->json([
-            'success' => true,
-            'message' => 'Password reset successfully. Please login with your new password.',
+            'success' => false,
+            'message' => 'No account found with this email.',
             'data' => null,
             'errors' => null,
-        ], 200);
+        ], 404);
     }
+
+    $ownerType = $user->user_type === 'company_admin' ? 'company_admin' : 'customer';
+
+    $result = $this->otpService->verifyOtp(
+        $ownerType,
+        $user->id,
+        $request->otp,
+        'password_reset'
+    );
+
+    if (!$result['success']) {
+        return response()->json($result, 422);
+    }
+
+    $user->update([
+        'password' => Hash::make($request->password),
+    ]);
+
+    $user->tokens()->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Password reset successfully. Please login with your new password.',
+        'data' => null,
+        'errors' => null,
+    ], 200);
+}
 }

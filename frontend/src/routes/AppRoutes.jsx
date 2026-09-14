@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import LandingPage from "../pages/LandingPage";
 
@@ -80,190 +80,189 @@ import StaffSettings from "../pages/staff/StaffSettings";
 
 function AppRoutes() {
     return (
-        <BrowserRouter>
-            <Routes>
-                {/* Landing page */}
-                <Route path="/" element={<LandingPage />} />
+        <Routes>
+            {/* Landing page */}
+            <Route path="/" element={<LandingPage />} />
 
-                {/* Auth — role selection */}
-                <Route path="/roleselection" element={<RoleSelectionPage />} />
-                <Route path="/register" element={<RoleSelectionPage />} />
+            {/* Auth — role selection */}
+            <Route path="/roleselection" element={<RoleSelectionPage />} />
+            <Route path="/register" element={<RoleSelectionPage />} />
 
-                {/* Company registration flow */}
-                <Route path="/register/company" element={<CompanyRegistration />} />
-                <Route
-                    path="/register/verify-otp"
-                    element={<VerifyOtp role="company" />}
-                />
-                <Route
-                    path="/register/account-created"
-                    element={<AccountCreated />}
-                />
+            {/* Company registration flow */}
+            <Route path="/register/company" element={<CompanyRegistration />} />
+            <Route
+                path="/register/verify-otp"
+                element={<VerifyOtp role="company" />}
+            />
+            <Route
+                path="/register/account-created"
+                element={<AccountCreated />}
+            />
 
-                {/* Customer registration flow */}
-                <Route path="/register/customer" element={<CustomerRegistration />} />
-                <Route
-                    path="/register/customer/verify"
-                    element={<VerifyOtp role="customer" />}
-                />
-                <Route
-                    path="/register/customer/account-created"
-                    element={<AccountCreated />}
-                />
+            {/* Customer registration flow */}
+            <Route path="/register/customer" element={<CustomerRegistration />} />
+            <Route
+                path="/register/customer/verify"
+                element={<VerifyOtp role="customer" />}
+            />
+            <Route
+                path="/register/customer/account-created"
+                element={<AccountCreated />}
+            />
 
-                {/* Auth — shared */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/forget-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
+            {/* Auth — shared */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/forget-password" element={<ForgotPassword />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
-                {/* Legal */}
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/cookies" element={<CookiePolicy />} />
+            {/* Legal */}
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/cookies" element={<CookiePolicy />} />
 
-                {/* Company — Dashboard */}
-                <Route path="/company/dashboard" element={<CompanyDashboard />} />
+            {/* Company — Dashboard */}
+            <Route path="/company/dashboard" element={<CompanyDashboard />} />
 
-                {/* Company — Appointments */}
-                <Route path="/company/appointments" element={<AppointmentManagement />} />
-                <Route path="/company/appointments/new" element={<CreateAppointment />} />
-                <Route
-                    path="/company/appointments/:appointmentId/reschedule"
-                    element={<RescheduleAppointment />}
-                />
-                <Route
-                    path="/company/appointments/:appointmentId"
-                    element={<AppointmentDetails />}
-                />
-                <Route
-                    path="/company/appointments/:paymentId/payment"
-                    element={<PaymentCashOnReception />}
-                />
-                <Route
-                    path="/company/appointments/:receiptId/receipt"
-                    element={<PaymentReceipt />}
-                />
+            {/* Company — Appointments */}
+            <Route path="/company/appointments" element={<AppointmentManagement />} />
+            <Route path="/company/appointments/new" element={<CreateAppointment />} />
+            <Route
+                path="/company/appointments/:appointmentId/reschedule"
+                element={<RescheduleAppointment />}
+            />
+            <Route
+                path="/company/appointments/:appointmentId"
+                element={<AppointmentDetails />}
+            />
+            <Route
+                path="/company/appointments/:paymentId/payment"
+                element={<PaymentCashOnReception />}
+            />
+            <Route
+                path="/company/appointments/:receiptId/receipt"
+                element={<PaymentReceipt />}
+            />
 
-                {/* Company — Calendar */}
-                <Route path="/company/calendar" element={<CalenderSchedule />} />
+            {/* Company — Calendar */}
+            <Route path="/company/calendar" element={<CalenderSchedule />} />
 
-                {/* Company — Staff */}
-                <Route path="/company/staff" element={<StaffManagement />} />
-                <Route path="/company/staff/add" element={<AddStaff />} />
-                <Route
-                    path="/company/staff/:staffId/availability"
-                    element={<AvailabilityManagement />}
-                />
-                <Route path="/company/staff/:staffId" element={<StaffDetails />} />
-                <Route
-                    path="/company/staff/:staffId/edit"
-                    element={<EditStaff />}
-                />
+            {/* Company — Staff */}
+            <Route path="/company/staff" element={<StaffManagement />} />
+            <Route path="/company/staff/add" element={<AddStaff />} />
+            <Route
+                path="/company/staff/:staffId/availability"
+                element={<AvailabilityManagement />}
+            />
+            <Route path="/company/staff/:staffId" element={<StaffDetails />} />
+            <Route
+                path="/company/staff/:staffId/edit"
+                element={<EditStaff />}
+            />
 
-                {/* Company — Services */}
-                <Route path="/company/services" element={<ServicesManagement />} />
-                <Route path="/company/services/add" element={<AddService />} />
+            {/* Company — Services */}
+            <Route path="/company/services" element={<ServicesManagement />} />
+            <Route path="/company/services/add" element={<AddService />} />
 
-                {/* Company — Customers */}
-                <Route path="/company/customers" element={<CustomerManagement />} />
-                <Route path="/company/customers/new" element={<AddCustomer />} />
-                <Route
-                    path="/company/customers/:customerId"
-                    element={<CustomerDetails />}
-                />
+            {/* Company — Customers */}
+            <Route path="/company/customers" element={<CustomerManagement />} />
+            <Route path="/company/customers/new" element={<AddCustomer />} />
+            <Route
+                path="/company/customers/:customerId"
+                element={<CustomerDetails />}
+            />
 
-                {/* Company — Availability */}
-                <Route
-                    path="/company/availability"
-                    element={<AvailabilityManagement />}
-                />
+            {/* Company — Availability */}
+            <Route
+                path="/company/availability"
+                element={<AvailabilityManagement />}
+            />
 
-                {/* Company — Reports */}
-                <Route path="/company/reports" element={<Reports />} />
-                <Route
-                    path="/company/reports/appointments"
-                    element={<AppointmentReport />}
-                />
-                <Route path="/company/reports/staff" element={<StaffReport />} />
-                <Route path="/company/reports/services" element={<ServiceReport />} />
-                <Route
-                    path="/company/reports/customers"
-                    element={<CustomerReport />}
-                />
+            {/* Company — Reports */}
+            <Route path="/company/reports" element={<Reports />} />
+            <Route
+                path="/company/reports/appointments"
+                element={<AppointmentReport />}
+            />
+            <Route path="/company/reports/staff" element={<StaffReport />} />
+            <Route path="/company/reports/services" element={<ServiceReport />} />
+            <Route
+                path="/company/reports/customers"
+                element={<CustomerReport />}
+            />
 
-                {/* Company — Notifications */}
-                <Route path="/company/notifications" element={<Notifications />} />
+            {/* Company — Notifications */}
+            <Route path="/company/notifications" element={<Notifications />} />
 
-                {/* Company — Help */}
-                <Route path="/company/help" element={<HelpCenter />} />
+            {/* Company — Help */}
+            <Route path="/company/help" element={<HelpCenter />} />
 
-                {/* Company — Settings */}
-                <Route path="/company/settings" element={<CompanySettings />} />
-                <Route
-                    path="/company/settings/profile"
-                    element={<CompanyProfile />}
-                />
-                <Route
-                    path="/company/settings/booking"
-                    element={<BookingSettings />}
-                />
-                <Route
-                    path="/company/settings/hours"
-                    element={<BusinessHours />}
-                />
-                <Route
-                    path="/company/settings/notifications"
-                    element={<NotificationSettings />}
-                />
+            {/* Company — Settings */}
+            <Route path="/company/settings" element={<CompanySettings />} />
+            <Route
+                path="/company/settings/profile"
+                element={<CompanyProfile />}
+            />
+            <Route
+                path="/company/settings/booking"
+                element={<BookingSettings />}
+            />
+            <Route
+                path="/company/settings/hours"
+                element={<BusinessHours />}
+            />
+            <Route
+                path="/company/settings/notifications"
+                element={<NotificationSettings />}
+            />
 
-                {/* Staff Portal — Dashboard */}
-                <Route path="/staff/dashboard" element={<StaffDashboard />} />
+            {/* Staff Portal — Dashboard */}
+            <Route path="/staff/dashboard" element={<StaffDashboard />} />
 
-                {/* Staff Portal — Calendar */}
-                <Route path="/staff/calendar" element={<StaffCalendar />} />
+            {/* Staff Portal — Calendar */}
+            <Route path="/staff/calendar" element={<StaffCalendar />} />
 
-                {/* Staff Portal — Appointments */}
-                <Route path="/staff/appointments" element={<StaffAppointments />} />
-                <Route
-                    path="/staff/appointments/:appointmentId"
-                    element={<StaffAppointmentDetails />}
-                />
-                <Route
-                    path="/staff/appointments/:appointmentId/reschedule"
-                    element={<StaffRescheduleAppointment />}
-                />
+            {/* Staff Portal — Appointments */}
+            <Route path="/staff/appointments" element={<StaffAppointments />} />
+            <Route
+                path="/staff/appointments/:appointmentId"
+                element={<StaffAppointmentDetails />}
+            />
+            <Route
+                path="/staff/appointments/:appointmentId/reschedule"
+                element={<StaffRescheduleAppointment />}
+            />
 
-                {/* Staff Portal — Customers */}
-                <Route path="/staff/customers" element={<StaffCustomers />} />
-                <Route
-                    path="/staff/customers/:customerId"
-                    element={<StaffCustomerDetails />}
-                />
-                <Route
-                    path="/staff/customers/:customerId/edit"
-                    element={<StaffEditCustomer />}
-                />
+            {/* Staff Portal — Customers */}
+            <Route path="/staff/customers" element={<StaffCustomers />} />
+            <Route
+                path="/staff/customers/:customerId"
+                element={<StaffCustomerDetails />}
+            />
+            <Route
+                path="/staff/customers/:customerId/edit"
+                element={<StaffEditCustomer />}
+            />
 
-                {/* Staff Portal — Availability */}
-                <Route path="/staff/availability" element={<StaffAvailability />} />
+            {/* Staff Portal — Availability */}
+            <Route path="/staff/availability" element={<StaffAvailability />} />
 
-                {/* Staff Portal — Reports */}
-                <Route path="/staff/reports" element={<StaffReports />} />
+            {/* Staff Portal — Reports */}
+            <Route path="/staff/reports" element={<StaffReports />} />
 
-                {/* Staff Portal — Notifications */}
-                <Route
-                    path="/staff/notifications"
-                    element={<StaffNotifications />}
-                />
+            {/* Staff Portal — Notifications */}
+            <Route
+                path="/staff/notifications"
+                element={<StaffNotifications />}
+            />
 
-                {/* Staff Portal — Settings */}
-                <Route path="/staff/settings" element={<StaffSettings />} />
+            {/* Staff Portal — Settings */}
+            <Route path="/staff/settings" element={<StaffSettings />} />
 
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
-        </BrowserRouter>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
     );
 }
 

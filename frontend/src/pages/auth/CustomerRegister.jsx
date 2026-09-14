@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import RegistrationIntro from "../../components/common/RegistrationIntro";
 import RegistrationSteps from "../../components/common/RegistrationSteps";
+import { useCustomerRegister } from "../../hooks/authHook";
 
 function CustomerRegistration() {
-    const navigate = useNavigate();
+    const {
+        mutate: registerCustomer,
+        isPending,
+        error,
+        reset,
+    } = useCustomerRegister();
 
     const [formData, setFormData] = useState({
         fullName: "",
@@ -18,7 +24,6 @@ function CustomerRegistration() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const passwordsMatch =
         formData.confirmPassword === "" ||
@@ -70,8 +75,10 @@ function CustomerRegistration() {
         return validationErrors;
     }
 
-    async function handleSubmit(event) {
+    function handleSubmit(event) {
         event.preventDefault();
+
+        reset();
 
         const validationErrors = validate();
 
@@ -80,29 +87,7 @@ function CustomerRegistration() {
             return;
         }
 
-        setIsSubmitting(true);
-
-        try {
-            // TODO: axios POST /api/auth/register/customer
-            // Payload: { fullName, email, password }
-            //
-            // Expected response:
-            // {
-            //     message: "OTP sent to your email.",
-            //     data: { customer_email: "..." }
-            // }
-
-            navigate("/register/customer/verify-o", {
-                state: {
-                    role: "customer",
-                    customerEmail: formData.email,
-                    message:
-                        "We sent a 6-digit verification code to your email.",
-                },
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
+        registerCustomer(formData);
     }
 
     const hasValidationErrors =
@@ -113,20 +98,22 @@ function CustomerRegistration() {
         !formData.confirmPassword ||
         !passwordsMatch;
 
+    const apiErrorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "";
+
     return (
         <div className="min-h-screen bg-beige px-3 py-6 sm:px-4 sm:py-8 md:px-6 md:py-10 lg:px-10">
             <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-6 md:flex-row md:items-start md:gap-8 lg:gap-10">
 
-                {/* Left Branding Panel */}
                 <RegistrationIntro
                     heading="Book appointments, manage your visits, and stay on schedule with TIMEORA."
                     description="Create your customer account to book appointments, view your visit history, and manage your schedule in one place."
                 />
 
-                {/* Right Section — Form */}
                 <div className="w-full max-w-[640px] md:w-[58%] md:max-w-none md:flex-shrink-0">
 
-                    {/* Back to Role Selection */}
                     <Link
                         to="/register"
                         className="
@@ -144,13 +131,10 @@ function CustomerRegistration() {
                         ← BACK TO ROLE SELECTION
                     </Link>
 
-                    {/* Card */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray/20 p-4 sm:p-6 md:p-8 lg:p-10">
 
-                        {/* Stepper */}
                         <RegistrationSteps currentStep={1} />
 
-                        {/* Title */}
                         <h1 className="mt-4 font-serif text-xl text-navy sm:text-2xl md:text-3xl">
                             Register as Customer
                         </h1>
@@ -162,10 +146,8 @@ function CustomerRegistration() {
                             with TIMEORA.
                         </p>
 
-                        {/* Form */}
                         <form onSubmit={handleSubmit}>
 
-                            {/* Full Name */}
                             <div className="mb-5">
                                 <label
                                     htmlFor="fullName"
@@ -204,7 +186,6 @@ function CustomerRegistration() {
                                 )}
                             </div>
 
-                            {/* Email */}
                             <div className="mb-5">
                                 <label
                                     htmlFor="email"
@@ -243,7 +224,6 @@ function CustomerRegistration() {
                                 )}
                             </div>
 
-                            {/* Password */}
                             <div className="mb-5">
                                 <label
                                     htmlFor="password"
@@ -310,7 +290,6 @@ function CustomerRegistration() {
                                 )}
                             </div>
 
-                            {/* Confirm Password */}
                             <div className="mb-6">
                                 <label
                                     htmlFor="confirmPassword"
@@ -385,10 +364,17 @@ function CustomerRegistration() {
                                 )}
                             </div>
 
-                            {/* Submit */}
+                            {apiErrorMessage && (
+                                <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+                                    <p className="text-xs text-red-700">
+                                        {apiErrorMessage}
+                                    </p>
+                                </div>
+                            )}
+
                             <button
                                 type="submit"
-                                disabled={isSubmitting || hasValidationErrors}
+                                disabled={isPending || hasValidationErrors}
                                 className="
                                     w-full
                                     py-4
@@ -412,16 +398,15 @@ function CustomerRegistration() {
                                     disabled:hover:text-white
                                 "
                             >
-                                {isSubmitting ? "REGISTERING..." : "REGISTER"}
+                                {isPending ? "REGISTERING..." : "REGISTER"}
 
-                                {!isSubmitting && (
+                                {!isPending && (
                                     <ArrowRight className="w-4 h-4" />
                                 )}
                             </button>
 
                         </form>
 
-                        {/* Login */}
                         <p className="text-sm text-slate text-center mt-5">
                             Already have an account?{" "}
                             <Link
@@ -434,7 +419,6 @@ function CustomerRegistration() {
 
                     </div>
 
-                    {/* Legal Links — brown theme */}
                     <p className="text-xs text-brown text-center mt-5">
                         Privacy Policy
                         <span className="mx-2 text-brown/60">·</span>
