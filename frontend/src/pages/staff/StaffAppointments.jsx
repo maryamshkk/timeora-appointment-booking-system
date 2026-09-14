@@ -126,11 +126,21 @@ function StaffAppointments() {
     }
 
     function handleRowAction(appointmentId, action) {
-        setOpenMenuId(null);
+    setOpenMenuId(null);
 
-        // TODO: axios API call for the selected action
-        // View Details / Reschedule / Mark Complete / Cancel
+    if (action === "view") {
+        navigate(`/staff/appointments/${appointmentId}`);
+        return;
     }
+
+    if (action === "reschedule") {
+        navigate(`/staff/appointments/${appointmentId}/reschedule`);
+        return;
+    }
+
+    // TODO: axios PATCH /api/staff/appointments/:id/complete
+    // TODO: axios PATCH /api/staff/appointments/:id/cancel
+}
 
     function handlePageChange(page) {
         setCurrentPage(page);

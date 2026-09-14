@@ -31,6 +31,8 @@ import CalenderSchedule from "../pages/calendar/CalendarSchedule";
 import StaffManagement from "../pages/staff/StaffManagement";
 import AddStaff from "../pages/staff/AddStaff";
 import StaffDetails from "../pages/staff/StaffDetails";
+import EditStaff from "../pages/staff/EditStaff";
+
 
 import ServicesManagement from "../pages/services/ServicesManagement";
 import AddService from "../pages/services/AddService";
@@ -57,10 +59,16 @@ import BookingSettings from "../pages/settings/BookingSettings";
 import BusinessHours from "../pages/settings/BusinessHours";
 import NotificationSettings from "../pages/settings/NotificationSettings";
 
-// Staff Dashboard
+// Staff Portal
 import StaffDashboard from "../pages/staff/StaffDashboard";
 import StaffCalendar from "../pages/staff/StaffCalendar";
 import StaffAppointments from "../pages/staff/StaffAppointments";
+import StaffAppointmentDetails from "../pages/staff/StaffAppointmentDetails";
+import StaffRescheduleAppointment from "../pages/staff/StaffRescheduleAppointment";
+import StaffCustomerDetails from "../pages/staff/CustomerDetails";
+import StaffCustomers from "../pages/staff/StaffCustomers";
+import StaffAvailability from "../pages/staff/StaffAvailability";
+import StaffEditCustomer from "../pages/staff/StaffEditCustomer";
 
 
 function AppRoutes() {
@@ -141,6 +149,10 @@ function AppRoutes() {
                     element={<AvailabilityManagement />}
                 />
                 <Route path="/company/staff/:staffId" element={<StaffDetails />} />
+                <Route
+                    path="/company/staff/:staffId/edit"
+                    element={<EditStaff />}
+                />
 
                 {/* Company — Services */}
                 <Route path="/company/services" element={<ServicesManagement />} />
@@ -154,7 +166,7 @@ function AppRoutes() {
                     element={<CustomerDetails />}
                 />
 
-                {/* Company — Availability (main) */}
+                {/* Company — Availability */}
                 <Route
                     path="/company/availability"
                     element={<AvailabilityManagement />}
@@ -198,12 +210,34 @@ function AppRoutes() {
                     element={<NotificationSettings />}
                 />
 
+                {/* Staff Portal — Dashboard */}
+                <Route path="/staff/dashboard" element={<StaffDashboard />} />
 
-                {/* Staff - Dashboard */}
-                <Route path="/staff/dashboard" element={<StaffDashboard />}/>
-                <Route path="/staff/calendar" element={<StaffCalendar />}/>
-                <Route path="/staff/appointments" element={<StaffAppointments />}/>
+                {/* Staff Portal — Calendar */}
+                <Route path="/staff/calendar" element={<StaffCalendar />} />
 
+                {/* Staff Portal — Appointments */}
+                <Route path="/staff/appointments" element={<StaffAppointments />} />
+                <Route
+                    path="/staff/appointments/:appointmentId"
+                    element={<StaffAppointmentDetails />}
+                />
+                <Route path="/staff/appointments/:appointmentId/reschedule" element={<StaffRescheduleAppointment />} />
+
+                {/* Staff Portal — Customers */}
+                <Route path="/staff/customers" element={<StaffCustomers />} />
+                <Route
+                    path="/staff/customers/:customerId"
+                    element={<StaffCustomerDetails />}
+                />
+
+                <Route
+                    path="/staff/customers/:customerId/edit"
+                    element={<StaffEditCustomer />}
+                />
+                                
+                {/* Staff Portal — Availability */}
+                <Route path="/staff/availability" element={<StaffAvailability />} />
 
                 {/* Fallback */}
                 <Route path="*" element={<RoleSelectionPage />} />
