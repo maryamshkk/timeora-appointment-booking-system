@@ -15,7 +15,6 @@ import ResetPassword from "../pages/auth/ResetPassword";
 import PrivacyPolicy from "../pages/legal/PrivacyPolicy";
 import TermsOfService from "../pages/legal/TermsOfService";
 import CookiePolicy from "../pages/legal/CookiePolicy";
-import Accessibility from "../pages/legal/Accessibility";
 
 // Company
 import CompanyDashboard from "../pages/dashboard/CompanyDashboard";
@@ -57,6 +56,7 @@ import CompanyProfile from "../pages/settings/CompanyProfile";
 import BookingSettings from "../pages/settings/BookingSettings";
 import BusinessHours from "../pages/settings/BusinessHours";
 import NotificationSettings from "../pages/settings/NotificationSettings";
+import StaffDashboard from "../pages/staff/StaffDashboard";
 
 function AppRoutes() {
     return (
@@ -101,7 +101,6 @@ function AppRoutes() {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/cookies" element={<CookiePolicy />} />
-                <Route path="/accessibility" element={<Accessibility />} />
 
                 {/* Company — Dashboard */}
                 <Route path="/company/dashboard" element={<CompanyDashboard />} />
@@ -193,6 +192,10 @@ function AppRoutes() {
                     path="/company/settings/notifications"
                     element={<NotificationSettings />}
                 />
+
+
+                {/* Staff - Dashboard */}
+                <Route path="/staff/dashboard" element={<StaffDashboard />}/>
 
                 {/* Fallback */}
                 <Route path="*" element={<RoleSelectionPage />} />
