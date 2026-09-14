@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import LandingPage from "../pages/LandingPage";
 
@@ -32,7 +32,6 @@ import StaffManagement from "../pages/staff/StaffManagement";
 import AddStaff from "../pages/staff/AddStaff";
 import StaffDetails from "../pages/staff/StaffDetails";
 import EditStaff from "../pages/staff/EditStaff";
-
 
 import ServicesManagement from "../pages/services/ServicesManagement";
 import AddService from "../pages/services/AddService";
@@ -68,8 +67,8 @@ import StaffAppointments from "../pages/staff/StaffAppointments";
 import StaffAppointmentDetails from "../pages/staff/StaffAppointmentDetails";
 import StaffRescheduleAppointment from "../pages/staff/StaffRescheduleAppointment";
 
-import StaffCustomerDetails from "../pages/staff/CustomerDetails";
 import StaffCustomers from "../pages/staff/StaffCustomers";
+import StaffCustomerDetails from "../pages/staff/StaffCustomerDetails";
 import StaffEditCustomer from "../pages/staff/StaffEditCustomer";
 
 import StaffAvailability from "../pages/staff/StaffAvailability";
@@ -86,7 +85,7 @@ function AppRoutes() {
                 {/* Landing page */}
                 <Route path="/" element={<LandingPage />} />
 
-                {/* Auth */}
+                {/* Auth — role selection */}
                 <Route path="/roleselection" element={<RoleSelectionPage />} />
                 <Route path="/register" element={<RoleSelectionPage />} />
 
@@ -230,7 +229,10 @@ function AppRoutes() {
                     path="/staff/appointments/:appointmentId"
                     element={<StaffAppointmentDetails />}
                 />
-                <Route path="/staff/appointments/:appointmentId/reschedule" element={<StaffRescheduleAppointment />} />
+                <Route
+                    path="/staff/appointments/:appointmentId/reschedule"
+                    element={<StaffRescheduleAppointment />}
+                />
 
                 {/* Staff Portal — Customers */}
                 <Route path="/staff/customers" element={<StaffCustomers />} />
@@ -238,32 +240,28 @@ function AppRoutes() {
                     path="/staff/customers/:customerId"
                     element={<StaffCustomerDetails />}
                 />
-
                 <Route
                     path="/staff/customers/:customerId/edit"
                     element={<StaffEditCustomer />}
                 />
-                                
+
                 {/* Staff Portal — Availability */}
                 <Route path="/staff/availability" element={<StaffAvailability />} />
 
-                {/* staff -reports */}
-                <Route
-                    path="/staff/reports"
-                    element={<StaffReports />} />
+                {/* Staff Portal — Reports */}
+                <Route path="/staff/reports" element={<StaffReports />} />
 
+                {/* Staff Portal — Notifications */}
                 <Route
                     path="/staff/notifications"
                     element={<StaffNotifications />}
                 />
-                {/* settings */}
-                <Route
-                    path="/staff/settings"
-                    element={<StaffSettings />}
-                />
+
+                {/* Staff Portal — Settings */}
+                <Route path="/staff/settings" element={<StaffSettings />} />
 
                 {/* Fallback */}
-                <Route path="*" element={<RoleSelectionPage />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </BrowserRouter>
     );

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
     LayoutDashboard,
     Calendar,
@@ -11,6 +11,7 @@ import {
     Settings,
     Search,
     LogOut,
+    Menu,
     ChevronDown,
     ArrowRight,
 } from "lucide-react";
@@ -27,7 +28,7 @@ function StaffSettings() {
         { label: "Customers", icon: Users, to: "/staff/customers" },
         { label: "Reports", icon: BarChart3, to: "/staff/reports" },
         { label: "Notifications", icon: Bell, to: "/staff/notifications" },
-        { label: "Settings", icon: Settings, to: "/staff/settings", active: true },
+        { label: "Settings", icon: Settings, to: "/staff/settings" },
     ];
 
     const tabs = [
@@ -68,19 +69,33 @@ function StaffSettings() {
                 {/* Topbar */}
                 <div className="bg-white border-b border-gray/20 px-4 sm:px-6 md:px-8 py-4 flex items-center justify-between">
 
-                    <div className="relative w-full max-w-[280px]">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
 
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray" />
+                        {/* Hamburger — mobile only */}
+                        <button
+                            type="button"
+                            onClick={() => setSidebarOpen(true)}
+                            className="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center hover:bg-beige transition shrink-0"
+                            aria-label="Open menu"
+                        >
+                            <Menu className="w-5 h-5 text-navy" />
+                        </button>
 
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            className="w-full bg-white border border-gray/20 rounded-lg pl-10 pr-4 py-2 text-sm text-navy outline-none focus:border-navy"
-                        />
+                        <div className="relative w-full max-w-[280px]">
+
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray" />
+
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                className="w-full bg-white border border-gray/20 rounded-lg pl-10 pr-4 py-2 text-sm text-navy outline-none focus:border-navy"
+                            />
+
+                        </div>
 
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 shrink-0">
 
                         <button
                             type="button"
@@ -277,22 +292,28 @@ function ToggleRow({ label, description, checked, onChange }) {
 /* ------------------------------------------------------------------ */
 /* 1. General Panel                                                    */
 /* ------------------------------------------------------------------ */
-function GeneralPanel() {
-    const defaults = {
-        language: "English (US)",
-        timezone: "Asia/Karachi",
-        dateFormat: "DD/MM/YYYY",
-        timeFormat: "12-hour (AM/PM)",
-        startPage: "Dashboard",
-    };
+const GENERAL_DEFAULTS = {
+    language: "English (US)",
+    timezone: "Asia/Karachi",
+    dateFormat: "DD/MM/YYYY",
+    timeFormat: "12-hour (AM/PM)",
+    startPage: "Dashboard",
+};
 
-    const [form, setForm] = useState(defaults);
+function GeneralPanel() {
+    const [form, setForm] = useState(GENERAL_DEFAULTS);
 
     const set = (key, value) =>
         setForm((prev) => ({ ...prev, [key]: value }));
 
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        // TODO: api.patch("/staff/settings/general", form)
+        console.log("Save general settings:", form);
+    };
+
     return (
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSubmit}>
 
             <PanelHeader
                 title="General Settings"
@@ -342,7 +363,7 @@ function GeneralPanel() {
 
             </div>
 
-            <PanelFooter onDiscard={() => setForm(defaults)} />
+            <PanelFooter onDiscard={() => setForm(GENERAL_DEFAULTS)} />
 
         </form>
     );
@@ -351,43 +372,49 @@ function GeneralPanel() {
 /* ------------------------------------------------------------------ */
 /* 2. Notification Preferences Panel                                   */
 /* ------------------------------------------------------------------ */
+const NOTIFICATION_DEFAULTS = {
+    emailNew: true,
+    emailCancel: true,
+    emailReschedule: true,
+    emailReminders: true,
+    emailDaily: false,
+
+    appNew: true,
+    appCancel: true,
+    appReschedule: true,
+    appReminders: true,
+    appSystem: false,
+
+    timing: "30 minutes before",
+};
+
+const EMAIL_ITEMS = [
+    ["emailNew", "New appointment bookings", "When a customer books a new appointment."],
+    ["emailCancel", "Appointment cancellations", "When an appointment is cancelled."],
+    ["emailReschedule", "Appointment reschedules", "When an appointment is rescheduled."],
+    ["emailReminders", "Upcoming reminders", "Before your scheduled appointments."],
+    ["emailDaily", "Daily schedule summary", "A summary of your day each morning."],
+];
+
+const APP_ITEMS = [
+    ["appNew", "New appointment bookings", "When a customer books a new appointment."],
+    ["appCancel", "Appointment cancellations", "When an appointment is cancelled."],
+    ["appReschedule", "Appointment reschedules", "When an appointment is rescheduled."],
+    ["appReminders", "Upcoming reminders", "Before your scheduled appointments."],
+    ["appSystem", "System updates", "Portal updates and maintenance notices."],
+];
+
 function NotificationPanel() {
-    const defaults = {
-        emailNew: true,
-        emailCancel: true,
-        emailReschedule: true,
-        emailReminders: true,
-        emailDaily: false,
-
-        appNew: true,
-        appCancel: true,
-        appReschedule: true,
-        appReminders: true,
-        appSystem: false,
-
-        timing: "30 minutes before",
-    };
-
-    const [prefs, setPrefs] = useState(defaults);
-
-    const emailItems = [
-        ["emailNew", "New appointment bookings", "When a customer books a new appointment."],
-        ["emailCancel", "Appointment cancellations", "When an appointment is cancelled."],
-        ["emailReschedule", "Appointment reschedules", "When an appointment is rescheduled."],
-        ["emailReminders", "Upcoming reminders", "Before your scheduled appointments."],
-        ["emailDaily", "Daily schedule summary", "A summary of your day each morning."],
-    ];
-
-    const appItems = [
-        ["appNew", "New appointment bookings", "When a customer books a new appointment."],
-        ["appCancel", "Appointment cancellations", "When an appointment is cancelled."],
-        ["appReschedule", "Appointment reschedules", "When an appointment is rescheduled."],
-        ["appReminders", "Upcoming reminders", "Before your scheduled appointments."],
-        ["appSystem", "System updates", "Portal updates and maintenance notices."],
-    ];
+    const [prefs, setPrefs] = useState(NOTIFICATION_DEFAULTS);
 
     const toggle = (key) =>
         setPrefs((prev) => ({ ...prev, [key]: !prev[key] }));
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        // TODO: api.patch("/staff/settings/notifications", prefs)
+        console.log("Save notification prefs:", prefs);
+    };
 
     const Section = ({ title, subtitle, items }) => (
         <section>
@@ -409,7 +436,7 @@ function NotificationPanel() {
     );
 
     return (
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSubmit}>
 
             <PanelHeader
                 title="Notification Preferences"
@@ -421,13 +448,13 @@ function NotificationPanel() {
                 <Section
                     title="Email Notifications"
                     subtitle="Sent to your registered email address."
-                    items={emailItems}
+                    items={EMAIL_ITEMS}
                 />
 
                 <Section
                     title="In-App Notifications"
                     subtitle="Shown inside the Staff Portal."
-                    items={appItems}
+                    items={APP_ITEMS}
                 />
 
                 <SelectField
@@ -441,7 +468,7 @@ function NotificationPanel() {
 
             </div>
 
-            <PanelFooter onDiscard={() => setPrefs(defaults)} />
+            <PanelFooter onDiscard={() => setPrefs(NOTIFICATION_DEFAULTS)} />
 
         </form>
     );
@@ -450,18 +477,18 @@ function NotificationPanel() {
 /* ------------------------------------------------------------------ */
 /* 3. Calendar Preferences Panel                                       */
 /* ------------------------------------------------------------------ */
-function CalendarPanel() {
-    const defaults = {
-        defaultView: "Week",
-        weekStart: "Monday",
-        workingHoursStart: "09:00",
-        workingHoursEnd: "18:00",
-        slotDuration: "30 minutes",
-        showWeekends: true,
-        bufferTime: "10 minutes",
-    };
+const CALENDAR_DEFAULTS = {
+    defaultView: "Week",
+    weekStart: "Monday",
+    workingHoursStart: "09:00",
+    workingHoursEnd: "18:00",
+    slotDuration: "30 minutes",
+    showWeekends: true,
+    bufferTime: "10 minutes",
+};
 
-    const [prefs, setPrefs] = useState(defaults);
+function CalendarPanel() {
+    const [prefs, setPrefs] = useState(CALENDAR_DEFAULTS);
 
     const set = (key, value) =>
         setPrefs((prev) => ({ ...prev, [key]: value }));
@@ -469,8 +496,14 @@ function CalendarPanel() {
     const toggle = (key) =>
         setPrefs((prev) => ({ ...prev, [key]: !prev[key] }));
 
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        // TODO: api.patch("/staff/settings/calendar", prefs)
+        console.log("Save calendar prefs:", prefs);
+    };
+
     return (
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSubmit}>
 
             <PanelHeader
                 title="Calendar Preferences"
@@ -553,7 +586,7 @@ function CalendarPanel() {
 
             </div>
 
-            <PanelFooter onDiscard={() => setPrefs(defaults)} />
+            <PanelFooter onDiscard={() => setPrefs(CALENDAR_DEFAULTS)} />
 
         </form>
     );
@@ -562,30 +595,36 @@ function CalendarPanel() {
 /* ------------------------------------------------------------------ */
 /* 4. Privacy Panel                                                    */
 /* ------------------------------------------------------------------ */
-function PrivacyPanel() {
-    const defaults = {
-        profileVisible: true,
-        showEmail: false,
-        showPhone: false,
-        allowCustomerMessages: true,
-        shareAvailability: true,
-    };
+const PRIVACY_DEFAULTS = {
+    profileVisible: true,
+    showEmail: false,
+    showPhone: false,
+    allowCustomerMessages: true,
+    shareAvailability: true,
+};
 
-    const [prefs, setPrefs] = useState(defaults);
+const PRIVACY_ITEMS = [
+    ["profileVisible", "Public profile visibility", "Allow customers to see your basic profile information."],
+    ["showEmail", "Show email address", "Display your email address on your public profile."],
+    ["showPhone", "Show phone number", "Display your phone number on your public profile."],
+    ["allowCustomerMessages", "Allow customer messages", "Let customers send you direct messages through the portal."],
+    ["shareAvailability", "Share availability", "Allow customers to see your available slots when booking."],
+];
+
+function PrivacyPanel() {
+    const [prefs, setPrefs] = useState(PRIVACY_DEFAULTS);
 
     const toggle = (key) =>
         setPrefs((prev) => ({ ...prev, [key]: !prev[key] }));
 
-    const items = [
-        ["profileVisible", "Public profile visibility", "Allow customers to see your basic profile information."],
-        ["showEmail", "Show email address", "Display your email address on your public profile."],
-        ["showPhone", "Show phone number", "Display your phone number on your public profile."],
-        ["allowCustomerMessages", "Allow customer messages", "Let customers send you direct messages through the portal."],
-        ["shareAvailability", "Share availability", "Allow customers to see your available slots when booking."],
-    ];
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        // TODO: api.patch("/staff/settings/privacy", prefs)
+        console.log("Save privacy prefs:", prefs);
+    };
 
     return (
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSubmit}>
 
             <PanelHeader
                 title="Privacy"
@@ -595,7 +634,7 @@ function PrivacyPanel() {
             <div className="px-6 sm:px-8 py-8 flex flex-col gap-6">
 
                 <div className="divide-y divide-gray/10 border border-gray/20 rounded-lg overflow-hidden">
-                    {items.map(([key, label, desc]) => (
+                    {PRIVACY_ITEMS.map(([key, label, desc]) => (
                         <ToggleRow
                             key={key}
                             label={label}
@@ -614,7 +653,7 @@ function PrivacyPanel() {
 
             </div>
 
-            <PanelFooter onDiscard={() => setPrefs(defaults)} />
+            <PanelFooter onDiscard={() => setPrefs(PRIVACY_DEFAULTS)} />
 
         </form>
     );
@@ -623,30 +662,43 @@ function PrivacyPanel() {
 /* ------------------------------------------------------------------ */
 /* 5. Security Panel                                                   */
 /* ------------------------------------------------------------------ */
-function SecurityPanel() {
-    const [form, setForm] = useState({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-    });
+const SECURITY_FORM_DEFAULTS = {
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+};
 
+const SESSIONS = [
+    { device: "Chrome · Windows", location: "Karachi, PK", time: "Active now", current: true },
+    { device: "Safari · iPhone", location: "Karachi, PK", time: "2 hours ago", current: false },
+    { device: "Firefox · MacOS", location: "Lahore, PK", time: "Yesterday", current: false },
+];
+
+function SecurityPanel() {
+    const [form, setForm] = useState(SECURITY_FORM_DEFAULTS);
     const [twoFA, setTwoFA] = useState(false);
     const [loginAlerts, setLoginAlerts] = useState(true);
 
     const set = (key, value) =>
         setForm((prev) => ({ ...prev, [key]: value }));
 
-    const handleDiscard = () =>
-        setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    const handleSubmit = (event) => {
+        event.preventDefault();
 
-    const sessions = [
-        { device: "Chrome · Windows", location: "Karachi, PK", time: "Active now", current: true },
-        { device: "Safari · iPhone", location: "Karachi, PK", time: "2 hours ago", current: false },
-        { device: "Firefox · MacOS", location: "Lahore, PK", time: "Yesterday", current: false },
-    ];
+        // TODO: api.patch("/staff/settings/password", form)
+        console.log("Save password:", form);
+        console.log("Save 2FA:", twoFA, "Login alerts:", loginAlerts);
+    };
+
+    const handleDiscard = () => setForm(SECURITY_FORM_DEFAULTS);
+
+    const handleRevoke = (session) => {
+        // TODO: api.delete(`/staff/sessions/${session.device}`)
+        console.log("Revoke session:", session);
+    };
 
     return (
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSubmit}>
 
             <PanelHeader
                 title="Security"
@@ -735,7 +787,7 @@ function SecurityPanel() {
 
                     <div className="divide-y divide-gray/10 border border-gray/20 rounded-lg overflow-hidden">
 
-                        {sessions.map((session, idx) => (
+                        {SESSIONS.map((session, idx) => (
                             <div
                                 key={idx}
                                 className="flex items-center justify-between gap-4 px-4 sm:px-5 py-4 hover:bg-beige/30 transition"
@@ -757,6 +809,7 @@ function SecurityPanel() {
                                 {!session.current && (
                                     <button
                                         type="button"
+                                        onClick={() => handleRevoke(session)}
                                         className="text-xs font-bold text-red-600 hover:text-red-700 transition"
                                     >
                                         Revoke
@@ -780,6 +833,13 @@ function SecurityPanel() {
 /* Inline Sidebar component (Timeora Staff Portal)                     */
 /* ------------------------------------------------------------------ */
 function Sidebar({ navItems }) {
+    const { pathname } = useLocation();
+
+    const handleLogout = () => {
+        // TODO: clear auth token + redirect to /login
+        console.log("Logout clicked");
+    };
+
     return (
         <div className="w-64 h-full bg-navy flex flex-col">
 
@@ -801,6 +861,7 @@ function Sidebar({ navItems }) {
 
                 {navItems.map((item) => {
                     const Icon = item.icon;
+                    const isActive = pathname === item.to;
 
                     return (
                         <Link
@@ -809,13 +870,13 @@ function Sidebar({ navItems }) {
                             className={`
                                 relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition
                                 ${
-                                    item.active
+                                    isActive
                                         ? "bg-white/10 text-gold"
                                         : "text-white/70 hover:bg-white/5 hover:text-white"
                                 }
                             `}
                         >
-                            {item.active && (
+                            {isActive && (
                                 <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r bg-gold" />
                             )}
 
@@ -832,6 +893,7 @@ function Sidebar({ navItems }) {
 
                 <button
                     type="button"
+                    onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white transition"
                 >
                     <LogOut className="w-4 h-4 shrink-0" />

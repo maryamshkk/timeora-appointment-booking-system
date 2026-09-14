@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+
+import { useLogin } from "../../hooks/authHook";
 
 function CompanyLogin() {
     const [formData, setFormData] = useState({
@@ -11,7 +13,8 @@ function CompanyLogin() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
-    // Handle text input changes
+    const { mutate: login, isPending, isError, error: apiError } = useLogin();
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -21,7 +24,6 @@ function CompanyLogin() {
         setError("");
     };
 
-    // Handle checkbox changes
     const handleCheckboxChange = (e) => {
         const { name, checked } = e.target;
         setFormData((prev) => ({
@@ -30,30 +32,31 @@ function CompanyLogin() {
         }));
     };
 
-    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        // Basic required-field check
+
         if (!formData.email.trim() || !formData.password.trim()) {
             setError("Please enter both email and password.");
             return;
         }
 
-        // TODO: axios POST /api/auth/company/login with { email, password, rememberMe }
-        console.log("Login attempt:", formData);
+        login(formData);
     };
+
+    const displayError =
+        error ||
+        (isError &&
+            (apiError?.response?.data?.message ||
+                "Login failed. Try again."));
 
     return (
         <div className="min-h-screen bg-beige flex flex-col">
             {/* Top Bar */}
             <div className="flex justify-between items-center px-6 md:px-10 lg:px-[40px] pt-8">
-                {/* Logo */}
                 <Link to="/" className="font-serif italic text-xl text-navy">
                     Timeora
                 </Link>
 
-                {/* Sign Up Link */}
                 <p className="text-sm text-slate">
                     New to Timeora?{" "}
                     <Link
@@ -70,26 +73,21 @@ function CompanyLogin() {
                 {/* Left Column - Dashboard Preview */}
                 <div className="hidden md:flex md:w-1/2 items-center py-12 md:py-16 px-4 lg:px-8">
                     <div className="w-full max-w-[440px] mx-auto">
-                        {/* Eyebrow */}
                         <p className="text-xs font-bold uppercase tracking-widest text-slate mb-4">
                             WELCOME BACK
                         </p>
 
-                        {/* Heading */}
                         <h1 className="font-serif text-4xl lg:text-5xl text-navy leading-tight mb-5 max-w-[420px]">
                             Your Business, In Perfect Time.
                         </h1>
 
-                        {/* Description */}
                         <p className="text-base text-slate leading-relaxed max-w-[420px] mb-12">
-                            Sign in to manage appointments, staff, schedules, 
-                            customers and your business operations from one 
+                            Sign in to manage appointments, staff, schedules,
+                            customers and your business operations from one
                             organized workspace.
                         </p>
 
-                        {/* Dashboard Preview Mockup */}
                         <div className="bg-white rounded-xl shadow-md border border-gray/20 p-5">
-                            {/* Mock header row */}
                             <div className="flex justify-between items-center mb-4">
                                 <div className="bg-gray/30 h-3 w-32 rounded-full" />
                                 <div className="flex items-center gap-2">
@@ -97,12 +95,10 @@ function CompanyLogin() {
                                     <div className="w-5 h-5 rounded-full bg-gray/30" />
                                 </div>
                             </div>
-                            
+
                             <div className="border-b border-gray/20 mb-4" />
 
-                            {/* 2x2 Grid of Widgets */}
                             <div className="grid grid-cols-2 gap-3">
-                                {/* Widget 1 - Top Left */}
                                 <div className="bg-beige rounded-lg p-3.5 flex items-center gap-3">
                                     <div className="bg-gray/30 w-9 h-9 rounded-md flex-shrink-0" />
                                     <div className="flex flex-col gap-1.5">
@@ -111,13 +107,11 @@ function CompanyLogin() {
                                     </div>
                                 </div>
 
-                                {/* Widget 2 - Top Right */}
                                 <div className="bg-navy rounded-lg p-3.5 flex flex-col justify-center gap-2">
                                     <div className="h-2 w-16 bg-white/40 rounded-full" />
                                     <div className="h-6 w-20 bg-white rounded-md" />
                                 </div>
 
-                                {/* Widget 3 - Bottom Left */}
                                 <div className="bg-beige rounded-lg p-3.5 flex items-center gap-3">
                                     <div className="bg-gray/30 w-9 h-9 rounded-md flex-shrink-0" />
                                     <div className="flex flex-col gap-1.5">
@@ -126,7 +120,6 @@ function CompanyLogin() {
                                     </div>
                                 </div>
 
-                                {/* Widget 4 - Bottom Right */}
                                 <div className="bg-gray/10 rounded-lg p-3.5 flex items-center justify-center">
                                     <div className="h-2 w-16 bg-gray/20 rounded-full" />
                                 </div>
@@ -135,33 +128,31 @@ function CompanyLogin() {
                     </div>
                 </div>
 
-                {/* Vertical Divider - with reduced margin */}
                 <div className="hidden md:block border-l border-gray/30 mx-4 lg:mx-6" />
 
                 {/* Right Column - Login Form */}
                 <div className="w-full md:w-1/2 flex items-center justify-center py-12 md:py-16 px-6 md:px-8 lg:px-10">
                     <div className="w-full max-w-[420px]">
-                        {/* Company Admin Badge */}
                         <div className="inline-block bg-white border border-gray/30 rounded-full px-3 py-1 mb-4">
                             <span className="text-xs font-bold uppercase tracking-wide text-navy">
                                 Company Administrator
                             </span>
                         </div>
 
-                        {/* Heading */}
                         <h2 className="font-serif text-3xl md:text-4xl text-navy mb-2">
                             Welcome Back
                         </h2>
 
-                        {/* Subtitle */}
                         <p className="text-base text-slate mb-7">
                             Sign in to your Timeora company account.
                         </p>
 
                         {/* Error Message */}
-                        {error && (
+                        {displayError && (
                             <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-                                <p className="text-sm text-red-700">{error}</p>
+                                <p className="text-sm text-red-700">
+                                    {displayError}
+                                </p>
                             </div>
                         )}
 
@@ -181,7 +172,8 @@ function CompanyLogin() {
                                         onChange={handleChange}
                                         placeholder="admin@company.com"
                                         required
-                                        className="w-full bg-white border border-gray rounded-lg py-3 pl-11 pr-4 text-navy placeholder:text-slate outline-none focus:border-navy focus:ring-2 focus:ring-gold transition"
+                                        disabled={isPending}
+                                        className="w-full bg-white border border-gray rounded-lg py-3 pl-11 pr-4 text-navy placeholder:text-slate outline-none focus:border-navy focus:ring-2 focus:ring-gold transition disabled:opacity-60"
                                     />
                                 </div>
                             </div>
@@ -200,13 +192,18 @@ function CompanyLogin() {
                                         onChange={handleChange}
                                         placeholder="••••••••"
                                         required
-                                        className="w-full bg-white border border-gray rounded-lg py-3 pl-11 pr-11 text-navy placeholder:text-slate outline-none focus:border-navy focus:ring-2 focus:ring-gold transition"
+                                        disabled={isPending}
+                                        className="w-full bg-white border border-gray rounded-lg py-3 pl-11 pr-11 text-navy placeholder:text-slate outline-none focus:border-navy focus:ring-2 focus:ring-gold transition disabled:opacity-60"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="absolute top-1/2 right-3.5 -translate-y-1/2 cursor-pointer"
-                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                        aria-label={
+                                            showPassword
+                                                ? "Hide password"
+                                                : "Show password"
+                                        }
                                     >
                                         {showPassword ? (
                                             <EyeOff className="w-[18px] h-[18px] text-slate" />
@@ -225,9 +222,12 @@ function CompanyLogin() {
                                         name="rememberMe"
                                         checked={formData.rememberMe}
                                         onChange={handleCheckboxChange}
+                                        disabled={isPending}
                                         className="w-4 h-4 border-gray rounded-sm accent-navy cursor-pointer"
                                     />
-                                    <span className="text-sm text-slate">Remember me</span>
+                                    <span className="text-sm text-slate">
+                                        Remember me
+                                    </span>
                                 </label>
                                 <Link
                                     to="/forgot-password"
@@ -240,10 +240,20 @@ function CompanyLogin() {
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                className="w-full bg-navy text-white py-3.5 rounded-lg font-bold hover:bg-gold hover:text-navy transition flex items-center justify-center gap-2"
+                                disabled={isPending}
+                                className="w-full bg-navy text-white py-3.5 rounded-lg font-bold hover:bg-gold hover:text-navy transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                             >
-                                Sign In
-                                <ArrowRight className="w-[18px] h-[18px]" />
+                                {isPending ? (
+                                    <>
+                                        Signing In...
+                                        <Loader2 className="w-[18px] h-[18px] animate-spin" />
+                                    </>
+                                ) : (
+                                    <>
+                                        Sign In
+                                        <ArrowRight className="w-[18px] h-[18px]" />
+                                    </>
+                                )}
                             </button>
                         </form>
 
