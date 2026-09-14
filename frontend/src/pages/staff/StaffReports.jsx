@@ -3,11 +3,21 @@ import { useNavigate } from "react-router-dom";
 import {
     Calendar,
     ChevronDown,
+    MoreHorizontal,
     CalendarDays,
     CheckCircle2,
     XCircle,
     UserX,
 } from "lucide-react";
+import {
+    AreaChart,
+    Area,
+    CartesianGrid,
+    XAxis,
+    YAxis,
+    Tooltip,
+    ResponsiveContainer,
+} from "recharts";
 
 import StaffSidebar from "../../components/staff/StaffSidebar";
 import StaffTopbar from "../../components/staff/StaffTopbar";
@@ -29,12 +39,40 @@ function StaffReports() {
         noShows: 4,
     });
 
+    const [trendData] = useState([
+        { date: "Oct 1", count: 9 },
+        { date: "Oct 8", count: 11 },
+        { date: "Oct 15", count: 15 },
+        { date: "Oct 22", count: 10 },
+        { date: "Oct 29", count: 21 },
+    ]);
+
+    const [hoursLogged] = useState({
+        scheduled: 32,
+        completed: 26,
+        available: 8,
+    });
+
     const currentStaff = {
         name: "Dr. Sara Ahmed",
         role: "Doctor",
         avatarUrl: "",
         companyName: "Shifa Clinic",
     };
+
+    /* Derived completion metrics */
+    const completionRate = Math.round(
+        (stats.completed / stats.totalAppointments) * 100
+    );
+
+    const completedWidth =
+        (stats.completed / stats.totalAppointments) * 100;
+
+    const cancelledWidth =
+        (stats.cancelled / stats.totalAppointments) * 100;
+
+    const noShowWidth =
+        (stats.noShows / stats.totalAppointments) * 100;
 
     function handleDateRangeChange(range) {
         setDateRange(range);
@@ -195,6 +233,262 @@ function StaffReports() {
                                 iconColor="text-amber-600"
                                 accentColor="bg-amber-500"
                             />
+
+                        </div>
+
+                        {/* Appointment Trend */}
+                        <div className="mb-6 rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+
+                            {/* Header */}
+                            <div className="mb-6 flex items-center justify-between">
+
+                                <div>
+                                    <h2 className="font-serif text-lg font-bold text-navy sm:text-xl">
+                                        Appointment Trend
+                                    </h2>
+
+                                    <p className="mt-1 text-xs text-slate">
+                                        Your appointments over time
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="
+                                        flex h-8 w-8 items-center justify-center
+                                        rounded-lg text-slate transition
+                                        hover:bg-beige hover:text-navy
+                                    "
+                                    aria-label="More options"
+                                >
+                                    <MoreHorizontal className="h-5 w-5" />
+                                </button>
+
+                            </div>
+
+                            {/* Chart */}
+                            <div className="h-[260px] w-full sm:h-[320px]">
+
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart
+                                        data={trendData}
+                                        margin={{
+                                            top: 10,
+                                            right: 10,
+                                            left: -20,
+                                            bottom: 0,
+                                        }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="4 4"
+                                            vertical={false}
+                                            stroke="#E4E2DD"
+                                        />
+
+                                        <XAxis
+                                            dataKey="date"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{
+                                                fontSize: 12,
+                                                fill: "#43474E",
+                                            }}
+                                        />
+
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            allowDecimals={false}
+                                            tick={{
+                                                fontSize: 12,
+                                                fill: "#43474E",
+                                            }}
+                                        />
+
+                                        <Tooltip
+                                            contentStyle={{
+                                                borderRadius: "8px",
+                                                border: "1px solid #C3C6CF",
+                                                fontSize: "12px",
+                                            }}
+                                            labelStyle={{
+                                                color: "#000C1E",
+                                                fontWeight: "700",
+                                            }}
+                                        />
+
+                                        <Area
+                                            type="monotone"
+                                            dataKey="count"
+                                            stroke="#000C1E"
+                                            strokeWidth={2}
+                                            fill="#000C1E"
+                                            fillOpacity={0.06}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+
+                            </div>
+
+                        </div>
+
+                        {/* Completion Rate + Hours Logged */}
+                        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+                            {/* Completion Rate */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+
+                                <h2 className="font-serif text-lg font-bold text-navy">
+                                    Completion Rate
+                                </h2>
+
+                                <p className="mb-6 mt-1 text-xs text-slate">
+                                    Appointment outcome breakdown
+                                </p>
+
+                                {/* Percentage */}
+                                <div className="mb-4 flex items-end gap-2">
+                                    <span className="font-serif text-4xl text-navy">
+                                        {completionRate}%
+                                    </span>
+
+                                    <span className="mb-1 text-xs text-slate">
+                                        completed
+                                    </span>
+                                </div>
+
+                                {/* Segmented Bar */}
+                                <div className="flex h-3 w-full overflow-hidden rounded-full bg-gray/20">
+
+                                    <div
+                                        className="h-full bg-navy"
+                                        style={{ width: `${completedWidth}%` }}
+                                    />
+
+                                    <div
+                                        className="h-full bg-gold"
+                                        style={{ width: `${cancelledWidth}%` }}
+                                    />
+
+                                    <div
+                                        className="h-full bg-slate"
+                                        style={{ width: `${noShowWidth}%` }}
+                                    />
+
+                                </div>
+
+                                {/* Legend */}
+                                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
+
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 rounded-full bg-navy" />
+                                        <span className="text-xs text-slate">
+                                            Completed {stats.completed}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 rounded-full bg-gold" />
+                                        <span className="text-xs text-slate">
+                                            Cancelled {stats.cancelled}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <span className="h-2.5 w-2.5 rounded-full bg-slate" />
+                                        <span className="text-xs text-slate">
+                                            No-shows {stats.noShows}
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {/* Hours Logged */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+
+                                <h2 className="font-serif text-lg font-bold text-navy">
+                                    Hours Logged
+                                </h2>
+
+                                <p className="mb-6 mt-1 text-xs text-slate">
+                                    Your scheduled and completed hours
+                                </p>
+
+                                {/* Scheduled */}
+                                <div className="mb-5">
+
+                                    <div className="mb-2 flex items-center justify-between">
+                                        <span className="text-sm font-bold text-navy">
+                                            Scheduled
+                                        </span>
+
+                                        <span className="text-sm text-slate">
+                                            {hoursLogged.scheduled}h
+                                        </span>
+                                    </div>
+
+                                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray/20">
+                                        <div
+                                            className="h-full rounded-full bg-navy"
+                                            style={{
+                                                width: `${(hoursLogged.scheduled / 40) * 100}%`,
+                                            }}
+                                        />
+                                    </div>
+
+                                </div>
+
+                                {/* Completed */}
+                                <div className="mb-5">
+
+                                    <div className="mb-2 flex items-center justify-between">
+                                        <span className="text-sm font-bold text-navy">
+                                            Completed
+                                        </span>
+
+                                        <span className="text-sm text-slate">
+                                            {hoursLogged.completed}h
+                                        </span>
+                                    </div>
+
+                                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray/20">
+                                        <div
+                                            className="h-full rounded-full bg-gold"
+                                            style={{
+                                                width: `${(hoursLogged.completed / 40) * 100}%`,
+                                            }}
+                                        />
+                                    </div>
+
+                                </div>
+
+                                {/* Available */}
+                                <div>
+
+                                    <div className="mb-2 flex items-center justify-between">
+                                        <span className="text-sm font-bold text-navy">
+                                            Available
+                                        </span>
+
+                                        <span className="text-sm text-slate">
+                                            {hoursLogged.available}h
+                                        </span>
+                                    </div>
+
+                                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray/20">
+                                        <div
+                                            className="h-full rounded-full bg-slate"
+                                            style={{
+                                                width: `${(hoursLogged.available / 40) * 100}%`,
+                                            }}
+                                        />
+                                    </div>
+
+                                </div>
+
+                            </div>
 
                         </div>
 
