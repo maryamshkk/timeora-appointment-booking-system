@@ -9,11 +9,9 @@ import {
     Zap,
     ArrowRight,
     LayoutGrid,
-    CalendarPlus,
     CalendarClock,
     Users,
     ClipboardList,
-    UserCog,
 } from "lucide-react";
 
 import StaffSidebar from "../../components/staff/StaffSidebar";
@@ -23,6 +21,8 @@ import StatCard from "../../components/dashboard/StatCard";
 function StaffDashboard() {
     const navigate = useNavigate();
 
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
     const [currentStaff] = useState({
         name: "Dr. Sara Ahmed",
         role: "Staff Member",
@@ -30,10 +30,7 @@ function StaffDashboard() {
         companyName: "Shifa Clinic",
     });
 
-    const [selectedDate, setSelectedDate] = useState(
-        new Date(2026, 7, 21)
-    );
-
+    const [selectedDate, setSelectedDate] = useState(new Date(2026, 7, 21));
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
     const [appointments] = useState([
@@ -122,13 +119,8 @@ function StaffDashboard() {
     function getGreeting() {
         const currentHour = new Date().getHours();
 
-        if (currentHour < 12) {
-            return "Good morning";
-        }
-
-        if (currentHour < 18) {
-            return "Good afternoon";
-        }
+        if (currentHour < 12) return "Good morning";
+        if (currentHour < 18) return "Good afternoon";
 
         return "Good evening";
     }
@@ -169,17 +161,22 @@ function StaffDashboard() {
     return (
         <div className="min-h-screen bg-beige flex">
 
+            {/* Sidebar — desktop always visible, mobile slide-in drawer */}
             <StaffSidebar
                 companyName={currentStaff.companyName}
                 currentStaff={currentStaff}
                 activeItem="Dashboard"
                 handleSignOut={handleSignOut}
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
             />
 
-            <div className="flex-1 min-w-0 flex flex-col">
+            {/* Main Area */}
+            <div className="flex min-w-0 flex-1 flex-col">
 
                 <StaffTopbar
                     avatarUrl={currentStaff.avatarUrl}
+                    onMenuClick={() => setSidebarOpen(true)}
                     onSearchClick={handleSearchClick}
                     onNotificationsClick={handleNotificationsClick}
                     onSettingsClick={handleSettingsClick}
@@ -187,17 +184,17 @@ function StaffDashboard() {
 
                 <main className="flex-1 bg-beige px-4 sm:px-6 lg:px-8 py-6">
 
-                    <div className="max-w-7xl mx-auto w-full">
+                    <div className="mx-auto w-full max-w-7xl">
 
                         {/* Header Row */}
-                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5 mb-6">
+                        <div className="mb-6 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
 
                             <div>
-                                <h1 className="font-serif text-3xl sm:text-4xl text-navy">
+                                <h1 className="font-serif text-2xl text-navy sm:text-3xl lg:text-4xl">
                                     {getGreeting()}, Dr. {getFirstName(currentStaff.name)}
                                 </h1>
 
-                                <p className="text-sm text-slate mt-1.5">
+                                <p className="mt-1.5 text-sm text-slate">
                                     Here's your schedule and appointment overview for today.
                                 </p>
                             </div>
@@ -207,41 +204,28 @@ function StaffDashboard() {
 
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        setIsDatePickerOpen(!isDatePickerOpen)
-                                    }
+                                    onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
                                     className="
-                                        w-full md:w-auto
-                                        bg-white
-                                        border
-                                        border-gray
-                                        rounded-lg
-                                        px-4
-                                        py-2.5
-                                        text-sm
-                                        font-bold
-                                        text-navy
-                                        flex
-                                        items-center
-                                        justify-center
-                                        gap-2
-                                        hover:border-navy
-                                        transition
+                                        flex w-full items-center justify-center gap-2
+                                        rounded-lg border border-gray bg-white
+                                        px-4 py-2.5 text-sm font-bold text-navy
+                                        transition hover:border-navy
+                                        md:w-auto
                                     "
                                 >
-                                    <Calendar className="w-4 h-4" />
+                                    <Calendar className="h-4 w-4 flex-shrink-0" />
 
-                                    <span>
+                                    <span className="whitespace-nowrap">
                                         {formatSelectedDate(selectedDate)}
                                     </span>
 
-                                    <ChevronDown className="w-3.5 h-3.5" />
+                                    <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" />
                                 </button>
 
                                 {isDatePickerOpen && (
-                                    <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray/20 rounded-xl shadow-lg p-4 z-30">
+                                    <div className="absolute right-0 top-full z-30 mt-2 w-64 max-w-[90vw] rounded-xl border border-gray/20 bg-white p-4 shadow-lg">
 
-                                        <p className="text-xs font-bold uppercase tracking-wide text-slate mb-3">
+                                        <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate">
                                             Select Date
                                         </p>
 
@@ -253,10 +237,9 @@ function StaffDashboard() {
                                                 selectedDate.getDate()
                                             ).padStart(2, "0")}`}
                                             onChange={(event) => {
-                                                const [year, month, day] =
-                                                    event.target.value
-                                                        .split("-")
-                                                        .map(Number);
+                                                const [year, month, day] = event.target.value
+                                                    .split("-")
+                                                    .map(Number);
 
                                                 setSelectedDate(
                                                     new Date(year, month - 1, day)
@@ -265,17 +248,9 @@ function StaffDashboard() {
                                                 setIsDatePickerOpen(false);
                                             }}
                                             className="
-                                                w-full
-                                                h-10
-                                                border
-                                                border-gray/40
-                                                rounded-lg
-                                                px-3
-                                                text-sm
-                                                text-navy
-                                                bg-white
-                                                outline-none
-                                                focus:border-navy
+                                                h-10 w-full rounded-lg border border-gray/40
+                                                bg-white px-3 text-sm text-navy
+                                                outline-none focus:border-navy
                                             "
                                         />
 
@@ -287,13 +262,13 @@ function StaffDashboard() {
                         </div>
 
                         {/* Main 2-Column Layout */}
-                        <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px] gap-6">
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px]">
 
                             {/* LEFT COLUMN */}
-                            <div className="flex flex-col min-w-0">
+                            <div className="flex min-w-0 flex-col">
 
                                 {/* Stat Cards */}
-                                <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+                                <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
 
                                     <StatCard
                                         value={appointments.length}
@@ -331,12 +306,12 @@ function StaffDashboard() {
 
                                 {/* Next Appointment Banner */}
                                 {nextAppointment && (
-                                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden flex flex-col md:flex-row border-l-4 border-gold mb-6">
+                                    <div className="mb-6 flex flex-col overflow-hidden rounded-xl border border-gray/20 border-l-4 border-l-gold bg-white shadow-sm lg:flex-row">
 
-                                        <div className="flex-1 p-6">
+                                        <div className="flex-1 p-5 sm:p-6">
 
-                                            <p className="text-xs font-bold uppercase tracking-wide text-gold flex items-center gap-1.5 mb-3">
-                                                <Zap className="w-3 h-3" />
+                                            <p className="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-gold">
+                                                <Zap className="h-3 w-3" />
 
                                                 NEXT APPOINTMENT ({minutesUntil} MINS)
                                             </p>
@@ -347,10 +322,10 @@ function StaffDashboard() {
                                                     <img
                                                         src={nextAppointment.avatarUrl}
                                                         alt={nextAppointment.customerName}
-                                                        className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+                                                        className="h-14 w-14 flex-shrink-0 rounded-lg object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="w-14 h-14 rounded-lg bg-beige flex items-center justify-center flex-shrink-0">
+                                                    <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-lg bg-beige">
                                                         <span className="font-serif text-xl text-navy">
                                                             {nextAppointment.customerName
                                                                 .charAt(0)
@@ -360,11 +335,11 @@ function StaffDashboard() {
                                                 )}
 
                                                 <div className="min-w-0">
-                                                    <h2 className="font-serif text-2xl text-navy">
+                                                    <h2 className="truncate font-serif text-xl text-navy sm:text-2xl">
                                                         {nextAppointment.customerName}
                                                     </h2>
 
-                                                    <p className="text-sm text-slate mt-0.5">
+                                                    <p className="mt-0.5 text-sm text-slate">
                                                         {nextAppointment.service}
                                                     </p>
                                                 </div>
@@ -372,13 +347,13 @@ function StaffDashboard() {
                                             </div>
                                         </div>
 
-                                        <div className="bg-beige/60 p-6 md:min-w-[200px] flex flex-col items-center justify-center">
+                                        <div className="flex flex-col items-center justify-center bg-beige/60 p-5 sm:p-6 lg:min-w-[200px]">
 
-                                            <p className="font-serif text-3xl text-navy">
+                                            <p className="font-serif text-2xl text-navy sm:text-3xl">
                                                 {nextAppointment.time}
                                             </p>
 
-                                            <p className="text-sm text-slate mt-1">
+                                            <p className="mt-1 text-sm text-slate">
                                                 Duration: 30m
                                             </p>
 
@@ -388,17 +363,9 @@ function StaffDashboard() {
                                                     handleStartSession(nextAppointment.id)
                                                 }
                                                 className="
-                                                    bg-gold
-                                                    text-navy
-                                                    font-bold
-                                                    text-sm
-                                                    px-5
-                                                    py-2.5
-                                                    rounded-lg
-                                                    hover:bg-navy
-                                                    hover:text-white
-                                                    transition
-                                                    mt-3
+                                                    mt-3 rounded-lg bg-gold px-5 py-2.5
+                                                    text-sm font-bold text-navy transition
+                                                    hover:bg-navy hover:text-white
                                                 "
                                             >
                                                 Start Session
@@ -410,27 +377,30 @@ function StaffDashboard() {
                                 )}
 
                                 {/* Today's Appointments Table */}
-                                <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden mb-6">
+                                <div className="mb-6 overflow-hidden rounded-xl border border-gray/20 bg-white shadow-sm">
 
-                                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray/20">
-                                        <h2 className="font-serif text-xl font-bold text-navy">
+                                    <div className="flex items-center justify-between border-b border-gray/20 px-5 py-4 sm:px-6">
+
+                                        <h2 className="font-serif text-lg font-bold text-navy sm:text-xl">
                                             Today's Appointments
                                         </h2>
 
                                         <button
                                             type="button"
                                             onClick={() => navigate("/staff/appointments")}
-                                            className="flex items-center gap-1.5 text-sm font-bold text-navy hover:text-gold transition"
+                                            className="flex items-center gap-1.5 text-sm font-bold text-navy transition hover:text-gold"
                                         >
                                             <span>View All</span>
-                                            <ArrowRight className="w-3.5 h-3.5" />
+                                            <ArrowRight className="h-3.5 w-3.5" />
                                         </button>
+
                                     </div>
 
                                     <div className="overflow-x-auto">
                                         <div className="min-w-[640px]">
 
-                                            <div className="grid grid-cols-[90px_1fr_1fr_110px] items-center px-6 py-3 bg-beige/40">
+                                            <div className="grid grid-cols-[90px_1fr_1fr_110px] items-center bg-beige/40 px-5 py-3 sm:px-6">
+
                                                 <p className="text-xs font-bold uppercase tracking-wide text-slate">
                                                     Time
                                                 </p>
@@ -446,37 +416,38 @@ function StaffDashboard() {
                                                 <p className="text-xs font-bold uppercase tracking-wide text-slate">
                                                     Status
                                                 </p>
+
                                             </div>
 
                                             {appointments.map((appointment) => {
-                                                const isNext = appointment.id === nextAppointment?.id;
+                                                const isNext =
+                                                    appointment.id === nextAppointment?.id;
 
                                                 return (
                                                     <div
                                                         key={appointment.id}
                                                         className="
                                                             grid grid-cols-[90px_1fr_1fr_110px]
-                                                            items-center
-                                                            px-6 py-4
-                                                            border-b border-gray/20
-                                                            last:border-b-0
-                                                            hover:bg-beige/20
-                                                            transition
+                                                            items-center border-b border-gray/20
+                                                            px-5 py-4 transition last:border-b-0
+                                                            hover:bg-beige/20 sm:px-6
                                                         "
                                                     >
+
                                                         <p className="text-sm text-navy">
                                                             {appointment.time}
                                                         </p>
 
-                                                        <div className="flex items-center gap-3 min-w-0">
+                                                        <div className="flex min-w-0 items-center gap-3">
+
                                                             {appointment.avatarUrl ? (
                                                                 <img
                                                                     src={appointment.avatarUrl}
                                                                     alt={appointment.customerName}
-                                                                    className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                                                                    className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
                                                                 />
                                                             ) : (
-                                                                <div className="w-8 h-8 rounded-full bg-beige flex items-center justify-center flex-shrink-0">
+                                                                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-beige">
                                                                     <span className="text-xs font-bold text-navy">
                                                                         {appointment.customerName
                                                                             .charAt(0)
@@ -487,31 +458,23 @@ function StaffDashboard() {
 
                                                             <p
                                                                 className={`
-                                                                    text-sm truncate
-                                                                    ${
-                                                                        isNext
-                                                                            ? "font-bold text-navy"
-                                                                            : "text-navy"
-                                                                    }
+                                                                    truncate text-sm text-navy
+                                                                    ${isNext ? "font-bold" : ""}
                                                                 `}
                                                             >
                                                                 {appointment.customerName}
                                                             </p>
+
                                                         </div>
 
-                                                        <p className="text-sm text-slate truncate">
+                                                        <p className="truncate text-sm text-slate">
                                                             {appointment.service}
                                                         </p>
 
                                                         <div>
                                                             <span
                                                                 className={`
-                                                                    inline-block
-                                                                    text-xs
-                                                                    font-bold
-                                                                    px-3
-                                                                    py-1
-                                                                    rounded-full
+                                                                    inline-block rounded-full px-3 py-1 text-xs font-bold
                                                                     ${
                                                                         appointment.status === "Completed"
                                                                             ? "bg-gray/10 text-slate"
@@ -524,20 +487,23 @@ function StaffDashboard() {
                                                                 {appointment.status}
                                                             </span>
                                                         </div>
+
                                                     </div>
                                                 );
                                             })}
+
                                         </div>
                                     </div>
+
                                 </div>
 
                             </div>
 
                             {/* RIGHT COLUMN */}
-                            <div className="flex flex-col min-w-0">
+                            <div className="flex min-w-0 flex-col">
 
                                 {/* Quick Actions — 2×2 grid of tiles */}
-                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="mb-6 grid grid-cols-2 gap-4">
 
                                     {quickActions.map((action) => {
                                         const Icon = action.icon;
@@ -548,25 +514,15 @@ function StaffDashboard() {
                                                 type="button"
                                                 onClick={() => navigate(action.path)}
                                                 className="
-                                                    bg-white
-                                                    rounded-xl
-                                                    border border-gray/20
-                                                    shadow-sm
-                                                    p-5
-                                                    flex
-                                                    flex-col
-                                                    items-center
-                                                    justify-center
-                                                    gap-2
-                                                    text-center
-                                                    hover:border-navy
-                                                    hover:shadow-md
-                                                    transition
+                                                    flex flex-col items-center justify-center gap-2
+                                                    rounded-xl border border-gray/20 bg-white
+                                                    p-5 text-center shadow-sm transition
+                                                    hover:border-navy hover:shadow-md
                                                 "
                                             >
-                                                <Icon className="w-6 h-6 text-navy" />
+                                                <Icon className="h-6 w-6 text-navy" />
 
-                                                <span className="text-xs font-bold text-navy leading-tight">
+                                                <span className="text-xs font-bold leading-tight text-navy">
                                                     {action.label}
                                                 </span>
                                             </button>
@@ -576,9 +532,9 @@ function StaffDashboard() {
                                 </div>
 
                                 {/* Schedule Timeline */}
-                                <div className="bg-white rounded-xl border border-gray/20 shadow-sm mb-6">
+                                <div className="mb-6 rounded-xl border border-gray/20 bg-white shadow-sm">
 
-                                    <div className="px-5 py-4 border-b border-gray/20">
+                                    <div className="border-b border-gray/20 px-5 py-4">
                                         <h2 className="font-serif text-lg font-bold text-navy">
                                             Schedule Timeline
                                         </h2>
@@ -593,73 +549,81 @@ function StaffDashboard() {
                                             <div className="flex flex-col gap-5">
 
                                                 {/* 09:00 AM */}
-                                                <div className="flex items-start gap-4 relative">
+                                                <div className="relative flex items-start gap-4">
+
                                                     <div className="w-10 flex-shrink-0">
                                                         <p className="text-xs font-bold text-slate">
                                                             09:00 AM
                                                         </p>
                                                     </div>
 
-                                                    <div className="relative z-10 w-4 h-4 rounded-full bg-gray/20 border-4 border-white flex-shrink-0 mt-0.5" />
+                                                    <div className="relative z-10 mt-0.5 h-4 w-4 flex-shrink-0 rounded-full border-4 border-white bg-gray/20" />
 
-                                                    <div className="flex-1 bg-beige/40 rounded-lg px-3 py-2.5 min-w-0">
-                                                        <p className="text-sm font-bold text-navy truncate">
+                                                    <div className="min-w-0 flex-1 rounded-lg bg-beige/40 px-3 py-2.5">
+                                                        <p className="truncate text-sm font-bold text-navy">
                                                             Ayesha Khan - Consultation
                                                         </p>
                                                     </div>
+
                                                 </div>
 
                                                 {/* 10:00 AM — NEXT */}
-                                                <div className="flex items-start gap-4 relative">
+                                                <div className="relative flex items-start gap-4">
+
                                                     <div className="w-10 flex-shrink-0">
                                                         <p className="text-xs font-bold text-gold">
                                                             10:00 AM
                                                         </p>
                                                     </div>
 
-                                                    <div className="relative z-10 w-4 h-4 rounded-full bg-gold border-4 border-white flex-shrink-0 mt-0.5" />
+                                                    <div className="relative z-10 mt-0.5 h-4 w-4 flex-shrink-0 rounded-full border-4 border-white bg-gold" />
 
-                                                    <div className="flex-1 bg-navy text-white rounded-lg px-3 py-2.5 min-w-0">
-                                                        <p className="text-sm font-bold truncate">
+                                                    <div className="min-w-0 flex-1 rounded-lg bg-navy px-3 py-2.5 text-white">
+                                                        <p className="truncate text-sm font-bold">
                                                             Hina Malik - Follow-up
                                                         </p>
                                                     </div>
+
                                                 </div>
 
                                                 {/* 11:30 AM */}
-                                                <div className="flex items-start gap-4 relative">
+                                                <div className="relative flex items-start gap-4">
+
                                                     <div className="w-10 flex-shrink-0">
                                                         <p className="text-xs font-bold text-slate">
                                                             11:30 AM
                                                         </p>
                                                     </div>
 
-                                                    <div className="relative z-10 w-4 h-4 rounded-full bg-gray/20 border-4 border-white flex-shrink-0 mt-0.5" />
+                                                    <div className="relative z-10 mt-0.5 h-4 w-4 flex-shrink-0 rounded-full border-4 border-white bg-gray/20" />
 
-                                                    <div className="flex-1 bg-beige/40 rounded-lg px-3 py-2.5 min-w-0">
-                                                        <p className="text-sm font-bold text-navy truncate">
+                                                    <div className="min-w-0 flex-1 rounded-lg bg-beige/40 px-3 py-2.5">
+                                                        <p className="truncate text-sm font-bold text-navy">
                                                             Kamran Ali - Routine Check
                                                         </p>
                                                     </div>
+
                                                 </div>
 
                                                 {/* 12:30 PM — Break */}
-                                                <div className="flex items-start gap-4 relative">
+                                                <div className="relative flex items-start gap-4">
+
                                                     <div className="w-10 flex-shrink-0">
                                                         <p className="text-xs font-bold text-slate">
                                                             12:30 PM
                                                         </p>
                                                     </div>
 
-                                                    <div className="relative z-10 flex items-center justify-center w-4 h-4 rounded-full bg-gray/30 border-4 border-white flex-shrink-0 mt-0.5" />
+                                                    <div className="relative z-10 mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-4 border-white bg-gray/30" />
 
-                                                    <div className="flex-1 border border-dashed border-gray/40 rounded-lg px-3 py-2.5 flex items-center gap-2 min-w-0">
-                                                        <Clock className="w-3.5 h-3.5 text-slate flex-shrink-0" />
+                                                    <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-dashed border-gray/40 px-3 py-2.5">
+                                                        <Clock className="h-3.5 w-3.5 flex-shrink-0 text-slate" />
 
-                                                        <p className="text-xs font-bold text-slate truncate">
+                                                        <p className="truncate text-xs font-bold text-slate">
                                                             12:30 PM - Break
                                                         </p>
                                                     </div>
+
                                                 </div>
 
                                             </div>
@@ -671,31 +635,33 @@ function StaffDashboard() {
                                 </div>
 
                                 {/* Today's Availability */}
-                                <div className="bg-white rounded-xl border border-gray/20 shadow-sm">
+                                <div className="rounded-xl border border-gray/20 bg-white shadow-sm">
 
-                                    <div className="flex items-center justify-between px-5 py-4 border-b border-gray/20">
-                                        <h2 className="font-serif text-base font-bold uppercase tracking-wide text-slate">
+                                    <div className="flex items-center justify-between border-b border-gray/20 px-5 py-4">
+
+                                        <h2 className="font-serif text-sm font-bold uppercase tracking-wide text-slate sm:text-base">
                                             Today's Availability
                                         </h2>
 
                                         <button
                                             type="button"
                                             onClick={() => navigate("/staff/availability")}
-                                            className="text-xs font-bold text-navy hover:text-gold transition"
+                                            className="text-xs font-bold text-navy transition hover:text-gold"
                                         >
                                             Edit
                                         </button>
+
                                     </div>
 
                                     <div className="p-5">
 
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-start gap-3">
 
-                                            <div className="w-9 h-9 rounded-lg bg-beige flex items-center justify-center flex-shrink-0">
-                                                <Clock className="w-4 h-4 text-navy" />
+                                            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-beige">
+                                                <Clock className="h-4 w-4 text-navy" />
                                             </div>
 
-                                            <p className="font-serif text-base text-navy">
+                                            <p className="font-serif text-sm text-navy break-words sm:text-base">
                                                 {availabilityToday}
                                             </p>
 

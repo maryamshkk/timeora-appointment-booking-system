@@ -56,7 +56,10 @@ import CompanyProfile from "../pages/settings/CompanyProfile";
 import BookingSettings from "../pages/settings/BookingSettings";
 import BusinessHours from "../pages/settings/BusinessHours";
 import NotificationSettings from "../pages/settings/NotificationSettings";
+
+// Staff Dashboard
 import StaffDashboard from "../pages/staff/StaffDashboard";
+import StaffCalendar from "../pages/staff/StaffCalendar";
 
 function AppRoutes() {
     return (
@@ -196,6 +199,7 @@ function AppRoutes() {
 
                 {/* Staff - Dashboard */}
                 <Route path="/staff/dashboard" element={<StaffDashboard />}/>
+                <Route path="/staff/calendar" element={<StaffCalendar />}/>
 
                 {/* Fallback */}
                 <Route path="*" element={<RoleSelectionPage />} />
