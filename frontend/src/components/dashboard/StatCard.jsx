@@ -8,6 +8,8 @@ function StatCard({
     accentColor = null,
     iconBg = "bg-beige",
     iconColor = "text-navy",
+    delta = null,
+    deltaColor = "bg-green-50 text-green-700",
 }) {
     return (
         <div className="relative overflow-hidden rounded-xl border border-gray/20 bg-white p-5 shadow-sm">
@@ -26,9 +28,19 @@ function StatCard({
                 </div>
             )}
 
-            <p className={`font-serif text-2xl font-bold ${valueColor}`}>
-                {value}
-            </p>
+            <div className="flex items-center gap-2">
+                <p className={`font-serif text-2xl font-bold ${valueColor}`}>
+                    {value}
+                </p>
+
+                {delta && (
+                    <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-bold ${deltaColor}`}
+                    >
+                        {delta}
+                    </span>
+                )}
+            </div>
 
             <p className="mt-1 text-xs font-bold uppercase tracking-wide text-slate">
                 {label}

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import {
     Calendar,
     ChevronDown,
     MoreHorizontal,
+    Download,
     CalendarDays,
     CheckCircle2,
     XCircle,
@@ -53,6 +54,61 @@ function StaffReports() {
         available: 8,
     });
 
+    const [busiestDays] = useState([
+        { day: "Friday", count: 12 },
+        { day: "Thursday", count: 10 },
+        { day: "Wednesday", count: 8 },
+    ]);
+
+    const [appointmentsByService] = useState([
+        { service: "Consultation", count: 22 },
+        { service: "Follow-up", count: 14 },
+        { service: "Therapy Session", count: 8 },
+    ]);
+
+    const [recentActivity] = useState([
+        {
+            id: 1,
+            date: "Oct 28, 2026",
+            time: "09:00 AM",
+            customer: "Michael Chen",
+            customerId: 101,
+            service: "Consultation",
+            status: "Completed",
+            appointmentId: 201,
+        },
+        {
+            id: 2,
+            date: "Oct 28, 2026",
+            time: "11:30 AM",
+            customer: "Sarah Jenkins",
+            customerId: 102,
+            service: "Therapy Session",
+            status: "Completed",
+            appointmentId: 202,
+        },
+        {
+            id: 3,
+            date: "Oct 27, 2026",
+            time: "02:00 PM",
+            customer: "David Ross",
+            customerId: 103,
+            service: "Follow-up",
+            status: "Cancelled",
+            appointmentId: 203,
+        },
+        {
+            id: 4,
+            date: "Oct 27, 2026",
+            time: "04:15 PM",
+            customer: "Elena Rodriguez",
+            customerId: 104,
+            service: "Consultation",
+            status: "No-show",
+            appointmentId: 204,
+        },
+    ]);
+
     const currentStaff = {
         name: "Dr. Sara Ahmed",
         role: "Doctor",
@@ -60,7 +116,6 @@ function StaffReports() {
         companyName: "Shifa Clinic",
     };
 
-    /* Derived completion metrics */
     const completionRate = Math.round(
         (stats.completed / stats.totalAppointments) * 100
     );
@@ -74,11 +129,37 @@ function StaffReports() {
     const noShowWidth =
         (stats.noShows / stats.totalAppointments) * 100;
 
+    useEffect(() => {
+        function handleOutsideClick(event) {
+            if (!event.target.closest("[data-date-range]")) {
+                setIsDateRangeOpen(false);
+            }
+        }
+
+        function handleEscape(event) {
+            if (event.key === "Escape") {
+                setIsDateRangeOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleOutsideClick);
+        document.addEventListener("keydown", handleEscape);
+
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+            document.removeEventListener("keydown", handleEscape);
+        };
+    }, []);
+
     function handleDateRangeChange(range) {
         setDateRange(range);
         setIsDateRangeOpen(false);
 
         // TODO: Refetch all report data for the selected date range.
+    }
+
+    function handleExportReport() {
+        // TODO: Generate and download CSV/PDF report.
     }
 
     function handleSignOut() {
@@ -88,7 +169,6 @@ function StaffReports() {
     return (
         <div className="min-h-screen bg-beige flex">
 
-            {/* Sidebar — desktop always visible, mobile slide-in drawer */}
             <StaffSidebar
                 companyName={currentStaff.companyName}
                 currentStaff={currentStaff}
@@ -98,7 +178,6 @@ function StaffReports() {
                 onClose={() => setSidebarOpen(false)}
             />
 
-            {/* Main Area */}
             <div className="flex min-w-0 flex-1 flex-col">
 
                 <StaffTopbar
@@ -109,14 +188,12 @@ function StaffReports() {
                     onSettingsClick={() => navigate("/staff/settings")}
                 />
 
-                {/* Main Content */}
                 <main className="flex-1 bg-beige px-4 py-6 sm:px-6 md:px-8">
                     <div className="mx-auto w-full max-w-7xl">
 
                         {/* Header */}
-                        <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
 
-                            {/* Title */}
                             <div>
                                 <h1 className="font-serif text-2xl text-navy sm:text-3xl lg:text-4xl">
                                     My Reports
@@ -127,8 +204,7 @@ function StaffReports() {
                                 </p>
                             </div>
 
-                            {/* Date Range */}
-                            <div className="relative">
+                            <div className="relative" data-date-range>
 
                                 <button
                                     type="button"
@@ -154,13 +230,12 @@ function StaffReports() {
                                     />
                                 </button>
 
-                                {/* Date Range Dropdown */}
                                 {isDateRangeOpen && (
                                     <div
                                         className="
                                             absolute right-0 top-full z-30 mt-2
-                                            w-44 rounded-xl border border-gray/30
-                                            bg-white p-1.5 shadow-lg
+                                            w-48 overflow-hidden rounded-lg border
+                                            border-gray/30 bg-white shadow-lg
                                         "
                                     >
                                         {[
@@ -176,12 +251,11 @@ function StaffReports() {
                                                     handleDateRangeChange(range)
                                                 }
                                                 className={`
-                                                    w-full rounded-lg px-3 py-2.5
-                                                    text-left text-sm font-bold transition
+                                                    w-full px-4 py-3 text-left text-sm transition
                                                     ${
                                                         dateRange === range
-                                                            ? "bg-beige text-navy"
-                                                            : "text-slate hover:bg-beige/60 hover:text-navy"
+                                                            ? "bg-beige font-bold text-navy"
+                                                            : "text-slate hover:bg-beige hover:text-navy"
                                                     }
                                                 `}
                                             >
@@ -204,7 +278,8 @@ function StaffReports() {
                                 icon={CalendarDays}
                                 iconBg="bg-beige"
                                 iconColor="text-navy"
-                                accentColor="bg-gold"
+                                delta={stats.totalDelta}
+                                deltaColor="bg-green-50 text-green-700"
                             />
 
                             <StatCard
@@ -213,7 +288,6 @@ function StaffReports() {
                                 icon={CheckCircle2}
                                 iconBg="bg-green-50"
                                 iconColor="text-green-700"
-                                accentColor="bg-green-500"
                             />
 
                             <StatCard
@@ -222,7 +296,6 @@ function StaffReports() {
                                 icon={XCircle}
                                 iconBg="bg-red-50"
                                 iconColor="text-red-600"
-                                accentColor="bg-red-500"
                             />
 
                             <StatCard
@@ -231,179 +304,181 @@ function StaffReports() {
                                 icon={UserX}
                                 iconBg="bg-gold/15"
                                 iconColor="text-amber-600"
-                                accentColor="bg-amber-500"
                             />
 
                         </div>
 
-                        {/* Appointment Trend */}
-                        <div className="mb-6 rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+                        {/* Appointment Trend + Completion Rate side by side on lg */}
+                        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
 
-                            {/* Header */}
-                            <div className="mb-6 flex items-center justify-between">
+                            {/* Appointment Trend (takes 2 columns) */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6 lg:col-span-2">
 
-                                <div>
+                                <div className="mb-6 flex items-center justify-between">
+
                                     <h2 className="font-serif text-lg font-bold text-navy sm:text-xl">
                                         Appointment Trend
                                     </h2>
 
-                                    <p className="mt-1 text-xs text-slate">
-                                        Your appointments over time
-                                    </p>
+                                    <button
+                                        type="button"
+                                        className="
+                                            flex h-8 w-8 items-center justify-center
+                                            rounded-lg text-slate transition
+                                            hover:bg-beige hover:text-navy
+                                        "
+                                        aria-label="More options"
+                                    >
+                                        <MoreHorizontal className="h-5 w-5" />
+                                    </button>
+
                                 </div>
 
-                                <button
-                                    type="button"
-                                    className="
-                                        flex h-8 w-8 items-center justify-center
-                                        rounded-lg text-slate transition
-                                        hover:bg-beige hover:text-navy
-                                    "
-                                    aria-label="More options"
-                                >
-                                    <MoreHorizontal className="h-5 w-5" />
-                                </button>
+                                <div className="h-[240px] w-full sm:h-[280px]">
+
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart
+                                            data={trendData}
+                                            margin={{
+                                                top: 10,
+                                                right: 10,
+                                                left: -20,
+                                                bottom: 0,
+                                            }}
+                                        >
+                                            <CartesianGrid
+                                                strokeDasharray="4 4"
+                                                vertical={false}
+                                                stroke="#E4E2DD"
+                                            />
+
+                                            <XAxis
+                                                dataKey="date"
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{
+                                                    fontSize: 12,
+                                                    fill: "#43474E",
+                                                }}
+                                            />
+
+                                            <YAxis
+                                                axisLine={false}
+                                                tickLine={false}
+                                                allowDecimals={false}
+                                                tick={{
+                                                    fontSize: 12,
+                                                    fill: "#43474E",
+                                                }}
+                                            />
+
+                                            <Tooltip
+                                                contentStyle={{
+                                                    borderRadius: "8px",
+                                                    border: "1px solid #C3C6CF",
+                                                    fontSize: "12px",
+                                                }}
+                                                labelStyle={{
+                                                    color: "#000C1E",
+                                                    fontWeight: "700",
+                                                }}
+                                            />
+
+                                            <Area
+                                                type="monotone"
+                                                dataKey="count"
+                                                stroke="#000C1E"
+                                                strokeWidth={2}
+                                                fill="#000C1E"
+                                                fillOpacity={0.06}
+                                            />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+
+                                </div>
 
                             </div>
 
-                            {/* Chart */}
-                            <div className="h-[260px] w-full sm:h-[320px]">
-
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart
-                                        data={trendData}
-                                        margin={{
-                                            top: 10,
-                                            right: 10,
-                                            left: -20,
-                                            bottom: 0,
-                                        }}
-                                    >
-                                        <CartesianGrid
-                                            strokeDasharray="4 4"
-                                            vertical={false}
-                                            stroke="#E4E2DD"
-                                        />
-
-                                        <XAxis
-                                            dataKey="date"
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{
-                                                fontSize: 12,
-                                                fill: "#43474E",
-                                            }}
-                                        />
-
-                                        <YAxis
-                                            axisLine={false}
-                                            tickLine={false}
-                                            allowDecimals={false}
-                                            tick={{
-                                                fontSize: 12,
-                                                fill: "#43474E",
-                                            }}
-                                        />
-
-                                        <Tooltip
-                                            contentStyle={{
-                                                borderRadius: "8px",
-                                                border: "1px solid #C3C6CF",
-                                                fontSize: "12px",
-                                            }}
-                                            labelStyle={{
-                                                color: "#000C1E",
-                                                fontWeight: "700",
-                                            }}
-                                        />
-
-                                        <Area
-                                            type="monotone"
-                                            dataKey="count"
-                                            stroke="#000C1E"
-                                            strokeWidth={2}
-                                            fill="#000C1E"
-                                            fillOpacity={0.06}
-                                        />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-
-                            </div>
-
-                        </div>
-
-                        {/* Completion Rate + Hours Logged */}
-                        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-
-                            {/* Completion Rate */}
+                            {/* Completion Rate (right column, matches screenshot) */}
                             <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
 
                                 <h2 className="font-serif text-lg font-bold text-navy">
                                     Completion Rate
                                 </h2>
 
-                                <p className="mb-6 mt-1 text-xs text-slate">
-                                    Appointment outcome breakdown
-                                </p>
+                                <div className="mt-5 flex items-center gap-3">
 
-                                {/* Percentage */}
-                                <div className="mb-4 flex items-end gap-2">
-                                    <span className="font-serif text-4xl text-navy">
+                                    <span className="font-serif text-4xl font-bold text-navy">
                                         {completionRate}%
                                     </span>
 
-                                    <span className="mb-1 text-xs text-slate">
-                                        completed
-                                    </span>
-                                </div>
+                                    <div className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-gray/20">
 
-                                {/* Segmented Bar */}
-                                <div className="flex h-3 w-full overflow-hidden rounded-full bg-gray/20">
+                                        <div
+                                            className="h-full bg-navy"
+                                            style={{ width: `${completedWidth}%` }}
+                                        />
 
-                                    <div
-                                        className="h-full bg-navy"
-                                        style={{ width: `${completedWidth}%` }}
-                                    />
+                                        <div
+                                            className="h-full bg-gold"
+                                            style={{ width: `${cancelledWidth}%` }}
+                                        />
 
-                                    <div
-                                        className="h-full bg-gold"
-                                        style={{ width: `${cancelledWidth}%` }}
-                                    />
+                                        <div
+                                            className="h-full bg-red-500"
+                                            style={{ width: `${noShowWidth}%` }}
+                                        />
 
-                                    <div
-                                        className="h-full bg-slate"
-                                        style={{ width: `${noShowWidth}%` }}
-                                    />
+                                    </div>
 
                                 </div>
 
-                                {/* Legend */}
-                                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
+                                <div className="mt-5 space-y-3">
 
-                                    <div className="flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full bg-navy" />
-                                        <span className="text-xs text-slate">
-                                            Completed {stats.completed}
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="h-2 w-2 rounded-full bg-navy" />
+                                            <span className="text-sm text-slate">
+                                                Completed
+                                            </span>
+                                        </div>
+                                        <span className="text-sm font-bold text-navy">
+                                            {stats.completed}
                                         </span>
                                     </div>
 
-                                    <div className="flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full bg-gold" />
-                                        <span className="text-xs text-slate">
-                                            Cancelled {stats.cancelled}
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="h-2 w-2 rounded-full bg-gold" />
+                                            <span className="text-sm text-slate">
+                                                Cancelled
+                                            </span>
+                                        </div>
+                                        <span className="text-sm font-bold text-navy">
+                                            {stats.cancelled}
                                         </span>
                                     </div>
 
-                                    <div className="flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full bg-slate" />
-                                        <span className="text-xs text-slate">
-                                            No-shows {stats.noShows}
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="h-2 w-2 rounded-full bg-red-500" />
+                                            <span className="text-sm text-slate">
+                                                No-show
+                                            </span>
+                                        </div>
+                                        <span className="text-sm font-bold text-navy">
+                                            {stats.noShows}
                                         </span>
                                     </div>
 
                                 </div>
 
                             </div>
+
+                        </div>
+
+                        {/* Hours Logged + Busiest Days + Appointments by Service row */}
+                        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
 
                             {/* Hours Logged */}
                             <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
@@ -412,82 +487,279 @@ function StaffReports() {
                                     Hours Logged
                                 </h2>
 
-                                <p className="mb-6 mt-1 text-xs text-slate">
-                                    Your scheduled and completed hours
-                                </p>
+                                <div className="mt-5 space-y-4">
 
-                                {/* Scheduled */}
-                                <div className="mb-5">
+                                    <div>
+                                        <div className="mb-1.5 flex items-center justify-between">
+                                            <span className="text-sm text-slate">
+                                                Scheduled
+                                            </span>
 
-                                    <div className="mb-2 flex items-center justify-between">
-                                        <span className="text-sm font-bold text-navy">
-                                            Scheduled
-                                        </span>
+                                            <span className="text-sm font-bold text-navy">
+                                                {hoursLogged.scheduled}h
+                                            </span>
+                                        </div>
 
-                                        <span className="text-sm text-slate">
-                                            {hoursLogged.scheduled}h
-                                        </span>
+                                        <div className="h-2 w-full overflow-hidden rounded-full bg-gray/20">
+                                            <div
+                                                className="h-full rounded-full bg-navy"
+                                                style={{
+                                                    width: `${(hoursLogged.scheduled / 40) * 100}%`,
+                                                }}
+                                            />
+                                        </div>
                                     </div>
 
-                                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray/20">
-                                        <div
-                                            className="h-full rounded-full bg-navy"
-                                            style={{
-                                                width: `${(hoursLogged.scheduled / 40) * 100}%`,
-                                            }}
-                                        />
+                                    <div>
+                                        <div className="mb-1.5 flex items-center justify-between">
+                                            <span className="text-sm text-slate">
+                                                Completed
+                                            </span>
+
+                                            <span className="text-sm font-bold text-navy">
+                                                {hoursLogged.completed}h
+                                            </span>
+                                        </div>
+
+                                        <div className="h-2 w-full overflow-hidden rounded-full bg-gray/20">
+                                            <div
+                                                className="h-full rounded-full bg-navy"
+                                                style={{
+                                                    width: `${(hoursLogged.completed / 40) * 100}%`,
+                                                }}
+                                            />
+                                        </div>
                                     </div>
 
-                                </div>
+                                    <div>
+                                        <div className="mb-1.5 flex items-center justify-between">
+                                            <span className="text-sm text-slate">
+                                                Available
+                                            </span>
 
-                                {/* Completed */}
-                                <div className="mb-5">
+                                            <span className="text-sm font-bold text-navy">
+                                                {hoursLogged.available}h
+                                            </span>
+                                        </div>
 
-                                    <div className="mb-2 flex items-center justify-between">
-                                        <span className="text-sm font-bold text-navy">
-                                            Completed
-                                        </span>
-
-                                        <span className="text-sm text-slate">
-                                            {hoursLogged.completed}h
-                                        </span>
-                                    </div>
-
-                                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray/20">
-                                        <div
-                                            className="h-full rounded-full bg-gold"
-                                            style={{
-                                                width: `${(hoursLogged.completed / 40) * 100}%`,
-                                            }}
-                                        />
-                                    </div>
-
-                                </div>
-
-                                {/* Available */}
-                                <div>
-
-                                    <div className="mb-2 flex items-center justify-between">
-                                        <span className="text-sm font-bold text-navy">
-                                            Available
-                                        </span>
-
-                                        <span className="text-sm text-slate">
-                                            {hoursLogged.available}h
-                                        </span>
-                                    </div>
-
-                                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray/20">
-                                        <div
-                                            className="h-full rounded-full bg-slate"
-                                            style={{
-                                                width: `${(hoursLogged.available / 40) * 100}%`,
-                                            }}
-                                        />
+                                        <div className="h-2 w-full overflow-hidden rounded-full bg-gray/20">
+                                            <div
+                                                className="h-full rounded-full bg-slate"
+                                                style={{
+                                                    width: `${(hoursLogged.available / 40) * 100}%`,
+                                                }}
+                                            />
+                                        </div>
                                     </div>
 
                                 </div>
 
+                            </div>
+
+                            {/* Busiest Days (spans 2 columns on lg) */}
+                            <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6 lg:col-span-2">
+
+                                <h2 className="font-serif text-lg font-bold text-navy">
+                                    Busiest Days
+                                </h2>
+
+                                <div className="mt-5 space-y-4">
+
+                                    {busiestDays.map((item) => {
+                                        const barWidth =
+                                            (item.count / 12) * 100;
+
+                                        return (
+                                            <div
+                                                key={item.day}
+                                                className="flex items-center gap-4"
+                                            >
+
+                                                <span className="w-24 flex-shrink-0 text-sm font-bold text-navy">
+                                                    {item.day}
+                                                </span>
+
+                                                <div className="h-3 flex-1 overflow-hidden rounded-full bg-gray/20">
+                                                    <div
+                                                        className="h-full rounded-full bg-navy"
+                                                        style={{ width: `${barWidth}%` }}
+                                                    />
+                                                </div>
+
+                                                <span className="w-10 flex-shrink-0 text-right text-sm font-bold text-navy">
+                                                    {item.count}
+                                                </span>
+
+                                            </div>
+                                        );
+                                    })}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {/* Appointments by Service (full width row) */}
+                        <div className="mb-6 rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+
+                            <h2 className="font-serif text-lg font-bold text-navy">
+                                Appointments by Service
+                            </h2>
+
+                            <div className="mt-6 flex h-48 items-end justify-around gap-5">
+
+                                {appointmentsByService.map((item, index) => {
+                                    const maxCount = Math.max(
+                                        ...appointmentsByService.map(
+                                            (service) => service.count
+                                        )
+                                    );
+
+                                    const barHeight =
+                                        (item.count / maxCount) * 100;
+
+                                    const barClass =
+                                        index === 0
+                                            ? "bg-navy"
+                                            : index === 1
+                                            ? "bg-slate"
+                                            : "bg-gold";
+
+                                    return (
+                                        <div
+                                            key={item.service}
+                                            className="flex h-full flex-1 flex-col items-center justify-end"
+                                        >
+
+                                            <span className="mb-2 text-xs font-bold text-navy">
+                                                {item.count}
+                                            </span>
+
+                                            <div className="flex h-32 w-full max-w-[80px] items-end">
+                                                <div
+                                                    className={`w-full rounded-t-md ${barClass}`}
+                                                    style={{
+                                                        height: `${barHeight}%`,
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <span className="mt-3 text-center text-xs leading-tight text-slate">
+                                                {item.service}
+                                            </span>
+
+                                        </div>
+                                    );
+                                })}
+
+                            </div>
+
+                        </div>
+
+                        {/* Recent Activity */}
+                        <div className="rounded-xl border border-gray/20 bg-white shadow-sm">
+
+                            <div className="border-b border-gray/20 p-5 sm:p-6">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+                                    <h2 className="font-serif text-lg font-bold text-navy sm:text-xl">
+                                        Recent Activity
+                                    </h2>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleExportReport}
+                                        className="
+                                            inline-flex items-center justify-center gap-2
+                                            rounded-lg border-2 border-navy bg-white
+                                            px-4 py-2 text-sm font-bold text-navy
+                                            transition hover:bg-navy hover:text-white
+                                        "
+                                    >
+                                        Export Report
+                                    </button>
+
+                                </div>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <div className="min-w-[900px]">
+
+                                    <div className="grid grid-cols-[140px_120px_1.5fr_1.5fr_130px_80px] gap-4 border-b border-gray/20 bg-beige/50 px-6 py-3">
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Date
+                                        </span>
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Time
+                                        </span>
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Customer
+                                        </span>
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Service
+                                        </span>
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Status
+                                        </span>
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                                            Action
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        {recentActivity.map((activity) => (
+                                            <div
+                                                key={activity.id}
+                                                className="
+                                                    grid grid-cols-[140px_120px_1.5fr_1.5fr_130px_80px]
+                                                    items-center gap-4 border-b
+                                                    border-gray/10 px-6 py-4 transition
+                                                    last:border-b-0 hover:bg-beige/30
+                                                "
+                                            >
+                                                <span className="text-sm text-navy">
+                                                    {activity.date}
+                                                </span>
+
+                                                <span className="text-sm text-slate">
+                                                    {activity.time}
+                                                </span>
+
+                                                <Link
+                                                    to={`/staff/customers/${activity.customerId}`}
+                                                    className="truncate text-sm font-bold text-navy transition hover:text-gold"
+                                                >
+                                                    {activity.customer}
+                                                </Link>
+
+                                                <span className="truncate text-sm text-slate">
+                                                    {activity.service}
+                                                </span>
+
+                                                <span
+                                                    className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-bold ${
+                                                        activity.status === "Completed"
+                                                            ? "bg-green-50 text-green-700"
+                                                            : activity.status === "Cancelled"
+                                                            ? "bg-gold/20 text-amber-700"
+                                                            : "bg-red-50 text-red-600"
+                                                    }`}
+                                                >
+                                                    {activity.status}
+                                                </span>
+
+                                                <Link
+                                                    to={`/staff/appointments/${activity.appointmentId}`}
+                                                    className="text-sm font-bold text-navy transition hover:text-gold"
+                                                >
+                                                    View
+                                                </Link>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                </div>
                             </div>
 
                         </div>
