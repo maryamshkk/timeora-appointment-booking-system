@@ -61,14 +61,20 @@ import NotificationSettings from "../pages/settings/NotificationSettings";
 
 // Staff Portal
 import StaffDashboard from "../pages/staff/StaffDashboard";
+
 import StaffCalendar from "../pages/staff/StaffCalendar";
+
 import StaffAppointments from "../pages/staff/StaffAppointments";
 import StaffAppointmentDetails from "../pages/staff/StaffAppointmentDetails";
 import StaffRescheduleAppointment from "../pages/staff/StaffRescheduleAppointment";
+
 import StaffCustomerDetails from "../pages/staff/CustomerDetails";
 import StaffCustomers from "../pages/staff/StaffCustomers";
-import StaffAvailability from "../pages/staff/StaffAvailability";
 import StaffEditCustomer from "../pages/staff/StaffEditCustomer";
+
+import StaffAvailability from "../pages/staff/StaffAvailability";
+
+import StaffReports from "../pages/staff/StaffReports";
 
 
 function AppRoutes() {
@@ -238,6 +244,11 @@ function AppRoutes() {
                                 
                 {/* Staff Portal — Availability */}
                 <Route path="/staff/availability" element={<StaffAvailability />} />
+
+                {/* staff -reports */}
+                <Route
+                    path="/staff/reports"
+                    element={<StaffReports />} />
 
                 {/* Fallback */}
                 <Route path="*" element={<RoleSelectionPage />} />
