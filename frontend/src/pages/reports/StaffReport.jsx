@@ -12,11 +12,39 @@ import {
     Users,
     XCircle,
 } from "lucide-react";
+import {
+    AreaChart, Area, BarChart, Bar, Cell,
+    CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer,
+} from "recharts";
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
 import api from "../../services/api";
+
+/* Trend + role charts — mock for now, API will replace */
+const staffTrendData = [
+    { date: "01 Aug", appointments: 14, completed: 11 },
+    { date: "05 Aug", appointments: 18, completed: 15 },
+    { date: "09 Aug", appointments: 22, completed: 18 },
+    { date: "13 Aug", appointments: 26, completed: 21 },
+    { date: "17 Aug", appointments: 24, completed: 20 },
+    { date: "21 Aug", appointments: 29, completed: 25 },
+];
+
+const roleData = [
+    { role: "Specialist", count: 42 },
+    { role: "Consultant", count: 50 },
+    { role: "Therapist", count: 32 },
+    { role: "Physician", count: 19 },
+];
+
+const roleColors = {
+    Specialist: "#000C1E",
+    Consultant: "#16a34a",
+    Therapist: "#3b82f6",
+    Physician: "#d97706",
+};
 
 const mockStaffData = [
     {
@@ -326,7 +354,7 @@ function StaffReport() {
                     <div className="flex flex-wrap items-center gap-2 mb-5">
 
                         <Link
-                            to="/reports"
+                            to="/company/reports"
                             className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
                         >
                             Reports &amp; Analytics
@@ -344,13 +372,6 @@ function StaffReport() {
                     <div className="flex flex-col gap-5 mb-6 lg:flex-row lg:items-start lg:justify-between">
 
                         <div>
-                            <Link
-                                to="/reports"
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate hover:text-navy transition mb-3"
-                            >
-                                <ArrowLeft className="w-3.5 h-3.5" />
-                                Back to Reports
-                            </Link>
 
                             <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                                 Staff Report
@@ -446,6 +467,132 @@ function StaffReport() {
                                 iconColor={card.iconColor}
                             />
                         ))}
+
+                    </div>
+
+                    {/* Charts Row */}
+                    <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+                        {/* Staff Trend */}
+                        <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+
+                            <h2 className="font-serif text-lg font-bold text-navy mb-1">
+                                Staff Trend
+                            </h2>
+
+                            <p className="text-xs text-slate mb-5">
+                                Appointments vs completed
+                            </p>
+
+                            <div className="h-[240px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart
+                                        data={staffTrendData}
+                                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="4 4"
+                                            vertical={false}
+                                            stroke="#E4E2DD"
+                                        />
+                                        <XAxis
+                                            dataKey="date"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            allowDecimals={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                borderRadius: 8,
+                                                border: "1px solid #C3C6CF",
+                                                fontSize: 12,
+                                            }}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="appointments"
+                                            stroke="#000C1E"
+                                            strokeWidth={2}
+                                            fill="#000C1E"
+                                            fillOpacity={0.06}
+                                            name="Appointments"
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="completed"
+                                            stroke="#16a34a"
+                                            strokeWidth={2}
+                                            fill="#16a34a"
+                                            fillOpacity={0.05}
+                                            name="Completed"
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+
+                        </div>
+
+                        {/* Role Breakdown */}
+                        <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+
+                            <h2 className="font-serif text-lg font-bold text-navy mb-1">
+                                Role Breakdown
+                            </h2>
+
+                            <p className="text-xs text-slate mb-5">
+                                Appointments by staff role
+                            </p>
+
+                            <div className="h-[240px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={roleData}
+                                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="4 4"
+                                            vertical={false}
+                                            stroke="#E4E2DD"
+                                        />
+                                        <XAxis
+                                            dataKey="role"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            allowDecimals={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <Tooltip
+                                            cursor={{ fill: "rgba(254,212,136,0.15)" }}
+                                            contentStyle={{
+                                                borderRadius: 8,
+                                                border: "1px solid #C3C6CF",
+                                                fontSize: 12,
+                                            }}
+                                        />
+                                        <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                            {roleData.map((entry) => (
+                                                <Cell
+                                                    key={entry.role}
+                                                    fill={roleColors[entry.role]}
+                                                />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+
+                        </div>
 
                     </div>
 

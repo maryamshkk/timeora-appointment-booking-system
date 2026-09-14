@@ -156,7 +156,7 @@ function AppointmentReport() {
                 <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
                     {/* Breadcrumb */}
                     <div className="flex flex-wrap items-center gap-2 mb-5">
-                        <Link to="/reports" className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition">Reports &amp; Analytics</Link>
+                        <Link to="/company/reports" className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition">Reports &amp; Analytics</Link>
                         <ChevronRight className="w-3 h-3 text-gray" />
                         <span className="text-xs text-navy">Appointment Report</span>
                     </div>
@@ -164,9 +164,7 @@ function AppointmentReport() {
                     {/* Header */}
                     <div className="flex flex-col gap-5 mb-6 lg:flex-row lg:items-start lg:justify-between">
                         <div>
-                            <Link to="/reports" className="inline-flex items-center gap-1.5 text-xs font-bold text-slate hover:text-navy transition mb-3">
-                                <ArrowLeft className="w-3.5 h-3.5" /> Back to Reports
-                            </Link>
+
 
                             <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">Appointment Report</h1>
 

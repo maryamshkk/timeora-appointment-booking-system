@@ -12,11 +12,41 @@ import {
     Scissors,
     XCircle,
 } from "lucide-react";
+import {
+    AreaChart, Area, BarChart, Bar, Cell,
+    CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer,
+} from "recharts";
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
 import api from "../../services/api";
+
+/* Trend + category charts — mock for now, API will replace */
+const serviceTrendData = [
+    { date: "01 Aug", bookings: 18, completed: 15 },
+    { date: "05 Aug", bookings: 22, completed: 19 },
+    { date: "09 Aug", bookings: 26, completed: 22 },
+    { date: "13 Aug", bookings: 31, completed: 26 },
+    { date: "17 Aug", bookings: 28, completed: 24 },
+    { date: "21 Aug", bookings: 35, completed: 30 },
+];
+
+const categoryData = [
+    { category: "Consultation", count: 64 },
+    { category: "Therapy", count: 46 },
+    { category: "General", count: 25 },
+    { category: "Wellness", count: 27 },
+    { category: "Screening", count: 11 },
+];
+
+const categoryColors = {
+    Consultation: "#000C1E",
+    Therapy: "#16a34a",
+    General: "#3b82f6",
+    Wellness: "#d97706",
+    Screening: "#94a3b8",
+};
 
 const mockServiceData = [
     {
@@ -326,7 +356,7 @@ function ServiceReport() {
                     <div className="flex flex-wrap items-center gap-2 mb-5">
 
                         <Link
-                            to="/reports"
+                            to="/company/reports"
                             className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
                         >
                             Reports &amp; Analytics
@@ -344,13 +374,7 @@ function ServiceReport() {
                     <div className="flex flex-col gap-5 mb-6 lg:flex-row lg:items-start lg:justify-between">
 
                         <div>
-                            <Link
-                                to="/reports"
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate hover:text-navy transition mb-3"
-                            >
-                                <ArrowLeft className="w-3.5 h-3.5" />
-                                Back to Reports
-                            </Link>
+
 
                             <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                                 Service Report
@@ -446,6 +470,132 @@ function ServiceReport() {
                                 iconColor={card.iconColor}
                             />
                         ))}
+
+                    </div>
+
+                    {/* Charts Row */}
+                    <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+                        {/* Service Trend */}
+                        <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+
+                            <h2 className="font-serif text-lg font-bold text-navy mb-1">
+                                Service Trend
+                            </h2>
+
+                            <p className="text-xs text-slate mb-5">
+                                Bookings vs completed
+                            </p>
+
+                            <div className="h-[240px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart
+                                        data={serviceTrendData}
+                                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="4 4"
+                                            vertical={false}
+                                            stroke="#E4E2DD"
+                                        />
+                                        <XAxis
+                                            dataKey="date"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            allowDecimals={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                borderRadius: 8,
+                                                border: "1px solid #C3C6CF",
+                                                fontSize: 12,
+                                            }}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="bookings"
+                                            stroke="#000C1E"
+                                            strokeWidth={2}
+                                            fill="#000C1E"
+                                            fillOpacity={0.06}
+                                            name="Bookings"
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="completed"
+                                            stroke="#16a34a"
+                                            strokeWidth={2}
+                                            fill="#16a34a"
+                                            fillOpacity={0.05}
+                                            name="Completed"
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+
+                        </div>
+
+                        {/* Category Breakdown */}
+                        <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+
+                            <h2 className="font-serif text-lg font-bold text-navy mb-1">
+                                Category Breakdown
+                            </h2>
+
+                            <p className="text-xs text-slate mb-5">
+                                Bookings by service category
+                            </p>
+
+                            <div className="h-[240px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={categoryData}
+                                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="4 4"
+                                            vertical={false}
+                                            stroke="#E4E2DD"
+                                        />
+                                        <XAxis
+                                            dataKey="category"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            allowDecimals={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <Tooltip
+                                            cursor={{ fill: "rgba(254,212,136,0.15)" }}
+                                            contentStyle={{
+                                                borderRadius: 8,
+                                                border: "1px solid #C3C6CF",
+                                                fontSize: 12,
+                                            }}
+                                        />
+                                        <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                            {categoryData.map((entry) => (
+                                                <Cell
+                                                    key={entry.category}
+                                                    fill={categoryColors[entry.category]}
+                                                />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+
+                        </div>
 
                     </div>
 

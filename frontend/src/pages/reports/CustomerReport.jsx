@@ -10,11 +10,39 @@ import {
     Users,
     XCircle,
 } from "lucide-react";
+import {
+    AreaChart, Area, BarChart, Bar, Cell,
+    CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer,
+} from "recharts";
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
 import api from "../../services/api";
+
+/* Trend + segment charts — mock for now, API will replace */
+const customerTrendData = [
+    { date: "01 Aug", newCustomers: 3, returning: 8 },
+    { date: "05 Aug", newCustomers: 5, returning: 10 },
+    { date: "09 Aug", newCustomers: 4, returning: 12 },
+    { date: "13 Aug", newCustomers: 7, returning: 14 },
+    { date: "17 Aug", newCustomers: 6, returning: 13 },
+    { date: "21 Aug", newCustomers: 8, returning: 16 },
+];
+
+const segmentData = [
+    { segment: "New", count: 48 },
+    { segment: "Returning", count: 196 },
+    { segment: "Active", count: 68 },
+    { segment: "Inactive", count: 20 },
+];
+
+const segmentColors = {
+    New: "#3b82f6",
+    Returning: "#d97706",
+    Active: "#16a34a",
+    Inactive: "#94a3b8",
+};
 
 function CustomerReport() {
     const [periodFilter, setPeriodFilter] = useState("month");
@@ -187,7 +215,10 @@ function CustomerReport() {
 
             {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
-                <Sidebar activeItem="Reports" />
+                <Sidebar
+                    companyName="Shifa Clinic"
+                    activeItem="Reports"
+                />
             </div>
 
             {/* Mobile / Tablet Sidebar — overlay drawer */}
@@ -201,7 +232,10 @@ function CustomerReport() {
                     />
 
                     <div className="fixed left-0 top-0 z-40 h-screen w-64 max-w-[80vw] overflow-y-auto lg:hidden">
-                        <Sidebar activeItem="Reports" />
+                        <Sidebar
+                            companyName="Shifa Clinic"
+                            activeItem="Reports"
+                        />
                     </div>
                 </>
             )}
@@ -219,34 +253,27 @@ function CustomerReport() {
                 <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
 
                     {/* Breadcrumb */}
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate mb-4">
+                    <div className="flex flex-wrap items-center gap-2 mb-5">
 
                         <Link
-                            to="/reports"
-                            className="transition hover:text-navy"
+                            to="/company/reports"
+                            className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
                         >
-                            Reports
+                            Reports &amp; Analytics
                         </Link>
 
                         <ChevronRight className="w-3 h-3 text-gray" />
 
-                        <span className="text-navy font-bold">
+                        <span className="text-xs text-navy">
                             Customer Report
                         </span>
 
                     </div>
 
                     {/* Header */}
-                    <div className="flex flex-col gap-5 mb-7 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex flex-col gap-5 mb-6 lg:flex-row lg:items-start lg:justify-between">
 
                         <div>
-                            <Link
-                                to="/reports"
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate hover:text-navy transition mb-3"
-                            >
-                                <ArrowLeft className="w-3.5 h-3.5" />
-                                Back to Reports
-                            </Link>
 
                             <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                                 Customer Report
@@ -309,31 +336,49 @@ function CustomerReport() {
 
                     </div>
 
-                    {/* Period Filters */}
-                    <div className="flex items-center gap-2 mb-7 overflow-x-auto pb-1">
+                    {/* Period Filter */}
+                    <div className="flex items-center gap-6 border-b border-gray/20 pb-3 mb-6 overflow-x-auto">
 
-                        {["today", "week", "month"].map((period) => (
-                            <button
-                                key={period}
-                                type="button"
-                                onClick={() => handlePeriodChange(period)}
-                                className={`
-                                    px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition whitespace-nowrap
-                                    ${
-                                        periodFilter === period
-                                            ? "bg-navy text-white"
-                                            : "bg-white text-slate border border-gray/30 hover:border-navy hover:text-navy"
-                                    }
-                                `}
-                            >
-                                {period}
-                            </button>
-                        ))}
+                        {[
+                            { key: "today", label: "Today" },
+                            { key: "week", label: "This Week" },
+                            { key: "month", label: "Monthly" },
+                        ].map((period) => {
+                            const isActive =
+                                periodFilter === period.key;
+
+                            return (
+                                <button
+                                    key={period.key}
+                                    type="button"
+                                    onClick={() => {
+                                        setPeriodFilter(period.key);
+                                        setCurrentPage(1);
+                                    }}
+                                    className={`
+                                        text-sm
+                                        font-bold
+                                        whitespace-nowrap
+                                        pb-3
+                                        -mb-3
+                                        border-b-2
+                                        transition
+                                        ${
+                                            isActive
+                                                ? "text-navy border-navy"
+                                                : "text-slate border-transparent hover:text-navy"
+                                        }
+                                    `}
+                                >
+                                    {period.label}
+                                </button>
+                            );
+                        })}
 
                     </div>
 
-                    {/* Stats */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
 
                         <StatCard
                             value="312"
@@ -378,22 +423,149 @@ function CustomerReport() {
 
                     </div>
 
-                    {/* Filters */}
-                    <div className="bg-white border border-gray/20 rounded-xl shadow-sm p-4 sm:p-5 mb-6">
+                    {/* Charts Row */}
+                    <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
 
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        {/* Customer Growth Trend */}
+                        <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
 
-                            <div>
-                                <h2 className="font-serif text-lg text-navy">
-                                    Customer Activity
-                                </h2>
+                            <h2 className="font-serif text-lg font-bold text-navy mb-1">
+                                Customer Growth
+                            </h2>
 
-                                <p className="text-xs text-slate mt-1">
-                                    Customer-level appointment and spending data.
-                                </p>
+                            <p className="text-xs text-slate mb-5">
+                                New vs returning customers over time
+                            </p>
+
+                            <div className="h-[240px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart
+                                        data={customerTrendData}
+                                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="4 4"
+                                            vertical={false}
+                                            stroke="#E4E2DD"
+                                        />
+                                        <XAxis
+                                            dataKey="date"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            allowDecimals={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{
+                                                borderRadius: 8,
+                                                border: "1px solid #C3C6CF",
+                                                fontSize: 12,
+                                            }}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="newCustomers"
+                                            stroke="#000C1E"
+                                            strokeWidth={2}
+                                            fill="#000C1E"
+                                            fillOpacity={0.06}
+                                            name="New Customers"
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="returning"
+                                            stroke="#16a34a"
+                                            strokeWidth={2}
+                                            fill="#16a34a"
+                                            fillOpacity={0.05}
+                                            name="Returning"
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                        </div>
+
+                        {/* Customer Segments */}
+                        <div className="rounded-xl border border-gray/20 bg-white p-5 shadow-sm sm:p-6">
+
+                            <h2 className="font-serif text-lg font-bold text-navy mb-1">
+                                Customer Segments
+                            </h2>
+
+                            <p className="text-xs text-slate mb-5">
+                                Breakdown by customer type
+                            </p>
+
+                            <div className="h-[240px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        data={segmentData}
+                                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                    >
+                                        <CartesianGrid
+                                            strokeDasharray="4 4"
+                                            vertical={false}
+                                            stroke="#E4E2DD"
+                                        />
+                                        <XAxis
+                                            dataKey="segment"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            allowDecimals={false}
+                                            tick={{ fontSize: 12, fill: "#43474E" }}
+                                        />
+                                        <Tooltip
+                                            cursor={{ fill: "rgba(254,212,136,0.15)" }}
+                                            contentStyle={{
+                                                borderRadius: 8,
+                                                border: "1px solid #C3C6CF",
+                                                fontSize: 12,
+                                            }}
+                                        />
+                                        <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                            {segmentData.map((entry) => (
+                                                <Cell
+                                                    key={entry.segment}
+                                                    fill={segmentColors[entry.segment]}
+                                                />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {/* Customer Activity */}
+                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
+
+                        {/* Header */}
+                        <div className="p-5 sm:p-6 border-b border-gray/20">
+
+                            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+                                <div>
+                                    <h2 className="font-serif text-lg text-navy sm:text-xl">
+                                        Customer Activity
+                                    </h2>
+
+                                    <p className="text-xs text-slate mt-1">
+                                        Customer-level appointment and spending data.
+                                    </p>
+                                </div>
 
                                 <select
                                     value={statusFilter}
@@ -401,7 +573,7 @@ function CustomerReport() {
                                         setStatusFilter(event.target.value);
                                         setCurrentPage(1);
                                     }}
-                                    className="h-10 w-full sm:w-auto rounded-lg border border-gray/40 bg-white px-3 text-sm text-navy outline-none focus:border-navy"
+                                    className="h-9 w-full sm:w-auto rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy outline-none focus:border-navy"
                                 >
                                     <option value="all">All Customers</option>
                                     <option value="Active">Active</option>
@@ -413,82 +585,82 @@ function CustomerReport() {
 
                         </div>
 
-                    </div>
-
-                    {/* Customer Table */}
-                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
-
+                        {/* Table */}
                         <div className="overflow-x-auto">
 
                             <table className="w-full min-w-[1000px]">
 
                                 <thead>
-                                    <tr className="border-b border-gray/20 bg-surface">
-                                        <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
+                                    <tr className="bg-beige/50">
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Customer
                                         </th>
-                                        <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Appointments
                                         </th>
-                                        <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Completed
                                         </th>
-                                        <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Cancelled
                                         </th>
-                                        <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Last Visit
                                         </th>
-                                        <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Total Spent
                                         </th>
-                                        <th className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wide text-slate">
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">
                                             Status
                                         </th>
                                     </tr>
                                 </thead>
 
-                                <tbody>
+                                <tbody className="divide-y divide-gray/10">
                                     {filteredCustomers.map((customer) => (
                                         <tr
                                             key={customer.id}
-                                            className="border-b border-gray/10 last:border-b-0 hover:bg-beige/40 transition"
+                                            className="hover:bg-beige/30 transition"
                                         >
-                                            <td className="px-5 py-4">
-                                                <div>
-                                                    <p className="text-sm font-bold text-navy">
-                                                        {customer.name}
-                                                    </p>
+                                            <td className="px-6 py-4">
+                                                <p className="text-sm font-bold text-navy">
+                                                    {customer.name}
+                                                </p>
 
-                                                    <p className="text-xs text-slate mt-0.5">
-                                                        {customer.email}
-                                                    </p>
-                                                </div>
+                                                <p className="text-xs text-slate mt-0.5">
+                                                    {customer.email}
+                                                </p>
                                             </td>
 
-                                            <td className="px-5 py-4 text-sm text-navy">
+                                            <td className="px-6 py-4 text-sm font-bold text-navy">
                                                 {customer.appointments}
                                             </td>
 
-                                            <td className="px-5 py-4 text-sm text-green-700 font-bold">
-                                                {customer.completed}
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center gap-1.5 text-sm font-bold text-green-700">
+                                                    <CheckCircle2 className="w-4 h-4" />
+                                                    {customer.completed}
+                                                </span>
                                             </td>
 
-                                            <td className="px-5 py-4 text-sm text-red-600 font-bold">
-                                                {customer.cancelled}
+                                            <td className="px-6 py-4">
+                                                <span className="inline-flex items-center gap-1.5 text-sm font-bold text-red-600">
+                                                    <XCircle className="w-4 h-4" />
+                                                    {customer.cancelled}
+                                                </span>
                                             </td>
 
-                                            <td className="px-5 py-4 text-sm text-slate">
+                                            <td className="px-6 py-4 text-sm text-slate">
                                                 {customer.lastVisit}
                                             </td>
 
-                                            <td className="px-5 py-4 text-sm font-bold text-navy">
+                                            <td className="px-6 py-4 text-sm font-bold text-navy">
                                                 {customer.totalSpent}
                                             </td>
 
-                                            <td className="px-5 py-4">
+                                            <td className="px-6 py-4">
                                                 <span
-                                                    className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${getStatusStyle(
+                                                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold uppercase ${getStatusStyle(
                                                         customer.status
                                                     )}`}
                                                 >
@@ -503,14 +675,14 @@ function CustomerReport() {
 
                         </div>
 
-                        {/* Pagination */}
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-gray/20 px-4 sm:px-5 py-4">
+                        {/* Footer */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 sm:px-6 py-4 border-t border-gray/20">
 
                             <p className="text-xs text-slate">
-                                Showing {filteredCustomers.length} of 312 customers
+                                Showing 1 to {filteredCustomers.length} of 312 customers
                             </p>
 
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex items-center gap-1 flex-wrap">
 
                                 <button
                                     type="button"
@@ -520,13 +692,38 @@ function CustomerReport() {
                                             Math.max(1, page - 1)
                                         )
                                     }
-                                    className="px-3 py-2 rounded-lg border border-gray/30 text-xs font-bold text-slate disabled:opacity-40 hover:border-navy hover:text-navy transition"
+                                    className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige disabled:opacity-40 disabled:cursor-not-allowed transition"
                                 >
-                                    Previous
+                                    Prev
                                 </button>
 
-                                <span className="px-3 py-2 rounded-lg bg-navy text-white text-xs font-bold">
-                                    {currentPage}
+                                {[1, 2, 3].map((page) => (
+                                    <button
+                                        key={page}
+                                        type="button"
+                                        onClick={() =>
+                                            setCurrentPage(page)
+                                        }
+                                        className={`
+                                            w-8
+                                            h-8
+                                            rounded-md
+                                            text-xs
+                                            font-bold
+                                            transition
+                                            ${
+                                                currentPage === page
+                                                    ? "bg-navy text-white"
+                                                    : "text-slate hover:bg-beige"
+                                            }
+                                        `}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+
+                                <span className="px-2 text-xs text-slate">
+                                    ...
                                 </span>
 
                                 <button
@@ -534,7 +731,7 @@ function CustomerReport() {
                                     onClick={() =>
                                         setCurrentPage((page) => page + 1)
                                     }
-                                    className="px-3 py-2 rounded-lg border border-gray/30 text-xs font-bold text-slate hover:border-navy hover:text-navy transition"
+                                    className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige transition"
                                 >
                                     Next
                                 </button>
