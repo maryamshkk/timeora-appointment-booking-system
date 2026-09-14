@@ -60,7 +60,8 @@ import NotificationSettings from "../pages/settings/NotificationSettings";
 // Staff Dashboard
 import StaffDashboard from "../pages/staff/StaffDashboard";
 import StaffCalendar from "../pages/staff/StaffCalendar";
-import StaffAppointments from "../components/staff/StaffAppointment";
+import StaffAppointments from "../pages/staff/StaffAppointments";
+
 
 function AppRoutes() {
     return (

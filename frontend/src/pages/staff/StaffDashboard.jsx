@@ -17,7 +17,6 @@ import {
 import StaffSidebar from "../../components/staff/StaffSidebar";
 import StaffTopbar from "../../components/staff/StaffTopbar";
 import StatCard from "../../components/dashboard/StatCard";
-import AppointmentsTable from "../../components/staff/AppointmentsTable";
 
 function StaffDashboard() {
     const navigate = useNavigate();
