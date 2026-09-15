@@ -2,13 +2,17 @@ import React, { useState } from "react";
 import {
     Check,
     ChevronDown,
+    ChevronLeft,
+    ChevronRight,
     Dumbbell,
     HeartPulse,
     MapPin,
     PersonStanding,
     Search,
     Sparkles,
+    Star,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import CustomerSidebar from "../../components/customer/CustomerSidebar";
 import CustomerTopbar from "../../components/customer/CustomerTopbar";
@@ -37,6 +41,7 @@ function BrowseCompanies() {
             name: "Shifa Clinic",
             category: "Healthcare",
             logoUrl: "",
+            imageUrl: "",
             rating: 4.9,
             availability: "today",
             location: "Lahore, Gulberg III",
@@ -48,6 +53,7 @@ function BrowseCompanies() {
             name: "Aesthetic Dental",
             category: "Healthcare",
             logoUrl: "",
+            imageUrl: "",
             rating: 4.7,
             availability: "today",
             location: "DHA Phase 5",
@@ -59,6 +65,7 @@ function BrowseCompanies() {
             name: "Nova Rehab Center",
             category: "Healthcare",
             logoUrl: "",
+            imageUrl: "",
             rating: null,
             availability: "next-week",
             location: "Johar Town",
@@ -70,6 +77,7 @@ function BrowseCompanies() {
             name: "Serenity Spa",
             category: "Wellness",
             logoUrl: "",
+            imageUrl: "",
             rating: null,
             availability: "today",
             location: "Model Town",
@@ -747,7 +755,297 @@ function BrowseCompanies() {
 
                             </div>
 
-                            {/* Company Cards will be added next */}
+                            {/* Company Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                                {companies.map((company) => (
+                                    <article
+                                        key={company.id}
+                                        className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden flex flex-col"
+                                    >
+
+                                        {/* Image */}
+                                        <div className="relative h-40 w-full bg-gray/10">
+
+                                            {company.imageUrl ? (
+                                                <img
+                                                    src={company.imageUrl}
+                                                    alt={company.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-beige flex items-center justify-center">
+                                                    <span className="font-serif text-2xl text-navy/30">
+                                                        {company.name}
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            {/* Rating */}
+                                            {company.rating && (
+                                                <div className="absolute top-3 right-3 bg-white rounded-full px-2.5 py-1 shadow-sm flex items-center gap-1">
+                                                    <Star className="w-3 h-3 text-gold fill-gold" />
+
+                                                    <span className="text-xs font-bold text-navy">
+                                                        {company.rating}
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            {/* Logo */}
+                                            <div className="absolute bottom-3 left-3 w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden">
+
+                                                {company.logoUrl ? (
+                                                    <img
+                                                        src={company.logoUrl}
+                                                        alt={`${company.name} logo`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <span className="font-serif text-sm font-bold text-navy">
+                                                        {company.name
+                                                            .split(" ")
+                                                            .map((word) => word.charAt(0))
+                                                            .join("")
+                                                            .slice(0, 2)
+                                                            .toUpperCase()}
+                                                    </span>
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="p-5 flex-1 flex flex-col">
+
+                                            {/* Category + Availability */}
+                                            <div className="flex items-center justify-between gap-2 mb-3">
+
+                                                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                                                    {company.category}
+                                                </span>
+
+                                                <span className="bg-beige/60 rounded-full px-2.5 py-1 text-xs font-bold text-navy flex items-center gap-1.5 whitespace-nowrap">
+
+                                                    <span
+                                                        className={`
+                                                            w-1.5
+                                                            h-1.5
+                                                            rounded-full
+                                                            ${
+                                                                company.availability === "today"
+                                                                    ? "bg-green-500"
+                                                                    : "bg-gray/40"
+                                                            }
+                                                        `}
+                                                    />
+
+                                                    {company.availability === "today"
+                                                        ? "Available today"
+                                                        : "Next week"}
+
+                                                </span>
+
+                                            </div>
+
+                                            {/* Company Name */}
+                                            <h3 className="font-serif text-2xl text-navy mb-1.5">
+                                                {company.name}
+                                            </h3>
+
+                                            {/* Location */}
+                                            <div className="flex items-center gap-1.5 mb-3">
+                                                <MapPin className="w-3.5 h-3.5 text-slate flex-shrink-0" />
+
+                                                <span className="text-sm text-slate">
+                                                    {company.location}
+                                                </span>
+                                            </div>
+
+                                            {/* Description */}
+                                            <p className="text-sm text-slate leading-relaxed line-clamp-2 flex-1 mb-4">
+                                                {company.description}
+                                            </p>
+
+                                            {/* View Company */}
+                                            <Link
+                                                to={`/customer/companies/${company.id}`}
+                                                className="
+                                                    w-full
+                                                    text-center
+                                                    uppercase
+                                                    tracking-wide
+                                                    font-bold
+                                                    text-sm
+                                                    py-2.5
+                                                    rounded-lg
+                                                    bg-white
+                                                    border-2
+                                                    border-navy
+                                                    text-navy
+                                                    hover:bg-navy
+                                                    hover:text-white
+                                                    transition
+                                                "
+                                            >
+                                                View Company
+                                            </Link>
+
+                                        </div>
+
+                                    </article>
+                                ))}
+
+                            </div>
+
+                            {/* Pagination */}
+                            <div className="flex justify-center items-center gap-2 mt-8">
+
+                                {/* Previous */}
+                                <button
+                                    type="button"
+                                    disabled={currentPage === 1}
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    className="
+                                        w-9
+                                        h-9
+                                        rounded-lg
+                                        border
+                                        border-gray
+                                        flex
+                                        items-center
+                                        justify-center
+                                        text-navy
+                                        disabled:opacity-40
+                                        disabled:cursor-not-allowed
+                                        hover:bg-beige
+                                        transition
+                                    "
+                                    aria-label="Previous page"
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+
+                                {/* Page 1 */}
+                                <button
+                                    type="button"
+                                    onClick={() => handlePageChange(1)}
+                                    className={`
+                                        w-9
+                                        h-9
+                                        rounded-lg
+                                        border
+                                        text-sm
+                                        font-bold
+                                        transition
+                                        ${
+                                            currentPage === 1
+                                                ? "bg-navy text-white border-navy"
+                                                : "border-gray text-navy hover:bg-beige"
+                                        }
+                                    `}
+                                >
+                                    1
+                                </button>
+
+                                {/* Page 2 */}
+                                <button
+                                    type="button"
+                                    onClick={() => handlePageChange(2)}
+                                    className={`
+                                        w-9
+                                        h-9
+                                        rounded-lg
+                                        border
+                                        text-sm
+                                        font-bold
+                                        transition
+                                        ${
+                                            currentPage === 2
+                                                ? "bg-navy text-white border-navy"
+                                                : "border-gray text-navy hover:bg-beige"
+                                        }
+                                    `}
+                                >
+                                    2
+                                </button>
+
+                                {/* Page 3 */}
+                                <button
+                                    type="button"
+                                    onClick={() => handlePageChange(3)}
+                                    className={`
+                                        w-9
+                                        h-9
+                                        rounded-lg
+                                        border
+                                        text-sm
+                                        font-bold
+                                        transition
+                                        ${
+                                            currentPage === 3
+                                                ? "bg-navy text-white border-navy"
+                                                : "border-gray text-navy hover:bg-beige"
+                                        }
+                                    `}
+                                >
+                                    3
+                                </button>
+
+                                {/* Ellipsis */}
+                                <span className="w-9 h-9 flex items-center justify-center text-sm font-bold text-slate">
+                                    …
+                                </span>
+
+                                {/* Page 7 */}
+                                <button
+                                    type="button"
+                                    onClick={() => handlePageChange(7)}
+                                    className={`
+                                        w-9
+                                        h-9
+                                        rounded-lg
+                                        border
+                                        text-sm
+                                        font-bold
+                                        transition
+                                        ${
+                                            currentPage === 7
+                                                ? "bg-navy text-white border-navy"
+                                                : "border-gray text-navy hover:bg-beige"
+                                        }
+                                    `}
+                                >
+                                    7
+                                </button>
+
+                                {/* Next */}
+                                <button
+                                    type="button"
+                                    disabled={currentPage === 7}
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    className="
+                                        w-9
+                                        h-9
+                                        rounded-lg
+                                        border
+                                        border-gray
+                                        flex
+                                        items-center
+                                        justify-center
+                                        text-navy
+                                        disabled:opacity-40
+                                        disabled:cursor-not-allowed
+                                        hover:bg-beige
+                                        transition
+                                    "
+                                    aria-label="Next page"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+
+                            </div>
 
                         </section>
 
