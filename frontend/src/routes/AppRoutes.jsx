@@ -82,6 +82,9 @@ import StaffSettings from "../pages/staff/StaffSettings";
 // customer Dashboard
 import CustomerDashboard from "../pages/customers/CustomerDashboard";
 
+import BrowseCompanies from "../pages/customers/BrowseCompanies";
+
+
 
 function AppRoutes() {
     return (
@@ -270,7 +273,13 @@ function AppRoutes() {
             <Route
             path="/customer/dashboard"
             element={<CustomerDashboard />}
+            />
+
+            <Route
+            path="/customer/browse"
+            element={<BrowseCompanies />}
         />
+
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
