@@ -17,6 +17,8 @@ function BookingBreadcrumbStepper({
 
     // Breadcrumb trail per step — last entry is the current (static) label,
     // everything before it renders as a link.
+    //
+    // IMPORTANT: Summary is the 5th step, Confirmation is the 6th (last).
     const breadcrumbsByStep = {
         company: [
             { label: "Browse Companies", to: "/customer/browse" },

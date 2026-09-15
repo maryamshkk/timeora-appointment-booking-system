@@ -91,8 +91,12 @@ import ChooseService from "../pages/booking/ChooseService";
 import ChooseStaff from "../pages/booking/ChooseStaff";
 
 import ChooseDateTime from "../pages/booking/ChooseDateTime";
-import BookingConfirmation from "../pages/booking/BookingConfirmation";
+
 import ReviewAppointment from "../pages/booking/ReviewAppointment";
+
+import BookingConfirmation from "../pages/booking/BookingConfirmation";
+
+import MyAppointments from "../pages/customers/MyAppointments";
 
 function AppRoutes() {
     return (
@@ -286,7 +290,7 @@ function AppRoutes() {
             <Route
             path="/customer/browse"
             element={<BrowseCompanies />}
-        />
+            />
 
             <Route path="/customer/companies/:id" 
             element={<CustomerCompanyProfile />} 
@@ -295,16 +299,21 @@ function AppRoutes() {
             <Route
             path="/customer/booking/service"
             element={<ChooseService />}
-        />
+            />
 
             <Route
             path="/customer/booking/staff"
             element={<ChooseStaff />}
-        />
+            />
 
             <Route
             path="/customer/booking/datetime"
             element={<ChooseDateTime />}
+            />
+
+            <Route
+            path="/customer/booking/summary"
+            element={<ReviewAppointment />}
             />
 
             <Route
@@ -313,10 +322,9 @@ function AppRoutes() {
             />
 
             <Route
-            path="/customer/booking/summary"
-            element={<ReviewAppointment />}
+                path="/customer/appointments"
+                element={<MyAppointments />}
             />
-
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />

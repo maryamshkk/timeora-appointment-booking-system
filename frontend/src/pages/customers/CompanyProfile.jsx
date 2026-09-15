@@ -5,13 +5,14 @@ import {
     Clock,
     MapPin,
 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import CustomerSidebar from "../../components/customer/CustomerSidebar";
 import CustomerTopbar from "../../components/customer/CustomerTopbar";
 
 function CompanyProfile() {
     const { id } = useParams();
+    const navigate = useNavigate();
 
     const [company] = useState({
         id: "shifa-clinic",
@@ -79,12 +80,32 @@ function CompanyProfile() {
     // The API request will use `id` to load the selected company.
 
     function handleBookAppointment(serviceId = null) {
-        // TODO: Navigate into the booking flow for this company.
-        // If serviceId is provided, pass it to ChooseService as the preselected service.
+        navigate("/customer/booking/service", {
+            state: {
+                company: {
+                    id: company.id,
+                    name: company.name,
+                    category: company.category,
+                    city: company.city,
+                    logoUrl: company.logoUrl,
+                },
+                preselectedServiceId: serviceId,
+            },
+        });
     }
 
     function handleViewAllServices() {
-        // TODO: Navigate to the full services listing for this company.
+        navigate("/customer/booking/service", {
+            state: {
+                company: {
+                    id: company.id,
+                    name: company.name,
+                    category: company.category,
+                    city: company.city,
+                    logoUrl: company.logoUrl,
+                },
+            },
+        });
     }
 
     return (
