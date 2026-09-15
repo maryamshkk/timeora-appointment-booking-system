@@ -1,17 +1,20 @@
 import React from "react";
-import { Bell, Search } from "lucide-react";
+import {
+    Grid3X3,
+    HelpCircle,
+    Search,
+} from "lucide-react";
 
-function CustomerTopbar({
-    avatarUrl = "",
-    unreadNotificationsCount = 0,
-}) {
+function CustomerTopbar() {
+    function handleAppSwitcher() {
+        // TODO: Open app switcher menu.
+    }
 
     return (
-        <header className="bg-beige border-b border-gray/20 px-4 md:px-8 py-4 flex items-center justify-between gap-4">
+        <header className="h-20 bg-white border-b border-gray/20 px-8 flex items-center justify-between gap-6">
 
             {/* Search */}
-            <div className="relative w-full max-w-xs">
-
+            <div className="relative w-full max-w-xl">
                 <Search
                     className="
                         absolute
@@ -20,8 +23,7 @@ function CustomerTopbar({
                         -translate-y-1/2
                         w-4
                         h-4
-                        text-gray
-                        pointer-events-none
+                        text-slate
                     "
                 />
 
@@ -30,6 +32,7 @@ function CustomerTopbar({
                     placeholder="Search..."
                     className="
                         w-full
+                        bg-white
                         border
                         border-gray
                         rounded-lg
@@ -37,64 +40,49 @@ function CustomerTopbar({
                         pr-4
                         py-2.5
                         text-sm
+                        font-serif
                         text-navy
-                        bg-white
                         outline-none
                         focus:border-navy
                     "
                 />
-
             </div>
 
+            {/* Actions */}
+            <div className="flex items-center gap-4 flex-shrink-0">
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-5 flex-shrink-0">
-
-                {/* Notifications */}
                 <button
                     type="button"
-                    className="relative text-navy hover:text-gold transition"
-                    aria-label="Notifications"
+                    className="
+                        text-slate
+                        hover:text-navy
+                        transition
+                    "
+                    aria-label="Help"
                 >
-                    <Bell className="w-5 h-5" />
-
-                    {unreadNotificationsCount > 0 && (
-                        <span
-                            className="
-                                absolute
-                                -top-0.5
-                                -right-0.5
-                                w-2
-                                h-2
-                                rounded-full
-                                bg-gold
-                            "
-                        />
-                    )}
+                    <HelpCircle className="w-5 h-5" />
                 </button>
 
+                <button
+                    type="button"
+                    onClick={handleAppSwitcher}
+                    className="
+                        text-slate
+                        hover:text-navy
+                        transition
+                    "
+                    aria-label="App switcher"
+                >
+                    <Grid3X3 className="w-5 h-5" />
+                </button>
 
-                {/* Avatar */}
-                <div className="w-9 h-9 rounded-full overflow-hidden bg-white border border-gray/40 flex-shrink-0">
-
-                    {avatarUrl ? (
-                        <img
-                            src={avatarUrl}
-                            alt="Customer"
-                            className="w-full h-full object-cover"
-                        />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-navy text-white">
-                            <span className="text-xs font-bold">
-                                H
-                            </span>
-                        </div>
-                    )}
-
+                <div className="w-9 h-9 rounded-full bg-beige flex items-center justify-center overflow-hidden">
+                    <span className="text-sm font-bold text-navy">
+                        C
+                    </span>
                 </div>
 
             </div>
-
         </header>
     );
 }
