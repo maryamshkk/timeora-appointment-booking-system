@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ArrowRight, CheckCircle2, Clock, User } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import CustomerSidebar from "../../components/customer/CustomerSidebar";
 import CustomerTopbar from "../../components/customer/CustomerTopbar";
@@ -114,16 +116,125 @@ function CustomerDashboard() {
                         </p>
                     </div>
 
-                    {/* Dashboard Content */}
+                    {/* Main Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
 
                         {/* Left Content */}
                         <section>
-                            <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-8">
-                                <p className="text-sm text-slate">
-                                    Customer dashboard content will be added here.
+
+                            {/* Next Appointment Label */}
+                            <div className="mb-3">
+                                <p className="text-xs font-bold uppercase tracking-wider text-slate">
+                                    Your Next Appointment
                                 </p>
                             </div>
+
+                            {nextAppointment ? (
+                                <div className="relative overflow-hidden bg-white rounded-xl border border-gray/20 shadow-sm p-7 mb-8">
+
+                                    {/* Decorative Background */}
+                                    <div className="absolute -top-24 -right-20 w-64 h-64 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
+
+                                    <div className="relative flex items-center justify-between gap-6 flex-wrap">
+
+                                        {/* Appointment Information */}
+                                        <div className="flex items-center gap-5">
+
+                                            {/* Date */}
+                                            <div className="w-20 rounded-lg border border-gray/20 bg-beige/60 px-4 py-2 text-center flex-shrink-0">
+                                                <p className="text-xs font-bold text-gold">
+                                                    {nextAppointment.month}
+                                                </p>
+
+                                                <p className="font-serif text-3xl text-navy leading-tight">
+                                                    {nextAppointment.day}
+                                                </p>
+
+                                                <p className="text-xs text-slate">
+                                                    {nextAppointment.weekday}
+                                                </p>
+                                            </div>
+
+                                            {/* Details */}
+                                            <div>
+
+                                                {/* Status */}
+                                                <div className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 mb-2">
+                                                    <CheckCircle2 className="w-3 h-3 text-green-700" />
+
+                                                    <span className="text-xs font-bold text-green-700">
+                                                        Confirmed
+                                                    </span>
+                                                </div>
+
+                                                {/* Company */}
+                                                <h2 className="font-serif text-2xl text-navy">
+                                                    {nextAppointment.companyName}
+                                                </h2>
+
+                                                {/* Provider */}
+                                                <div className="flex items-center gap-2 mt-2">
+                                                    <User className="w-4 h-4 text-slate" />
+
+                                                    <span className="text-sm text-slate">
+                                                        {nextAppointment.providerName}
+                                                    </span>
+                                                </div>
+
+                                                {/* Time */}
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <Clock className="w-4 h-4 text-slate" />
+
+                                                    <span className="text-sm text-slate">
+                                                        {nextAppointment.timeRange}
+                                                    </span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="flex items-center gap-4 ml-auto">
+
+                                            <Link
+                                                to={`/customer/appointments/${nextAppointment.id}`}
+                                                className="text-sm font-bold text-navy hover:text-gold transition"
+                                            >
+                                                View Details
+                                            </Link>
+
+                                            <button
+                                                type="button"
+                                                onClick={handleReschedule}
+                                                className="px-4 py-2.5 rounded-lg bg-navy text-white text-sm font-bold hover:bg-gold hover:text-navy transition"
+                                            >
+                                                Reschedule
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-8 mb-8 text-center">
+                                    <h2 className="font-serif text-xl text-navy mb-2">
+                                        No upcoming appointments
+                                    </h2>
+
+                                    <p className="text-sm text-slate mb-5">
+                                        Find a company and book your next appointment.
+                                    </p>
+
+                                    <Link
+                                        to="/customer/browse"
+                                        className="inline-flex items-center gap-2 text-sm font-bold text-navy hover:text-gold transition"
+                                    >
+                                        Browse Companies
+                                        <ArrowRight className="w-4 h-4" />
+                                    </Link>
+                                </div>
+                            )}
+
                         </section>
 
                         {/* Right Content */}
