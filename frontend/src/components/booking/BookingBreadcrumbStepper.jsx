@@ -7,22 +7,12 @@ function BookingBreadcrumbStepper({
     companyName = "Shifa Clinic",
 }) {
     const steps = [
-        {
-            key: "company",
-            label: "Company",
-        },
-        {
-            key: "service",
-            label: "Service",
-        },
-        {
-            key: "staff",
-            label: "Staff",
-        },
-        {
-            key: "time",
-            label: "Time",
-        },
+        { key: "company", label: "Company" },
+        { key: "service", label: "Service" },
+        { key: "staff", label: "Staff" },
+        { key: "date-time", label: "Date & Time" },
+        { key: "summary", label: "Summary" },
+        { key: "confirmation", label: "Confirmation" },
     ];
 
     const currentStepIndex = steps.findIndex(
@@ -30,7 +20,7 @@ function BookingBreadcrumbStepper({
     );
 
     return (
-        <div className="flex justify-between items-center flex-wrap gap-4 mb-4">
+        <div className="flex justify-between items-center gap-6 flex-wrap mb-4">
 
             {/* Breadcrumb */}
             <div className="flex items-center flex-wrap gap-1.5">
@@ -53,32 +43,19 @@ function BookingBreadcrumbStepper({
 
                 <ChevronRight className="w-3 h-3 text-gray flex-shrink-0" />
 
-                <Link
-                    to="/customer/booking/service"
-                    className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
-                >
-                    Services
-                </Link>
-
-                <ChevronRight className="w-3 h-3 text-gray flex-shrink-0" />
-                
-                <Link
-                    to="/customer/booking/staff"
-                    className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
-                >
-                    Staff
-                </Link>
-
-                
+                <span className="text-xs font-bold uppercase tracking-wide text-navy">
+                    {steps[currentStepIndex]?.label}
+                </span>
 
             </div>
 
-            {/* Circular Stepper */}
+            {/* Stepper */}
             <div className="flex items-center gap-2 flex-wrap">
 
                 {steps.map((step, index) => {
                     const isCompleted = index < currentStepIndex;
                     const isCurrent = index === currentStepIndex;
+                    const isUpcoming = index > currentStepIndex;
 
                     return (
                         <React.Fragment key={step.key}>
@@ -88,8 +65,8 @@ function BookingBreadcrumbStepper({
                                 <span
                                     className={`
                                         h-px
-                                        min-w-6
-                                        flex-1
+                                        w-6
+                                        flex-shrink-0
                                         ${
                                             index <= currentStepIndex
                                                 ? "bg-navy"
@@ -99,9 +76,9 @@ function BookingBreadcrumbStepper({
                                 />
                             )}
 
-                            {/* Step */}
                             <div className="flex items-center gap-2">
 
+                                {/* Step Circle */}
                                 <div
                                     className={`
                                         w-6
@@ -111,12 +88,15 @@ function BookingBreadcrumbStepper({
                                         items-center
                                         justify-center
                                         flex-shrink-0
+
                                         ${
                                             isCompleted
                                                 ? "bg-navy"
                                                 : isCurrent
-                                                ? "border-2 border-navy bg-white"
-                                                : "border-2 border-gray/30 bg-white"
+                                                ? "bg-navy ring-2 ring-gold ring-offset-2 ring-offset-beige"
+                                                : isUpcoming
+                                                ? "bg-gray/20 text-slate"
+                                                : ""
                                         }
                                     `}
                                 >
@@ -125,21 +105,30 @@ function BookingBreadcrumbStepper({
                                     )}
 
                                     {isCurrent && (
-                                        <span className="w-2.5 h-2.5 rounded-full bg-navy" />
+                                        <span className="w-2 h-2 rounded-full bg-white" />
+                                    )}
+
+                                    {isUpcoming && (
+                                        <span className="text-[10px] font-bold text-slate">
+                                            {String(index + 1).padStart(2, "0")}
+                                        </span>
                                     )}
                                 </div>
 
+                                {/* Step Label */}
                                 <span
                                     className={`
                                         text-xs
                                         whitespace-nowrap
+
                                         ${
                                             isCompleted || isCurrent
                                                 ? "font-bold text-navy"
-                                                : "text-gray"
+                                                : "text-slate"
                                         }
                                     `}
                                 >
+                                    {String(index + 1).padStart(2, "0")}{" "}
                                     {step.label}
                                 </span>
 
