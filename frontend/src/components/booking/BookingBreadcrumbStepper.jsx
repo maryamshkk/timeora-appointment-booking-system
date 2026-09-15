@@ -61,10 +61,15 @@ function BookingBreadcrumbStepper({
                 </Link>
 
                 <ChevronRight className="w-3 h-3 text-gray flex-shrink-0" />
-
-                <span className="text-xs font-bold uppercase tracking-wide text-navy">
+                
+                <Link
+                    to="/customer/booking/staff"
+                    className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
+                >
                     Staff
-                </span>
+                </Link>
+
+                
 
             </div>
 

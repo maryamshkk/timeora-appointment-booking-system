@@ -84,6 +84,8 @@ import CustomerDashboard from "../pages/customers/CustomerDashboard";
 
 import BrowseCompanies from "../pages/customers/BrowseCompanies";
 
+import CustomerCompanyProfile from "../pages/customers/CompanyProfile";
+
 import ChooseService from "../pages/booking/ChooseService";
 
 import ChooseStaff from "../pages/booking/ChooseStaff";
@@ -281,6 +283,10 @@ function AppRoutes() {
             path="/customer/browse"
             element={<BrowseCompanies />}
         />
+
+            <Route path="/customer/companies/:id" 
+            element={<CustomerCompanyProfile />} 
+            />
 
             <Route
             path="/customer/booking/service"
