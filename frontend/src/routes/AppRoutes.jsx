@@ -78,6 +78,11 @@ import StaffReports from "../pages/staff/StaffReports";
 import StaffNotifications from "../pages/staff/StaffNotifications";
 import StaffSettings from "../pages/staff/StaffSettings";
 
+
+// customer Dashboard
+import CustomerDashboard from "../pages/customers/CustomerDashboard";
+
+
 function AppRoutes() {
     return (
         <Routes>
@@ -259,6 +264,13 @@ function AppRoutes() {
 
             {/* Staff Portal — Settings */}
             <Route path="/staff/settings" element={<StaffSettings />} />
+
+
+            {/* Customer Dashbaord */}
+            <Route
+            path="/customer/dashboard"
+            element={<CustomerDashboard />}
+        />
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
