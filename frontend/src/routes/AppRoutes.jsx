@@ -91,6 +91,8 @@ import ChooseService from "../pages/booking/ChooseService";
 import ChooseStaff from "../pages/booking/ChooseStaff";
 
 import ChooseDateTime from "../pages/booking/ChooseDateTime";
+import BookingConfirmation from "../pages/booking/BookingConfirmation";
+import ReviewAppointment from "../pages/booking/ReviewAppointment";
 
 function AppRoutes() {
     return (
@@ -303,7 +305,17 @@ function AppRoutes() {
             <Route
             path="/customer/booking/datetime"
             element={<ChooseDateTime />}
-        />
+            />
+
+            <Route
+            path="/customer/booking/confirmation"
+            element={<BookingConfirmation />}
+            />
+
+            <Route
+            path="/customer/booking/summary"
+            element={<ReviewAppointment />}
+            />
 
 
             {/* Fallback */}
