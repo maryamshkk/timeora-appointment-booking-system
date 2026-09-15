@@ -90,6 +90,8 @@ import ChooseService from "../pages/booking/ChooseService";
 
 import ChooseStaff from "../pages/booking/ChooseStaff";
 
+import ChooseDateTime from "../pages/booking/ChooseDateTime";
+
 function AppRoutes() {
     return (
         <Routes>
@@ -296,6 +298,11 @@ function AppRoutes() {
             <Route
             path="/customer/booking/staff"
             element={<ChooseStaff />}
+        />
+
+            <Route
+            path="/customer/booking/datetime"
+            element={<ChooseDateTime />}
         />
 
 

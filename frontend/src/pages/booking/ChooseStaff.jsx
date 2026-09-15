@@ -1,27 +1,39 @@
 import React, { useMemo, useState } from "react";
-import { ArrowLeft, Search, SlidersHorizontal } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import {
+    ArrowLeft,
+    Building2,
+    Search,
+    SlidersHorizontal,
+    Stethoscope,
+    User,
+} from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import CustomerSidebar from "../../components/customer/CustomerSidebar";
 import CustomerTopbar from "../../components/customer/CustomerTopbar";
 import BookingBreadcrumbStepper from "../../components/booking/BookingBreadcrumbStepper";
+import BookingContextBar from "../../components/booking/BookingContextBar";
 import BookingSummaryPanel from "../../components/booking/BookingSummaryPanel";
 
 function ChooseStaff() {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const bookingState = location.state || {};
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedStaffId, setSelectedStaffId] = useState(null);
     const [selectedFilter, setSelectedFilter] = useState("all");
 
-    const selectedCompany = {
+    const selectedCompany = bookingState.company || {
         id: 1,
         name: "Shifa Clinic",
     };
 
-    const selectedService = {
+    const selectedService = bookingState.service || {
+        id: "consultation",
         name: "Consultation",
-        duration: "30 min",
+        durationMinutes: 30,
         price: "PKR 2,500",
     };
 
@@ -104,7 +116,7 @@ function ChooseStaff() {
             return;
         }
 
-        navigate("/booking/time", {
+        navigate("/customer/booking/datetime", {
             state: {
                 company: selectedCompany,
                 service: selectedService,
@@ -121,7 +133,7 @@ function ChooseStaff() {
         {
             label: "Service",
             value: selectedService.name,
-            subvalue: `${selectedService.duration} • ${selectedService.price}`,
+            subvalue: `${selectedService.durationMinutes} min • ${selectedService.price}`,
         },
         {
             label: "Provider",
@@ -157,10 +169,30 @@ function ChooseStaff() {
                             companyName={selectedCompany.name}
                         />
 
+                        {/* Shared Booking Context Bar */}
+                        <BookingContextBar
+                            items={[
+                                {
+                                    icon: Building2,
+                                    label: selectedCompany.name,
+                                },
+                                {
+                                    icon: Stethoscope,
+                                    label: selectedService.name,
+                                },
+                            ]}
+                        />
+
                         {/* Back */}
                         <button
                             type="button"
-                            onClick={() => navigate("/customer/booking/service")}
+                            onClick={() =>
+                                navigate("/customer/booking/service", {
+                                    state: {
+                                        company: selectedCompany,
+                                    },
+                                })
+                            }
                             className="
                                 flex
                                 items-center
@@ -193,45 +225,6 @@ function ChooseStaff() {
                                         Select the staff member you would like
                                         to book your appointment with.
                                     </p>
-                                </div>
-
-                                {/* Selected Service */}
-                                <div className="bg-white rounded-xl border border-gray/20 p-4 mb-6 flex items-center justify-between gap-4">
-
-                                    <div>
-                                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                                            Selected Service
-                                        </p>
-
-                                        <p className="text-base font-bold text-navy mt-1">
-                                            {selectedService.name}
-                                        </p>
-
-                                        <p className="text-sm text-slate mt-0.5">
-                                            {selectedService.duration} •{" "}
-                                            {selectedService.price}
-                                        </p>
-                                    </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            navigate("/customer/booking/service")
-                                        }
-                                        className="
-                                            text-xs
-                                            font-bold
-                                            uppercase
-                                            tracking-wide
-                                            text-navy
-                                            hover:text-gold
-                                            transition
-                                            whitespace-nowrap
-                                        "
-                                    >
-                                        Change
-                                    </button>
-
                                 </div>
 
                                 {/* Search + Filter */}
@@ -374,33 +367,20 @@ function ChooseStaff() {
                                                         {/* Avatar */}
                                                         {member.avatar ? (
                                                             <img
-                                                                src={
-                                                                    member.avatar
-                                                                }
-                                                                alt={
-                                                                    member.name
-                                                                }
+                                                                src={member.avatar}
+                                                                alt={member.name}
                                                                 className="w-12 h-12 rounded-full object-cover flex-shrink-0"
                                                             />
                                                         ) : (
                                                             <div className="w-12 h-12 rounded-full bg-beige flex items-center justify-center flex-shrink-0">
                                                                 <span className="text-base font-bold text-navy">
                                                                     {member.name
-                                                                        .split(
-                                                                            " "
-                                                                        )
+                                                                        .split(" ")
                                                                         .map(
-                                                                            (
-                                                                                name
-                                                                            ) =>
-                                                                                name.charAt(
-                                                                                    0
-                                                                                )
+                                                                            (name) =>
+                                                                                name.charAt(0)
                                                                         )
-                                                                        .slice(
-                                                                            0,
-                                                                            2
-                                                                        )
+                                                                        .slice(0, 2)
                                                                         .join("")
                                                                         .toUpperCase()}
                                                                 </span>
@@ -413,15 +393,11 @@ function ChooseStaff() {
 
                                                                 <div className="min-w-0">
                                                                     <h3 className="text-sm font-bold text-navy truncate">
-                                                                        {
-                                                                            member.name
-                                                                        }
+                                                                        {member.name}
                                                                     </h3>
 
                                                                     <p className="text-sm text-slate mt-1">
-                                                                        {
-                                                                            member.role
-                                                                        }
+                                                                        {member.role}
                                                                     </p>
                                                                 </div>
 
@@ -449,9 +425,7 @@ function ChooseStaff() {
                                                                 />
 
                                                                 <span className="text-xs text-slate">
-                                                                    {
-                                                                        member.availability
-                                                                    }
+                                                                    {member.availability}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -476,7 +450,7 @@ function ChooseStaff() {
                             <aside>
                                 <BookingSummaryPanel
                                     rows={summaryRows}
-                                    continueLabel="Continue to Time"
+                                    continueLabel="Continue to Date & Time"
                                     onContinue={handleContinue}
                                     isContinueDisabled={!selectedStaff}
                                 />

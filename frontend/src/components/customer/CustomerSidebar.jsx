@@ -4,12 +4,13 @@ import {
     Search,
     Calendar,
     Bell,
-    User,
-    Settings,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-function CustomerSidebar({ activeItem = "Dashboard" }) {
+function CustomerSidebar({
+    activeItem = "Dashboard",
+    customer = null,
+}) {
 
     const navItems = [
         {
@@ -95,33 +96,69 @@ function CustomerSidebar({ activeItem = "Dashboard" }) {
             </nav>
 
 
-            {/* Bottom Links */}
-            <div className="border-t border-white/10 px-3 py-4">
+            {/* Bottom Customer Section */}
+            <div className="mt-auto px-3 py-4 border-t border-white/10">
 
-                {/* Profile */}
+                {/* Customer Identity Card */}
                 <Link
                     to="/customer/profile"
-                    className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-white/60 hover:text-white transition"
+                    className="
+                        flex
+                        items-center
+                        gap-3
+                        rounded-xl
+                        p-2.5
+                        hover:bg-white/5
+                        transition
+                    "
                 >
-                    <User className="w-4 h-4" />
+                    {/* Avatar */}
+                    <div className="w-10 h-10 rounded-full bg-beige flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {customer?.avatarUrl ? (
+                            <img
+                                src={customer.avatarUrl}
+                                alt={customer.name}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <span className="text-sm font-bold text-navy">
+                                {customer?.name
+                                    ?.charAt(0)
+                                    ?.toUpperCase() || "J"}
+                            </span>
+                        )}
+                    </div>
 
-                    <span>
+                    {/* Customer Information */}
+                    <div className="min-w-0">
+                        <p className="text-sm font-bold text-white truncate">
+                            {customer?.name || "Jane Doe"}
+                        </p>
+
+                        <p className="text-xs text-white/50 truncate mt-0.5">
+                            {customer?.email || "jane.d@example.com"}
+                        </p>
+                    </div>
+                </Link>
+
+                {/* Profile / Settings */}
+                <div className="flex items-center gap-4 px-3 mt-2">
+
+                    <Link
+                        to="/customer/profile"
+                        className="text-xs font-bold text-white/50 hover:text-white transition"
+                    >
                         Profile
-                    </span>
-                </Link>
+                    </Link>
 
-
-                {/* Settings */}
-                <Link
-                    to="/customer/settings"
-                    className="flex items-center gap-3 px-3 py-2 text-sm font-bold text-white/60 hover:text-white transition"
-                >
-                    <Settings className="w-4 h-4" />
-
-                    <span>
+                    <Link
+                        to="/customer/settings"
+                        className="text-xs font-bold text-white/50 hover:text-white transition"
+                    >
                         Settings
-                    </span>
-                </Link>
+                    </Link>
+
+                </div>
 
             </div>
 

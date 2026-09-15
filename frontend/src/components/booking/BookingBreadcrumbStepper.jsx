@@ -15,6 +15,53 @@ function BookingBreadcrumbStepper({
         { key: "confirmation", label: "Confirmation" },
     ];
 
+    // Breadcrumb trail per step — last entry is the current (static) label,
+    // everything before it renders as a link.
+    const breadcrumbsByStep = {
+        company: [
+            { label: "Browse Companies", to: "/customer/browse" },
+            { label: companyName, current: true },
+        ],
+        service: [
+            { label: "Browse Companies", to: "/customer/browse" },
+            { label: companyName, to: "/customer/companies/1" },
+            { label: "Service", current: true },
+        ],
+        staff: [
+            { label: "Browse Companies", to: "/customer/browse" },
+            { label: companyName, to: "/customer/companies/1" },
+            { label: "Service", to: "/customer/booking/service" },
+            { label: "Staff", current: true },
+        ],
+        "date-time": [
+            { label: "Browse Companies", to: "/customer/browse" },
+            { label: companyName, to: "/customer/companies/1" },
+            { label: "Service", to: "/customer/booking/service" },
+            { label: "Staff", to: "/customer/booking/staff" },
+            { label: "Date & Time", current: true },
+        ],
+        summary: [
+            { label: "Browse Companies", to: "/customer/browse" },
+            { label: companyName, to: "/customer/companies/1" },
+            { label: "Service", to: "/customer/booking/service" },
+            { label: "Staff", to: "/customer/booking/staff" },
+            { label: "Date & Time", to: "/customer/booking/datetime" },
+            { label: "Summary", current: true },
+        ],
+        confirmation: [
+            { label: "Browse Companies", to: "/customer/browse" },
+            { label: companyName, to: "/customer/companies/1" },
+            { label: "Service", to: "/customer/booking/service" },
+            { label: "Staff", to: "/customer/booking/staff" },
+            { label: "Date & Time", to: "/customer/booking/datetime" },
+            { label: "Summary", to: "/customer/booking/summary" },
+            { label: "Confirmation", current: true },
+        ],
+    };
+
+    const breadcrumbs =
+        breadcrumbsByStep[currentStep] || breadcrumbsByStep.staff;
+
     const currentStepIndex = steps.findIndex(
         (step) => step.key === currentStep
     );
@@ -25,27 +72,28 @@ function BookingBreadcrumbStepper({
             {/* Breadcrumb */}
             <div className="flex items-center flex-wrap gap-1.5">
 
-                <Link
-                    to="/customer/browse"
-                    className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
-                >
-                    Browse Companies
-                </Link>
+                {breadcrumbs.map((crumb, index) => (
+                    <React.Fragment key={`${crumb.label}-${index}`}>
 
-                <ChevronRight className="w-3 h-3 text-gray flex-shrink-0" />
+                        {index > 0 && (
+                            <ChevronRight className="w-3 h-3 text-gray flex-shrink-0" />
+                        )}
 
-                <Link
-                    to="/customer/companies/1"
-                    className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
-                >
-                    {companyName}
-                </Link>
+                        {crumb.current ? (
+                            <span className="text-xs font-bold uppercase tracking-wide text-navy">
+                                {crumb.label}
+                            </span>
+                        ) : (
+                            <Link
+                                to={crumb.to}
+                                className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
+                            >
+                                {crumb.label}
+                            </Link>
+                        )}
 
-                <ChevronRight className="w-3 h-3 text-gray flex-shrink-0" />
-
-                <span className="text-xs font-bold uppercase tracking-wide text-navy">
-                    {steps[currentStepIndex]?.label}
-                </span>
+                    </React.Fragment>
+                ))}
 
             </div>
 
