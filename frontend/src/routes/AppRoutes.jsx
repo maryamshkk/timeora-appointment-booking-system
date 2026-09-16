@@ -329,7 +329,7 @@ function AppRoutes() {
             />
 
             <Route
-                path="/customer/cancel"
+                path="/customer/appointments/:id/cancel"
                 element={<CancelAppointment />}
             />
 

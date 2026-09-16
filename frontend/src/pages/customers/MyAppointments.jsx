@@ -1,9 +1,13 @@
 import React, { useMemo, useState } from "react";
 import {
+    Banknote,
+    Building2,
+    CalendarDays,
+    ChevronDown,
+    Clock,
     Plus,
     Search,
-    ChevronDown,
-    CalendarDays,
+    User,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +28,7 @@ function MyAppointments() {
     const [isStatusFilterOpen, setIsStatusFilterOpen] = useState(false);
 
     const [appointments] = useState([
-        // Upcoming
+        // ───────────── Upcoming ─────────────
         {
             id: 1,
             date: "Fri · 21 Aug",
@@ -50,7 +54,7 @@ function MyAppointments() {
             tab: "upcoming",
         },
 
-        // Past
+        // ───────────── Past ─────────────
         {
             id: 3,
             date: "Wed · 06 Aug",
@@ -76,7 +80,7 @@ function MyAppointments() {
             tab: "past",
         },
 
-        // Cancelled
+        // ───────────── Cancelled ─────────────
         {
             id: 5,
             date: "Tue · 12 Aug",
@@ -126,6 +130,7 @@ function MyAppointments() {
 
     function handleViewDetails(id) {
         // TODO: Navigate to appointment details page.
+        navigate(`/customer/appointments/${id}`);
     }
 
     function handleReschedule(id) {
@@ -133,20 +138,20 @@ function MyAppointments() {
     }
 
     function handleCancel(id) {
-        navigate("/customer/cancel", {
-            state: {
-                appointmentId: id,
-            },
-        });
+        navigate(`/customer/appointments/${id}/cancel`);
     }
 
-    function handleBookAgain(id) {
-        // TODO: Navigate into booking flow with the same company/service
-        // pre-filled for a new appointment.
-    }
-
-    function handleLeaveReview(id) {
-        // TODO: Open the review/rating flow for this completed appointment.
+    function getStatusStyles(status) {
+        switch (status) {
+            case "Confirmed":
+                return "bg-green-50 text-green-700";
+            case "Completed":
+                return "bg-blue-50 text-blue-700";
+            case "Cancelled":
+                return "bg-red-50 text-red-700";
+            default:
+                return "bg-gold/20 text-amber-700";
+        }
     }
 
     return (
@@ -163,7 +168,7 @@ function MyAppointments() {
                 <main className="px-8 py-6">
 
                     {/* Header */}
-                    <div className="flex items-start justify-between gap-6 mb-5">
+                    <div className="flex justify-between items-start gap-6 mb-5 flex-wrap">
 
                         <div>
                             <h1 className="font-serif text-4xl text-navy">
@@ -179,7 +184,24 @@ function MyAppointments() {
                         <button
                             type="button"
                             onClick={handleBookAppointment}
-                            className="bg-navy text-white uppercase tracking-wide font-bold text-sm px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-gold hover:text-navy transition flex-shrink-0"
+                            className="
+                                bg-navy
+                                text-white
+                                uppercase
+                                tracking-wide
+                                font-bold
+                                text-sm
+                                px-6
+                                py-3
+                                rounded-lg
+                                flex
+                                items-center
+                                gap-2
+                                hover:bg-gold
+                                hover:text-navy
+                                transition
+                                flex-shrink-0
+                            "
                         >
                             <Plus className="w-4 h-4" />
                             Book an Appointment
@@ -187,8 +209,8 @@ function MyAppointments() {
 
                     </div>
 
-                    {/* Search + Filters */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                    {/* Tabs + Filters Row */}
+                    <div className="flex justify-between items-center flex-wrap gap-4 mb-4">
 
                         {/* Tabs */}
                         <div className="flex items-center gap-6">
@@ -202,10 +224,13 @@ function MyAppointments() {
                                     type="button"
                                     onClick={() => setActiveTab(tab.key)}
                                     className={`
-                                        text-sm font-bold pb-2 border-b-2 transition
+                                        text-sm
+                                        pb-2
+                                        border-b-2
+                                        transition
                                         ${
                                             activeTab === tab.key
-                                                ? "text-navy border-navy"
+                                                ? "text-navy font-bold border-navy"
                                                 : "text-slate border-transparent hover:text-navy"
                                         }
                                     `}
@@ -215,29 +240,29 @@ function MyAppointments() {
                             ))}
                         </div>
 
-                        {/* Search + Filters */}
-                        <div className="flex flex-wrap items-center gap-3">
+                        {/* Filters */}
+                        <div className="flex flex-wrap gap-3">
 
                             {/* Search */}
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray pointer-events-none" />
 
                                 <input
                                     type="text"
                                     value={searchQuery}
-                                    onChange={(event) => setSearchQuery(event.target.value)}
+                                    onChange={(event) =>
+                                        setSearchQuery(event.target.value)
+                                    }
                                     placeholder="Search appointments..."
                                     className="
-                                        w-64
-                                        h-10
                                         bg-white
                                         border
-                                        border-gray/30
+                                        border-gray
                                         rounded-lg
                                         pl-9
                                         pr-4
+                                        py-2.5
                                         text-sm
-                                        font-serif
                                         text-navy
                                         outline-none
                                         focus:border-navy
@@ -254,35 +279,31 @@ function MyAppointments() {
                                         setIsStatusFilterOpen(false);
                                     }}
                                     className="
-                                        h-10
-                                        min-w-32
-                                        px-4
                                         bg-white
                                         border
-                                        border-gray/30
+                                        border-gray
                                         rounded-lg
+                                        px-4
+                                        py-2.5
+                                        text-sm
+                                        font-bold
+                                        text-navy
                                         flex
                                         items-center
-                                        justify-between
-                                        gap-3
-                                        text-sm
-                                        font-serif
-                                        text-navy
+                                        gap-2
                                     "
                                 >
-                                    <span>
-                                        {dateFilter === "any"
-                                            ? "Any Date"
-                                            : dateFilter === "today"
-                                            ? "Today"
-                                            : "This Week"}
-                                    </span>
+                                    {dateFilter === "any"
+                                        ? "Any Date"
+                                        : dateFilter === "today"
+                                        ? "Today"
+                                        : "This Week"}
 
-                                    <ChevronDown className="w-4 h-4 text-slate" />
+                                    <ChevronDown className="w-3.5 h-3.5 text-slate" />
                                 </button>
 
                                 {isDateFilterOpen && (
-                                    <div className="absolute right-0 top-12 z-20 w-36 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                    <div className="absolute right-0 top-full mt-2 z-20 w-36 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
 
                                         {[
                                             { value: "any", label: "Any Date" },
@@ -303,7 +324,6 @@ function MyAppointments() {
                                                     py-2
                                                     rounded-md
                                                     text-sm
-                                                    font-serif
                                                     text-navy
                                                     hover:bg-beige
                                                 "
@@ -325,34 +345,30 @@ function MyAppointments() {
                                         setIsDateFilterOpen(false);
                                     }}
                                     className="
-                                        h-10
-                                        min-w-32
-                                        px-4
                                         bg-white
                                         border
-                                        border-gray/30
+                                        border-gray
                                         rounded-lg
+                                        px-4
+                                        py-2.5
+                                        text-sm
+                                        font-bold
+                                        text-navy
                                         flex
                                         items-center
-                                        justify-between
-                                        gap-3
-                                        text-sm
-                                        font-serif
-                                        text-navy
+                                        gap-2
                                     "
                                 >
-                                    <span>
-                                        {statusFilter === "all"
-                                            ? "All Status"
-                                            : statusFilter.charAt(0).toUpperCase() +
-                                              statusFilter.slice(1)}
-                                    </span>
+                                    {statusFilter === "all"
+                                        ? "All Status"
+                                        : statusFilter.charAt(0).toUpperCase() +
+                                          statusFilter.slice(1)}
 
-                                    <ChevronDown className="w-4 h-4 text-slate" />
+                                    <ChevronDown className="w-3.5 h-3.5 text-slate" />
                                 </button>
 
                                 {isStatusFilterOpen && (
-                                    <div className="absolute right-0 top-12 z-20 w-36 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                    <div className="absolute right-0 top-full mt-2 z-20 w-36 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
 
                                         {[
                                             { value: "all", label: "All Status" },
@@ -375,7 +391,6 @@ function MyAppointments() {
                                                     py-2
                                                     rounded-md
                                                     text-sm
-                                                    font-serif
                                                     text-navy
                                                     hover:bg-beige
                                                 "
@@ -391,10 +406,12 @@ function MyAppointments() {
                         </div>
                     </div>
 
+                    {/* Divider */}
                     <div className="border-b border-gray/20 mt-4 mb-6"></div>
 
                     {/* Appointment List */}
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-5">
+
                         {filteredAppointments.length > 0 ? (
                             filteredAppointments.map((appointment) => (
                                 <div
@@ -405,97 +422,100 @@ function MyAppointments() {
                                         border
                                         border-gray/20
                                         shadow-sm
-                                        p-5
-                                        lg:p-6
+                                        p-7
                                         flex
                                         flex-col
-                                        lg:flex-row
-                                        lg:items-center
-                                        gap-5
+                                        md:flex-row
+                                        md:items-center
+                                        justify-between
+                                        gap-6
+                                        flex-wrap
                                     "
                                 >
-                                    {/* Date & Time */}
-                                    <div className="lg:w-36 flex-shrink-0">
+
+                                    {/* Date / Time / Status */}
+                                    <div className="flex flex-col flex-shrink-0">
                                         <p className="text-xs font-bold uppercase tracking-wide text-slate mb-1">
                                             {appointment.date}
                                         </p>
 
-                                        <p className="font-serif text-xl text-navy">
+                                        <p className="font-serif text-2xl text-navy mb-2">
                                             {appointment.time}
                                         </p>
 
                                         <span
                                             className={`
-                                                inline-flex
-                                                mt-2
+                                                inline-block
                                                 px-2.5
                                                 py-1
                                                 rounded-full
                                                 text-xs
                                                 font-bold
-                                                ${
-                                                    appointment.status === "Confirmed"
-                                                        ? "bg-green-50 text-green-700"
-                                                        : appointment.status === "Cancelled"
-                                                        ? "bg-red-50 text-red-700"
-                                                        : appointment.status === "Completed"
-                                                        ? "bg-blue-50 text-blue-700"
-                                                        : "bg-gold/20 text-amber-700"
-                                                }
+                                                ${getStatusStyles(appointment.status)}
                                             `}
                                         >
                                             {appointment.status}
                                         </span>
                                     </div>
 
-                                    {/* Divider */}
-                                    <div className="hidden lg:block w-px h-20 bg-gray/20" />
+                                    {/* Vertical Divider */}
+                                    <div className="hidden md:block border-l border-gray/20 self-stretch mx-2" />
 
-                                    {/* Appointment Details */}
+                                    {/* Service Details */}
                                     <div className="flex-1 min-w-0">
-                                        <h2 className="font-serif text-xl text-navy mb-1">
+
+                                        <h2 className="font-serif text-2xl text-navy mb-2.5">
                                             {appointment.service}
                                         </h2>
 
-                                        <p className="text-sm font-bold text-navy">
-                                            {appointment.companyName}
-                                        </p>
+                                        <div className="flex items-center gap-2 text-sm text-slate mb-2">
+                                            <Building2 className="w-3.5 h-3.5 flex-shrink-0" />
 
-                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
-                                            <span className="text-sm text-slate">
-                                                {appointment.staffName}
-                                            </span>
+                                            <span>{appointment.companyName}</span>
+                                        </div>
 
-                                            <span className="text-sm text-slate">
-                                                {appointment.durationMinutes} min
-                                            </span>
+                                        <div className="flex flex-wrap gap-6 mb-1.5">
+                                            <div className="flex items-center gap-2 text-sm text-slate">
+                                                <User className="w-3.5 h-3.5 flex-shrink-0" />
 
-                                            <span className="text-sm font-bold text-navy">
+                                                <span>{appointment.staffName}</span>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 text-sm text-slate">
+                                                <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+
+                                                <span>{appointment.durationMinutes} min</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 text-sm text-slate">
+                                            <Banknote className="w-3.5 h-3.5 flex-shrink-0" />
+
+                                            <span>
                                                 PKR {appointment.price.toLocaleString()}
                                             </span>
                                         </div>
+
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="flex flex-wrap items-center gap-2 lg:flex-col lg:items-stretch lg:w-36 flex-shrink-0">
+                                    <div className="flex flex-col gap-2 min-w-[160px] flex-shrink-0">
+
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                handleViewDetails(appointment.id)
-                                            }
+                                            onClick={() => handleViewDetails(appointment.id)}
                                             className="
-                                                px-4
-                                                py-2
-                                                border
-                                                border-navy
-                                                rounded-lg
-                                                text-xs
-                                                font-bold
+                                                bg-navy
+                                                text-white
                                                 uppercase
                                                 tracking-wide
-                                                text-navy
-                                                hover:bg-navy
-                                                hover:text-white
+                                                font-bold
+                                                text-sm
+                                                px-5
+                                                py-2.5
+                                                rounded-lg
+                                                hover:bg-gold
+                                                hover:text-navy
                                                 transition
                                             "
                                         >
@@ -503,22 +523,27 @@ function MyAppointments() {
                                         </button>
 
                                         {appointment.status === "Confirmed" && (
-                                            <>
+                                            <div className="grid grid-cols-2 gap-2">
+
                                                 <button
                                                     type="button"
                                                     onClick={() =>
                                                         handleReschedule(appointment.id)
                                                     }
                                                     className="
+                                                        bg-white
+                                                        border-2
+                                                        border-navy
+                                                        text-navy
+                                                        uppercase
+                                                        tracking-wide
+                                                        font-bold
+                                                        text-xs
                                                         px-4
                                                         py-2
                                                         rounded-lg
-                                                        text-xs
-                                                        font-bold
-                                                        uppercase
-                                                        tracking-wide
-                                                        text-navy
-                                                        hover:bg-beige
+                                                        hover:bg-navy
+                                                        hover:text-white
                                                         transition
                                                     "
                                                 >
@@ -531,114 +556,42 @@ function MyAppointments() {
                                                         handleCancel(appointment.id)
                                                     }
                                                     className="
+                                                        bg-white
+                                                        border-2
+                                                        border-red-500
+                                                        text-red-600
+                                                        uppercase
+                                                        tracking-wide
+                                                        font-bold
+                                                        text-xs
                                                         px-4
                                                         py-2
                                                         rounded-lg
-                                                        text-xs
-                                                        font-bold
-                                                        uppercase
-                                                        tracking-wide
-                                                        text-slate
-                                                        hover:text-red-700
+                                                        hover:bg-red-500
+                                                        hover:text-white
                                                         transition
                                                     "
                                                 >
                                                     Cancel
                                                 </button>
-                                            </>
+
+                                            </div>
                                         )}
 
-                                        {appointment.status === "Completed" && (
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleLeaveReview(appointment.id)
-                                                }
-                                                className="
-                                                    px-4
-                                                    py-2
-                                                    rounded-lg
-                                                    text-xs
-                                                    font-bold
-                                                    uppercase
-                                                    tracking-wide
-                                                    text-navy
-                                                    hover:bg-beige
-                                                    transition
-                                                "
-                                            >
-                                                Leave Review
-                                            </button>
-                                        )}
-
-                                        {(appointment.status === "Completed" ||
-                                            appointment.status === "Cancelled") && (
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleBookAgain(appointment.id)
-                                                }
-                                                className="
-                                                    px-4
-                                                    py-2
-                                                    rounded-lg
-                                                    text-xs
-                                                    font-bold
-                                                    uppercase
-                                                    tracking-wide
-                                                    text-slate
-                                                    hover:bg-beige
-                                                    transition
-                                                "
-                                            >
-                                                Book Again
-                                            </button>
-                                        )}
                                     </div>
+
                                 </div>
                             ))
                         ) : (
-                            <div className="bg-white rounded-xl border border-gray/20 shadow-sm py-16 px-6 text-center">
-                                <div className="w-12 h-12 rounded-full bg-beige mx-auto mb-4 flex items-center justify-center">
-                                    <CalendarDays className="w-5 h-5 text-navy" />
-                                </div>
+                            <div className="text-center mt-[60px]">
+                                <CalendarDays className="w-7 h-7 text-gray/40 mx-auto mb-2.5" />
 
-                                <h2 className="font-serif text-xl text-navy mb-1">
-                                    No {activeTab} appointments
-                                </h2>
-
-                                <p className="text-sm text-slate mb-5">
-                                    You don't have any {activeTab} appointments yet.
+                                <p className="text-sm text-slate">
+                                    No {activeTab} appointments.
                                 </p>
-
-                                {activeTab === "upcoming" && (
-                                    <button
-                                        type="button"
-                                        onClick={handleBookAppointment}
-                                        className="
-                                            inline-flex
-                                            items-center
-                                            gap-2
-                                            bg-navy
-                                            text-white
-                                            px-5
-                                            py-2.5
-                                            rounded-lg
-                                            text-xs
-                                            font-bold
-                                            uppercase
-                                            tracking-wide
-                                            hover:bg-gold
-                                            hover:text-navy
-                                            transition
-                                        "
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                        Book an Appointment
-                                    </button>
-                                )}
                             </div>
                         )}
+
                     </div>
 
                 </main>

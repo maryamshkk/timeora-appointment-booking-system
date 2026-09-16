@@ -69,7 +69,7 @@ function CancelAppointment() {
     }, [appointment.date, appointment.time]);
 
     function handleBackToAppointment() {
-        navigate(`/customer/appointments/${id}`);
+        navigate(`/customer/appointments`);
     }
 
     function handleCancelAppointment() {
