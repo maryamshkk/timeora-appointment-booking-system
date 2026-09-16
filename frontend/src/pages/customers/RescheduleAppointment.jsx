@@ -285,7 +285,7 @@ function RescheduleAppointment() {
                         <ChevronRight className="w-3 h-3 text-gray flex-shrink-0" />
 
                         <Link
-                            to={`/customer/appointments/${id}`}
+                            to={`/customer/appointments/${id}/detail`}
                             className="text-xs font-bold uppercase tracking-wide text-slate hover:text-navy transition"
                         >
                             Appointment Details

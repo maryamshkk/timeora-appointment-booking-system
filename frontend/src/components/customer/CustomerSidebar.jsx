@@ -6,44 +6,50 @@ import {
     Bell,
     User,
     Settings,
+    Receipt,
     Plus,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 function CustomerSidebar({ activeItem = "Dashboard" }) {
 
-    const navItems = [
-        {
-            label: "Dashboard",
-            icon: LayoutGrid,
-            path: "/customer/dashboard",
-        },
-        {
-            label: "Browse Companies",
-            icon: Search,
-            path: "/customer/browse",
-        },
-        {
-            label: "My Appointments",
-            icon: Calendar,
-            path: "/customer/appointments",
-        },
-        {
-            label: "Notifications",
-            icon: Bell,
-            path: "/customer/notifications",
-        },
-        {
-            label: "Profile",
-            icon: User,
-            path: "/customer/profile",
-        },
-        {
-            label: "Settings",
-            icon: Settings,
-            path: "/customer/settings",
-        },
-    ];
+   const navItems = [
+    {
+        label: "Dashboard",
+        icon: LayoutGrid,
+        path: "/customer/dashboard",
+    },
+    {
+        label: "Browse Companies",
+        icon: Search,
+        path: "/customer/browse",
+    },
+    {
+        label: "My Appointments",
+        icon: Calendar,
+        path: "/customer/appointments",
+    },
+    {
+        label: "Receipts",
+        icon: Receipt,
+        path: "/customer/receipts",
+    },
+    {
+        label: "Notifications",
+        icon: Bell,
+        path: "/customer/notifications",
+    },
+    {
+        label: "Profile",
+        icon: User,
+        path: "/customer/profile",
+    },
+    {
+        label: "Settings",
+        icon: Settings,
+        path: "/customer/settings",
+    },
+];
 
     function handleLogout() {
         // TODO: Clear session and navigate to /login.
