@@ -125,17 +125,18 @@ function MyAppointments() {
     ]);
 
     function handleBookAppointment() {
+        navigate("/customer/browse")
         // TODO: Navigate to Browse Companies / booking flow.
     }
 
     function handleViewDetails(id) {
         // TODO: Navigate to appointment details page.
-        navigate(`/customer/appointments/${id}`);
+        navigate(`/customer/appointments/${id}/detail`);
     }
 
     function handleReschedule(id) {
     navigate(`/customer/appointments/${id}/reschedule`);
-}
+    }
 
     function handleCancel(id) {
         navigate(`/customer/appointments/${id}/cancel`);

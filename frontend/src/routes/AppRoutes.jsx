@@ -97,8 +97,9 @@ import ReviewAppointment from "../pages/booking/ReviewAppointment";
 import BookingConfirmation from "../pages/booking/BookingConfirmation";
 
 import MyAppointments from "../pages/customers/MyAppointments";
-import CancelAppointment from "../pages/customers/CancelAppointment";
+import CustomerAppointmentDetails from "../pages/customers/CustomerAppointmentDetails";
 import CustomerRescheduleAppointment from "../pages/customers/RescheduleAppointment";
+import CancelAppointment from "../pages/customers/CancelAppointment";
 
 function AppRoutes() {
     return (
@@ -329,14 +330,20 @@ function AppRoutes() {
             />
 
             <Route
-                path="/customer/appointments/:id/cancel"
-                element={<CancelAppointment />}
-            />
+                path="/customer/appointments/:id/detail"
+                element={<CustomerAppointmentDetails />} 
+                />
+
 
             <Route
                 path="/customer/appointments/:id/reschedule"
                 element={<CustomerRescheduleAppointment />} 
                 />
+
+            <Route
+                path="/customer/appointments/:id/cancel"
+                element={<CancelAppointment />}
+            />
 
 
 
