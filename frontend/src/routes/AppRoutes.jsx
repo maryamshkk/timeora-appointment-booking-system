@@ -101,6 +101,7 @@ import CustomerAppointmentDetails from "../pages/customers/CustomerAppointmentDe
 import CustomerRescheduleAppointment from "../pages/customers/RescheduleAppointment";
 import CancelAppointment from "../pages/customers/CancelAppointment";
 import CustomerPaymentReceipt from "../pages/customers/PaymentReceipt";
+import CustomerProfile from "../pages/customers/MyProfile";
 
 function AppRoutes() {
     return (
@@ -349,6 +350,11 @@ function AppRoutes() {
             <Route
                 path="/customer/receipts"
                 element={<CustomerPaymentReceipt />}
+            />
+
+            <Route
+                path="/customer/profile"
+                element={<CustomerProfile />}
             />
 
 
