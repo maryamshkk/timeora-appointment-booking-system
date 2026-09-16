@@ -64,7 +64,7 @@ function CustomerNotifications() {
             action: {
                 label: "View Receipt",
                 type: "receipt",
-                targetId: 3,
+                targetId: 1,
             },
         },
 
@@ -83,47 +83,14 @@ function CustomerNotifications() {
         },
     ]);
 
+    // TODO: Replace seeded notifications with a real fetch on mount.
+
     const unreadCount = useMemo(
         () => notifications.filter((item) => !item.isRead).length,
         [notifications]
     );
 
-    // TODO: Replace seeded notifications with a real fetch on mount.
-
-    function handleMarkAllRead() {
-        setNotifications((current) =>
-            current.map((item) => ({ ...item, isRead: true }))
-        );
-
-        // TODO: axios PATCH /api/customer/notifications/mark-all-read
-    }
-
-    function handleViewAppointment(targetId) {
-        // TODO: navigate to the appointment details page for this target.
-        navigate(`/customer/appointments/${targetId}`);
-    }
-
-    function handleViewReceipt(targetId) {
-        // TODO: navigate to the receipt page for this target.
-        navigate(`/customer/receipts/${targetId}`);
-    }
-
-    function handleAction(notification) {
-        if (!notification.action) {
-            return;
-        }
-
-        if (notification.action.type === "appointment") {
-            handleViewAppointment(notification.action.targetId);
-            return;
-        }
-
-        if (notification.action.type === "receipt") {
-            handleViewReceipt(notification.action.targetId);
-        }
-    }
-
-        // Filter logic per tab
+    // Filter logic per tab
     const filteredNotifications = useMemo(() => {
         return notifications.filter((item) => {
             if (activeFilter === "all") return true;
@@ -164,6 +131,52 @@ function CustomerNotifications() {
         { key: "payments", label: "Payments" },
         { key: "account", label: "Account" },
     ];
+
+    // ─────────────── Handlers ───────────────
+
+    function handleMarkAllRead() {
+        setNotifications((current) =>
+            current.map((item) => ({ ...item, isRead: true }))
+        );
+
+        // TODO: axios PATCH /api/customer/notifications/mark-all-read
+    }
+
+    function handleViewAppointment(targetId) {
+        // TODO: navigate to the appointment details page for this target.
+        navigate(`/customer/appointments/${targetId}`);
+    }
+
+    function handleViewReceipt(targetId) {
+        // TODO: navigate to the receipt page for this target.
+        navigate(`/customer/receipts/${targetId}`);
+    }
+
+    function handleAction(notification) {
+        if (!notification.action) {
+            return;
+        }
+
+        // Mark this notification read as soon as its action is triggered.
+        setNotifications((current) =>
+            current.map((item) =>
+                item.id === notification.id
+                    ? { ...item, isRead: true }
+                    : item
+            )
+        );
+
+        // TODO: axios PATCH /api/customer/notifications/:id/read
+
+        if (notification.action.type === "appointment") {
+            handleViewAppointment(notification.action.targetId);
+            return;
+        }
+
+        if (notification.action.type === "receipt") {
+            handleViewReceipt(notification.action.targetId);
+        }
+    }
 
     return (
         <div className="min-h-screen bg-beige flex">
@@ -254,188 +267,187 @@ function CustomerNotifications() {
 
                     <div className="border-b border-gray/20 mb-6"></div>
 
-                    {/* Notification feed added next */}
                     {/* Feed */}
-{groupedNotifications.length > 0 ? (
-    <div>
-        {groupedNotifications.map((group, groupIndex) => (
-            <div
-                key={group.label}
-                className={groupIndex > 0 ? "mt-7" : ""}
-            >
-                {/* Section label */}
-                <p className="text-xs font-bold uppercase tracking-wide text-slate mb-3">
-                    {group.label}
-                </p>
-
-                {/* Cards */}
-                <div>
-                    {group.items.map((notification) => {
-                        const Icon = notification.icon;
-
-                        // ─── UNREAD CARD ───
-                        if (!notification.isRead) {
-                            return (
+                    {groupedNotifications.length > 0 ? (
+                        <div>
+                            {groupedNotifications.map((group, groupIndex) => (
                                 <div
-                                    key={notification.id}
-                                    className="
-                                        relative
-                                        bg-beige/40
-                                        rounded-xl
-                                        p-6
-                                        mb-4
-                                    "
+                                    key={group.label}
+                                    className={groupIndex > 0 ? "mt-7" : ""}
                                 >
-                                    {/* Gold unread dot, outside the card */}
-                                    <span className="absolute -left-2.5 top-8 w-2 h-2 rounded-full bg-gold" />
+                                    {/* Section label */}
+                                    <p className="text-xs font-bold uppercase tracking-wide text-slate mb-3">
+                                        {group.label}
+                                    </p>
 
-                                    <div className="flex items-start gap-3">
+                                    {/* Cards */}
+                                    <div>
+                                        {group.items.map((notification) => {
+                                            const Icon = notification.icon;
 
-                                        {/* Icon badge */}
-                                        <div className="w-8 h-8 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
-                                            <Icon className="w-3.5 h-3.5 text-white" />
-                                        </div>
+                                            // ─── UNREAD CARD ───
+                                            if (!notification.isRead) {
+                                                return (
+                                                    <div
+                                                        key={notification.id}
+                                                        className="
+                                                            relative
+                                                            bg-beige/40
+                                                            rounded-xl
+                                                            p-6
+                                                            mb-4
+                                                        "
+                                                    >
+                                                        {/* Gold unread dot, outside the card */}
+                                                        <span className="absolute -left-2.5 top-8 w-2 h-2 rounded-full bg-gold" />
 
-                                        {/* Content */}
-                                        <div className="flex-1 min-w-0">
+                                                        <div className="flex items-start gap-3">
 
-                                            <div className="flex justify-between items-start gap-3 flex-wrap">
-                                                <p className="text-sm font-bold uppercase tracking-wide text-navy">
-                                                    {notification.title}
-                                                </p>
+                                                            {/* Icon badge */}
+                                                            <div className="w-8 h-8 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
+                                                                <Icon className="w-3.5 h-3.5 text-white" />
+                                                            </div>
 
-                                                <span className="text-xs text-slate whitespace-nowrap">
-                                                    {notification.time}
-                                                </span>
-                                            </div>
+                                                            {/* Content */}
+                                                            <div className="flex-1 min-w-0">
 
-                                            <p className="text-sm text-slate leading-relaxed mt-1">
-                                                {notification.description}
-                                            </p>
+                                                                <div className="flex justify-between items-start gap-3 flex-wrap">
+                                                                    <p className="text-sm font-bold uppercase tracking-wide text-navy">
+                                                                        {notification.title}
+                                                                    </p>
 
-                                            {notification.action && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        handleAction(notification)
-                                                    }
+                                                                    <span className="text-xs text-slate whitespace-nowrap">
+                                                                        {notification.time}
+                                                                    </span>
+                                                                </div>
+
+                                                                <p className="text-sm text-slate leading-relaxed mt-1">
+                                                                    {notification.description}
+                                                                </p>
+
+                                                                {notification.action && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            handleAction(notification)
+                                                                        }
+                                                                        className="
+                                                                            mt-3
+                                                                            bg-navy
+                                                                            text-white
+                                                                            uppercase
+                                                                            tracking-wide
+                                                                            font-bold
+                                                                            text-sm
+                                                                            px-5
+                                                                            py-2.5
+                                                                            rounded-lg
+                                                                            hover:bg-gold
+                                                                            hover:text-navy
+                                                                            transition
+                                                                            cursor-pointer
+                                                                        "
+                                                                    >
+                                                                        {notification.action.label}
+                                                                    </button>
+                                                                )}
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+                                                );
+                                            }
+
+                                            // ─── READ CARD ───
+                                            return (
+                                                <div
+                                                    key={notification.id}
                                                     className="
-                                                        mt-3
-                                                        bg-navy
-                                                        text-white
-                                                        uppercase
-                                                        tracking-wide
-                                                        font-bold
-                                                        text-sm
-                                                        px-5
-                                                        py-2.5
-                                                        rounded-lg
-                                                        hover:bg-gold
-                                                        hover:text-navy
-                                                        transition
-                                                        cursor-pointer
+                                                        bg-white
+                                                        rounded-xl
+                                                        border
+                                                        border-gray/20
+                                                        shadow-sm
+                                                        p-6
+                                                        mb-4
                                                     "
                                                 >
-                                                    {notification.action.label}
-                                                </button>
-                                            )}
+                                                    <div className="flex items-start gap-3">
 
-                                        </div>
+                                                        {/* Bare icon (no badge) */}
+                                                        <Icon className="w-[18px] h-[18px] text-navy flex-shrink-0 mt-0.5" />
 
+                                                        {/* Content */}
+                                                        <div className="flex-1 min-w-0">
+
+                                                            <div className="flex justify-between items-start gap-3 flex-wrap">
+                                                                <p className="text-base font-bold text-navy">
+                                                                    {notification.title}
+                                                                </p>
+
+                                                                <span className="text-xs text-slate whitespace-nowrap">
+                                                                    {notification.time}
+                                                                </span>
+                                                            </div>
+
+                                                            <p className="text-sm text-slate leading-relaxed mt-1">
+                                                                {notification.description}
+                                                            </p>
+
+                                                            {notification.action && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        handleAction(notification)
+                                                                    }
+                                                                    className="
+                                                                        mt-3
+                                                                        bg-white
+                                                                        border
+                                                                        border-gray
+                                                                        text-navy
+                                                                        uppercase
+                                                                        tracking-wide
+                                                                        font-bold
+                                                                        text-sm
+                                                                        px-5
+                                                                        py-2.5
+                                                                        rounded-lg
+                                                                        hover:border-navy
+                                                                        transition
+                                                                        cursor-pointer
+                                                                    "
+                                                                >
+                                                                    {notification.action.label}
+                                                                </button>
+                                                            )}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                            );
+                                        })}
                                     </div>
-
                                 </div>
-                            );
-                        }
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center mt-[60px]">
 
-                        // ─── READ CARD ───
-                        return (
-                            <div
-                                key={notification.id}
-                                className="
-                                    bg-white
-                                    rounded-xl
-                                    border
-                                    border-gray/20
-                                    shadow-sm
-                                    p-6
-                                    mb-4
-                                "
-                            >
-                                <div className="flex items-start gap-3">
-
-                                    {/* Bare icon (no badge) */}
-                                    <Icon className="w-[18px] h-[18px] text-navy flex-shrink-0 mt-0.5" />
-
-                                    {/* Content */}
-                                    <div className="flex-1 min-w-0">
-
-                                        <div className="flex justify-between items-start gap-3 flex-wrap">
-                                            <p className="text-base font-bold text-navy">
-                                                {notification.title}
-                                            </p>
-
-                                            <span className="text-xs text-slate whitespace-nowrap">
-                                                {notification.time}
-                                            </span>
-                                        </div>
-
-                                        <p className="text-sm text-slate leading-relaxed mt-1">
-                                            {notification.description}
-                                        </p>
-
-                                        {notification.action && (
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleAction(notification)
-                                                }
-                                                className="
-                                                    mt-3
-                                                    bg-white
-                                                    border
-                                                    border-gray
-                                                    text-navy
-                                                    uppercase
-                                                    tracking-wide
-                                                    font-bold
-                                                    text-sm
-                                                    px-5
-                                                    py-2.5
-                                                    rounded-lg
-                                                    hover:border-navy
-                                                    transition
-                                                    cursor-pointer
-                                                "
-                                            >
-                                                {notification.action.label}
-                                            </button>
-                                        )}
-
-                                    </div>
-
-                                </div>
-
+                            <div className="w-12 h-12 rounded-full bg-beige mx-auto mb-4 flex items-center justify-center">
+                                <CheckCircle2 className="w-5 h-5 text-navy" />
                             </div>
-                        );
-                    })}
-                </div>
-            </div>
-        ))}
-    </div>
-) : (
-    <div className="text-center mt-[60px]">
 
-        <div className="w-12 h-12 rounded-full bg-beige mx-auto mb-4 flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-navy" />
-        </div>
+                            <p className="text-sm text-slate">
+                                No notifications in this category.
+                            </p>
 
-        <p className="text-sm text-slate">
-            No notifications in this category.
-        </p>
-
-    </div>
-)}
+                        </div>
+                    )}
 
                 </main>
 
