@@ -5,11 +5,14 @@ import {
     ChevronDown,
     CalendarDays,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import CustomerSidebar from "../../components/customer/CustomerSidebar";
 import CustomerTopbar from "../../components/customer/CustomerTopbar";
 
 function MyAppointments() {
+    const navigate = useNavigate();
+
     const [activeTab, setActiveTab] = useState("upcoming");
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -21,6 +24,7 @@ function MyAppointments() {
     const [isStatusFilterOpen, setIsStatusFilterOpen] = useState(false);
 
     const [appointments] = useState([
+        // Upcoming
         {
             id: 1,
             date: "Fri · 21 Aug",
@@ -44,6 +48,46 @@ function MyAppointments() {
             durationMinutes: 30,
             price: 1500,
             tab: "upcoming",
+        },
+
+        // Past
+        {
+            id: 3,
+            date: "Wed · 06 Aug",
+            time: "11:00 AM",
+            status: "Completed",
+            service: "Dental Checkup",
+            companyName: "Smile Care Clinic",
+            staffName: "Dr. Ayesha Malik",
+            durationMinutes: 45,
+            price: 4000,
+            tab: "past",
+        },
+        {
+            id: 4,
+            date: "Fri · 01 Aug",
+            time: "02:30 PM",
+            status: "Completed",
+            service: "Physio Session",
+            companyName: "Motion Rehab Center",
+            staffName: "Dr. Hamza Khan",
+            durationMinutes: 30,
+            price: 3000,
+            tab: "past",
+        },
+
+        // Cancelled
+        {
+            id: 5,
+            date: "Tue · 12 Aug",
+            time: "09:00 AM",
+            status: "Cancelled",
+            service: "General Checkup",
+            companyName: "City Medical Center",
+            staffName: "Dr. Omar Farooq",
+            durationMinutes: 45,
+            price: 4000,
+            tab: "cancelled",
         },
     ]);
 
@@ -89,16 +133,20 @@ function MyAppointments() {
     }
 
     function handleCancel(id) {
-        const confirmed = window.confirm(
-            "Are you sure you want to cancel this appointment?"
-        );
+        navigate("/customer/cancel", {
+            state: {
+                appointmentId: id,
+            },
+        });
+    }
 
-        if (!confirmed) {
-            return;
-        }
+    function handleBookAgain(id) {
+        // TODO: Navigate into booking flow with the same company/service
+        // pre-filled for a new appointment.
+    }
 
-        // TODO: Call cancellation API.
-        // After successful response, update appointment status to Cancelled.
+    function handleLeaveReview(id) {
+        // TODO: Open the review/rating flow for this completed appointment.
     }
 
     return (
@@ -390,6 +438,8 @@ function MyAppointments() {
                                                         ? "bg-green-50 text-green-700"
                                                         : appointment.status === "Cancelled"
                                                         ? "bg-red-50 text-red-700"
+                                                        : appointment.status === "Completed"
+                                                        ? "bg-blue-50 text-blue-700"
                                                         : "bg-gold/20 text-amber-700"
                                                 }
                                             `}
@@ -496,6 +546,53 @@ function MyAppointments() {
                                                     Cancel
                                                 </button>
                                             </>
+                                        )}
+
+                                        {appointment.status === "Completed" && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleLeaveReview(appointment.id)
+                                                }
+                                                className="
+                                                    px-4
+                                                    py-2
+                                                    rounded-lg
+                                                    text-xs
+                                                    font-bold
+                                                    uppercase
+                                                    tracking-wide
+                                                    text-navy
+                                                    hover:bg-beige
+                                                    transition
+                                                "
+                                            >
+                                                Leave Review
+                                            </button>
+                                        )}
+
+                                        {(appointment.status === "Completed" ||
+                                            appointment.status === "Cancelled") && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleBookAgain(appointment.id)
+                                                }
+                                                className="
+                                                    px-4
+                                                    py-2
+                                                    rounded-lg
+                                                    text-xs
+                                                    font-bold
+                                                    uppercase
+                                                    tracking-wide
+                                                    text-slate
+                                                    hover:bg-beige
+                                                    transition
+                                                "
+                                            >
+                                                Book Again
+                                            </button>
                                         )}
                                     </div>
                                 </div>
