@@ -98,7 +98,7 @@ import BookingConfirmation from "../pages/booking/BookingConfirmation";
 
 import MyAppointments from "../pages/customers/MyAppointments";
 import CancelAppointment from "../pages/customers/CancelAppointment";
-
+import CustomerRescheduleAppointment from "../pages/customers/RescheduleAppointment";
 
 function AppRoutes() {
     return (
@@ -332,6 +332,13 @@ function AppRoutes() {
                 path="/customer/appointments/:id/cancel"
                 element={<CancelAppointment />}
             />
+
+            <Route
+                path="/customer/appointments/:id/reschedule"
+                element={<CustomerRescheduleAppointment />} 
+                />
+
+
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />

@@ -134,8 +134,8 @@ function MyAppointments() {
     }
 
     function handleReschedule(id) {
-        // TODO: Open reschedule flow for this appointment.
-    }
+    navigate(`/customer/appointments/${id}/reschedule`);
+}
 
     function handleCancel(id) {
         navigate(`/customer/appointments/${id}/cancel`);

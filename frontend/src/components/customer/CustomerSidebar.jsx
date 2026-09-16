@@ -6,7 +6,6 @@ import {
     Bell,
     User,
     Settings,
-    LogOut,
     Plus,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -137,32 +136,41 @@ function CustomerSidebar({ activeItem = "Dashboard" }) {
 
             </nav>
 
-            {/* Bottom — Logout */}
-            <div className="mt-auto px-3 py-4 border-t border-white/10">
+            {/* Bottom — Identity Card with inline Logout */}
+            <div className="mt-auto border-t border-white/10 p-3">
 
-                <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="
-                        w-full
-                        flex
-                        items-center
-                        gap-3
-                        px-3
-                        py-2
-                        text-sm
-                        font-bold
-                        text-white/60
-                        hover:text-white
-                        transition
-                    "
-                >
-                    <LogOut className="w-4 h-4 flex-shrink-0" />
+                <div className="flex items-center gap-3 rounded-lg p-2">
 
-                    <span>
-                        Logout
-                    </span>
-                </button>
+                    {/* Avatar */}
+                    <div className="w-10 h-10 rounded-full bg-beige flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-navy">
+                            J
+                        </span>
+                    </div>
+
+                    {/* Name + Logout */}
+                    <div className="min-w-0">
+                        <p className="text-sm font-bold text-white truncate">
+                            J. Doe
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="
+                                text-xs
+                                font-bold
+                                text-white/50
+                                hover:text-white
+                                transition
+                                cursor-pointer
+                            "
+                        >
+                            Logout
+                        </button>
+                    </div>
+
+                </div>
 
             </div>
 
@@ -170,4 +178,4 @@ function CustomerSidebar({ activeItem = "Dashboard" }) {
     );
 }
 
-export default CustomerSidebar; 
+export default CustomerSidebar;
