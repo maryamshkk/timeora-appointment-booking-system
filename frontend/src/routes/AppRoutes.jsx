@@ -103,6 +103,7 @@ import CancelAppointment from "../pages/customers/CancelAppointment";
 import CustomerPaymentReceipt from "../pages/customers/PaymentReceipt";
 import CustomerProfile from "../pages/customers/MyProfile";
 import CustomerSettings from "../pages/customers/CustomerSettings";
+import CustomerNotifications from "../pages/customers/CustomerNotifications";
 
 function AppRoutes() {
     return (
@@ -361,6 +362,11 @@ function AppRoutes() {
             <Route
                 path="/customer/settings"
                 element={<CustomerSettings />}
+            />
+
+            <Route
+                path="/customer/notifications"
+                element={<CustomerNotifications />}
             />
 
 
