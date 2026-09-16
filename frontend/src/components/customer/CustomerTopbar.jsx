@@ -1,31 +1,14 @@
 import React from "react";
-import {
-    Grid3X3,
-    HelpCircle,
-    Search,
-} from "lucide-react";
+import { Search, HelpCircle, LayoutGrid } from "lucide-react";
 
 function CustomerTopbar() {
-    function handleAppSwitcher() {
-        // TODO: Open app switcher menu.
-    }
-
     return (
-        <header className="h-20 bg-white border-b border-gray/20 px-8 flex items-center justify-between gap-6">
+        <header className="bg-white border-b border-gray/20 px-8 py-3 flex items-center justify-between gap-6 flex-shrink-0">
 
-            {/* Search */}
-            <div className="relative w-full max-w-xl">
-                <Search
-                    className="
-                        absolute
-                        left-3
-                        top-1/2
-                        -translate-y-1/2
-                        w-4
-                        h-4
-                        text-slate
-                    "
-                />
+            {/* Left — Search */}
+            <div className="relative w-full max-w-xs">
+
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray pointer-events-none" />
 
                 <input
                     type="text"
@@ -40,49 +23,43 @@ function CustomerTopbar() {
                         pr-4
                         py-2.5
                         text-sm
-                        font-serif
                         text-navy
                         outline-none
                         focus:border-navy
                     "
                 />
+
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-4 flex-shrink-0">
+            {/* Right — Help + App Switcher + Avatar */}
+            <div className="flex items-center gap-5 flex-shrink-0">
 
                 <button
                     type="button"
-                    className="
-                        text-slate
-                        hover:text-navy
-                        transition
-                    "
                     aria-label="Help"
+                    className="text-navy hover:text-gold transition"
                 >
                     <HelpCircle className="w-5 h-5" />
                 </button>
 
                 <button
                     type="button"
-                    onClick={handleAppSwitcher}
-                    className="
-                        text-slate
-                        hover:text-navy
-                        transition
-                    "
-                    aria-label="App switcher"
+                    aria-label="Switch app"
+                    className="text-navy hover:text-gold transition"
                 >
-                    <Grid3X3 className="w-5 h-5" />
+                    {/* TODO: Define what this menu opens — possibly quick links
+                        to other Timeora surfaces (e.g. Staff Portal). */}
+                    <LayoutGrid className="w-5 h-5" />
                 </button>
 
-                <div className="w-9 h-9 rounded-full bg-beige flex items-center justify-center overflow-hidden">
-                    <span className="text-sm font-bold text-navy">
-                        C
-                    </span>
-                </div>
+                <img
+                    src=""
+                    alt="Customer avatar"
+                    className="w-9 h-9 rounded-full object-cover bg-beige flex-shrink-0"
+                />
 
             </div>
+
         </header>
     );
 }
