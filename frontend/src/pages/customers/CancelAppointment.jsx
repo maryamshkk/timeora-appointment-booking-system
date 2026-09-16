@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
     AlertTriangle,
     ArrowLeft,
@@ -42,14 +42,41 @@ function CancelAppointment() {
     // TODO: Replace local appointment state with a real fetch using the route id.
     // The appointment should be loaded using `id` from useParams().
 
-    // TODO: Calculate the cancellation deadline from appointment.date
-    // and appointment.time, then subtract 24 hours.
+    // Derive the free-cancellation deadline: appointment date/time minus 24 hours.
+    // TODO: Once the API provides a real ISO date/time, parse that directly
+    // instead of parsing the display strings below.
+    const cancellationDeadline = useMemo(() => {
+        // Parse the mock display strings ("Monday, 24 August 2026" + "10:00 AM")
+        // into a Date object.
+        const combined = `${appointment.date} ${appointment.time}`;
+        const appointmentDate = new Date(combined);
+
+        if (Number.isNaN(appointmentDate.getTime())) {
+            return "24 hours before your appointment";
+        }
+
+        const deadline = new Date(
+            appointmentDate.getTime() - 24 * 60 * 60 * 1000
+        );
+
+        return deadline.toLocaleString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+        });
+    }, [appointment.date, appointment.time]);
 
     function handleBackToAppointment() {
         navigate(`/customer/appointments/${id}`);
     }
 
     function handleCancelAppointment() {
+        if (!cancellationReason) {
+            return;
+        }
+
         setIsCancelling(true);
 
         // TODO: Axios POST/PATCH call to cancel the appointment
@@ -310,7 +337,112 @@ function CancelAppointment() {
 
                         {/* Right Column */}
                         <div>
-                            {/* Cancellation Policy — next step */}
+
+                            {/* Card C — Cancellation Policy */}
+                            <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6 mb-4">
+
+                                <h2 className="font-serif text-2xl text-navy">
+                                    Cancellation Policy
+                                </h2>
+
+                                <div className="border-b border-gray/20 my-5"></div>
+
+                                {/* Policy Item 1 */}
+                                <div className="flex items-start gap-3 mb-4">
+
+                                    <CheckCircle2 className="w-[18px] h-[18px] text-green-600 flex-shrink-0 mt-px" />
+
+                                    <div>
+                                        <p className="text-sm font-bold text-navy">
+                                            Free cancellation up to 24 hours
+                                        </p>
+
+                                        <p className="text-xs text-slate leading-relaxed mt-0.5">
+                                            Cancel before {cancellationDeadline} to
+                                            avoid fees.
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                                {/* Policy Item 2 */}
+                                <div className="flex items-start gap-3">
+
+                                    <Info className="w-[18px] h-[18px] text-slate flex-shrink-0 mt-px" />
+
+                                    <div>
+                                        <p className="text-sm font-bold text-navy">
+                                            Late Cancellation Fee
+                                        </p>
+
+                                        <p className="text-xs text-slate leading-relaxed mt-0.5">
+                                            Cancellations within 24 hours may incur
+                                            a penalty based on clinic policy.
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {/* Cancel Appointment Button */}
+                            <button
+                                type="button"
+                                onClick={handleCancelAppointment}
+                                disabled={!cancellationReason || isCancelling}
+                                className="
+                                    w-full
+                                    bg-white
+                                    border-2
+                                    border-red-500
+                                    text-red-600
+                                    uppercase
+                                    tracking-wide
+                                    font-bold
+                                    text-sm
+                                    py-3.5
+                                    rounded-lg
+                                    flex
+                                    items-center
+                                    justify-center
+                                    gap-2
+                                    transition
+                                    hover:bg-red-500
+                                    hover:text-white
+                                    disabled:opacity-40
+                                    disabled:cursor-not-allowed
+                                    disabled:hover:bg-white
+                                    disabled:hover:text-red-600
+                                    mb-3
+                                "
+                            >
+                                <XCircle className="w-4 h-4" />
+
+                                {isCancelling ? "Cancelling..." : "Cancel Appointment"}
+                            </button>
+
+                            {/* Keep Appointment Button */}
+                            <button
+                                type="button"
+                                onClick={handleKeepAppointment}
+                                className="
+                                    w-full
+                                    bg-navy
+                                    text-white
+                                    uppercase
+                                    tracking-wide
+                                    font-bold
+                                    text-sm
+                                    py-3.5
+                                    rounded-lg
+                                    transition
+                                    hover:bg-gold
+                                    hover:text-navy
+                                "
+                            >
+                                Keep Appointment
+                            </button>
+
                         </div>
 
                     </div>
