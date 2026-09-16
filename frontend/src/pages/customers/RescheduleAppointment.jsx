@@ -12,7 +12,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import CustomerSidebar from "../../components/customer/CustomerSidebar";
 import CustomerTopbar from "../../components/customer/CustomerTopbar";
 
-function CustomerRescheduleAppointment() {
+function RescheduleAppointment() {
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -35,7 +35,21 @@ function CustomerRescheduleAppointment() {
     const [selectedDate, setSelectedDate] = useState(null);
 
     const [availableSlotsByDate] = useState({
+        // Default slots — reused for any date that doesn't have a specific override.
         // TODO: Fetch real availability per date + staff from the API.
+        default: [
+            { time: "09:00 AM", available: true },
+            { time: "09:30 AM", available: true },
+            { time: "10:00 AM", available: true },
+            { time: "11:00 AM", available: true },
+            { time: "01:00 PM", available: true },
+            { time: "02:00 PM", available: true },
+            { time: "02:30 PM", available: true },
+            { time: "03:30 PM", available: true },
+            { time: "04:00 PM", available: false },
+        ],
+
+        // Date-specific override (optional) — Aug 24 has a different list.
         "2026-08-24": [
             { time: "09:00 AM", available: true },
             { time: "10:00 AM", available: true },
@@ -131,8 +145,11 @@ function CustomerRescheduleAppointment() {
           )}`
         : null;
 
+    // Look up specific override first, then fall back to the default list.
     const availableSlots = dateKey
-        ? availableSlotsByDate[dateKey] || []
+        ? availableSlotsByDate[dateKey] ||
+          availableSlotsByDate.default ||
+          []
         : [];
 
     // ─────────────── Handlers ───────────────
@@ -636,4 +653,4 @@ function CustomerRescheduleAppointment() {
     );
 }
 
-export default CustomerRescheduleAppointment;
+export default RescheduleAppointment;
