@@ -110,6 +110,7 @@ import CustomerNotifications from "../pages/customers/CustomerNotifications";
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
 import Companies from "../pages/superadmin/Companies";
 import CompanyDetails from "../pages/superadmin/CompanyDetails";
+import Customers from "../pages/superadmin/Customers";
 
 function AppRoutes() {
     return (
@@ -391,6 +392,7 @@ function AppRoutes() {
             <Route path="/superadmin/dashboard" element={<SuperAdminDashboard />} />
             <Route path="/superadmin/companies" element={<Companies />} />
             <Route path="/superadmin/companies/:id" element={<CompanyDetails />} />
+            <Route path="/superadmin/customers" element={<Customers />} />
 
 
 
