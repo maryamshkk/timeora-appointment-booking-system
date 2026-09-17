@@ -12,11 +12,14 @@ import {
     UserX,
     ArrowUpDown,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import SuperAdminSidebar from "../../components/superadmin/SuperAdminSidebar";
 import SuperAdminTopbar from "../../components/superadmin/SuperAdminTopbar";
 
 function Customers() {
+    const navigate = useNavigate();
+
     const [stats] = useState({
         total: { value: 28430, deltaPercent: 5.2 },
         active: { value: 26980, deltaPercent: 4.1 },
@@ -85,8 +88,14 @@ function Customers() {
     }
 
     function handleRowAction(customerId, action) {
-        // TODO: Wire View Profile / Suspend / Delete.
         setOpenActionMenuId(null);
+
+        if (action === "view") {
+            navigate(`/superadmin/customers/${customerId}`);
+            return;
+        }
+
+        // TODO: Wire Suspend (PATCH status) and Delete (DELETE with confirmation).
     }
 
     function getStatusStyles(status) {
@@ -219,6 +228,242 @@ function Customers() {
 
                     </div>
 
+                    {/* Filter Row */}
+                    <div className="flex justify-between items-center flex-wrap gap-3 mb-5">
+
+                        {/* Left — dropdowns */}
+                        <div className="flex gap-3 flex-wrap">
+
+                            {/* Status */}
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsStatusOpen(!isStatusOpen);
+                                        setIsRegistrationOpen(false);
+                                        setIsActivityOpen(false);
+                                        setIsSortOpen(false);
+                                    }}
+                                    className="
+                                        bg-white
+                                        border
+                                        border-gray
+                                        rounded-lg
+                                        px-4
+                                        py-2.5
+                                        text-sm
+                                        font-bold
+                                        text-navy
+                                        flex
+                                        items-center
+                                        gap-2
+                                        cursor-pointer
+                                    "
+                                >
+                                    Status: All
+                                    <ChevronDown className="w-3.5 h-3.5 text-slate" />
+                                </button>
+
+                                {isStatusOpen && (
+                                    <div className="absolute left-0 top-full mt-2 z-20 w-40 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                        {[
+                                            { value: "all", label: "All Status" },
+                                            { value: "active", label: "Active" },
+                                            { value: "inactive", label: "Inactive" },
+                                        ].map((option) => (
+                                            <button
+                                                key={option.value}
+                                                type="button"
+                                                onClick={() => {
+                                                    setStatusFilter(option.value);
+                                                    setIsStatusOpen(false);
+                                                }}
+                                                className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                            >
+                                                {option.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Registration */}
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsRegistrationOpen(!isRegistrationOpen);
+                                        setIsStatusOpen(false);
+                                        setIsActivityOpen(false);
+                                        setIsSortOpen(false);
+                                    }}
+                                    className="
+                                        bg-white
+                                        border
+                                        border-gray
+                                        rounded-lg
+                                        px-4
+                                        py-2.5
+                                        text-sm
+                                        font-bold
+                                        text-navy
+                                        flex
+                                        items-center
+                                        gap-2
+                                        cursor-pointer
+                                    "
+                                >
+                                    Registration: All
+                                    <ChevronDown className="w-3.5 h-3.5 text-slate" />
+                                </button>
+
+                                {isRegistrationOpen && (
+                                    <div className="absolute left-0 top-full mt-2 z-20 w-44 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                        {[
+                                            { value: "all", label: "All Time" },
+                                            { value: "week", label: "This Week" },
+                                            { value: "month", label: "This Month" },
+                                            { value: "year", label: "This Year" },
+                                        ].map((option) => (
+                                            <button
+                                                key={option.value}
+                                                type="button"
+                                                onClick={() => {
+                                                    setRegistrationFilter(option.value);
+                                                    setIsRegistrationOpen(false);
+                                                }}
+                                                className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                            >
+                                                {option.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Activity */}
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsActivityOpen(!isActivityOpen);
+                                        setIsStatusOpen(false);
+                                        setIsRegistrationOpen(false);
+                                        setIsSortOpen(false);
+                                    }}
+                                    className="
+                                        bg-white
+                                        border
+                                        border-gray
+                                        rounded-lg
+                                        px-4
+                                        py-2.5
+                                        text-sm
+                                        font-bold
+                                        text-navy
+                                        flex
+                                        items-center
+                                        gap-2
+                                        cursor-pointer
+                                    "
+                                >
+                                    Activity: All
+                                    <ChevronDown className="w-3.5 h-3.5 text-slate" />
+                                </button>
+
+                                {isActivityOpen && (
+                                    <div className="absolute left-0 top-full mt-2 z-20 w-44 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                        {[
+                                            { value: "all", label: "All Activity" },
+                                            { value: "today", label: "Today" },
+                                            { value: "week", label: "This Week" },
+                                            { value: "month", label: "This Month" },
+                                        ].map((option) => (
+                                            <button
+                                                key={option.value}
+                                                type="button"
+                                                onClick={() => {
+                                                    setActivityFilter(option.value);
+                                                    setIsActivityOpen(false);
+                                                }}
+                                                className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                            >
+                                                {option.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                        </div>
+
+                        {/* Right — sort */}
+                        <div className="flex items-center gap-2">
+
+                            <span className="text-sm text-slate">
+                                Sort by:
+                            </span>
+
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsSortOpen(!isSortOpen);
+                                        setIsStatusOpen(false);
+                                        setIsRegistrationOpen(false);
+                                        setIsActivityOpen(false);
+                                    }}
+                                    className="
+                                        text-sm
+                                        font-bold
+                                        uppercase
+                                        tracking-wide
+                                        text-navy
+                                        flex
+                                        items-center
+                                        gap-1.5
+                                        cursor-pointer
+                                    "
+                                >
+                                    {sortBy === "newest"
+                                        ? "Newest First"
+                                        : sortBy === "oldest"
+                                        ? "Oldest First"
+                                        : sortBy === "name"
+                                        ? "Name A–Z"
+                                        : "Most Appointments"}
+
+                                    <ArrowUpDown className="w-3.5 h-3.5" />
+                                </button>
+
+                                {isSortOpen && (
+                                    <div className="absolute right-0 top-full mt-2 z-20 w-48 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                        {[
+                                            { value: "newest", label: "Newest First" },
+                                            { value: "oldest", label: "Oldest First" },
+                                            { value: "name", label: "Name A–Z" },
+                                            { value: "appointments", label: "Most Appointments" },
+                                        ].map((option) => (
+                                            <button
+                                                key={option.value}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSortBy(option.value);
+                                                    setIsSortOpen(false);
+                                                }}
+                                                className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                            >
+                                                {option.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                        </div>
+
+                    </div>
+
                     {/* Table Card */}
                     <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
 
@@ -240,6 +485,9 @@ function Customers() {
                             {customers.map((customer) => (
                                 <div
                                     key={customer.id}
+                                    onClick={() =>
+                                        navigate(`/superadmin/customers/${customer.id}`)
+                                    }
                                     className="
                                         grid
                                         grid-cols-[1fr_1fr_110px_130px_120px_100px_60px]
@@ -251,6 +499,7 @@ function Customers() {
                                         hover:bg-beige/20
                                         transition
                                         min-w-[900px]
+                                        cursor-pointer
                                     "
                                 >
 
@@ -314,7 +563,10 @@ function Customers() {
                                     </span>
 
                                     {/* Actions */}
-                                    <div className="relative self-center flex justify-end">
+                                    <div
+                                        className="relative self-center flex justify-end"
+                                        onClick={(event) => event.stopPropagation()}
+                                    >
 
                                         <button
                                             type="button"
@@ -336,9 +588,10 @@ function Customers() {
 
                                                 <button
                                                     type="button"
-                                                    onClick={() =>
-                                                        handleRowAction(customer.id, "view")
-                                                    }
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleRowAction(customer.id, "view");
+                                                    }}
                                                     className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
                                                 >
                                                     View Profile
@@ -346,9 +599,10 @@ function Customers() {
 
                                                 <button
                                                     type="button"
-                                                    onClick={() =>
-                                                        handleRowAction(customer.id, "suspend")
-                                                    }
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleRowAction(customer.id, "suspend");
+                                                    }}
                                                     className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
                                                 >
                                                     Suspend Customer
@@ -356,9 +610,10 @@ function Customers() {
 
                                                 <button
                                                     type="button"
-                                                    onClick={() =>
-                                                        handleRowAction(customer.id, "delete")
-                                                    }
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleRowAction(customer.id, "delete");
+                                                    }}
                                                     className="w-full text-left px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 cursor-pointer"
                                                 >
                                                     Delete Customer
