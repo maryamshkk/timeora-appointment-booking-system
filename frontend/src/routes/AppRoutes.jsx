@@ -109,7 +109,7 @@ import CustomerNotifications from "../pages/customers/CustomerNotifications";
 // super admin section
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
 import Companies from "../pages/superadmin/Companies";
-
+import CompanyDetails from "../pages/superadmin/CompanyDetails";
 
 function AppRoutes() {
     return (
@@ -390,6 +390,7 @@ function AppRoutes() {
             {/* Super Admin dashboard */}
             <Route path="/superadmin/dashboard" element={<SuperAdminDashboard />} />
             <Route path="/superadmin/companies" element={<Companies />} />
+            <Route path="/superadmin/companies/:id" element={<CompanyDetails />} />
 
 
 
