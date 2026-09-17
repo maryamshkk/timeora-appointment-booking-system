@@ -108,8 +108,271 @@ function Companies() {
                 <SuperAdminTopbar unreadCount={3} />
 
                 <main className="flex-1 px-8 py-6">
-                    {/* Content added in next steps */}
-                </main>
+
+                {/* Header */}
+                <div className="flex justify-between items-start gap-6 flex-wrap mb-6">
+
+                    <div>
+                        <h1 className="font-serif text-4xl text-navy">
+                            Companies
+                        </h1>
+
+                        <p className="text-sm text-slate mt-1.5">
+                            Manage and review companies registered on TIMEORA.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleAddCompany}
+                        className="
+                            bg-navy
+                            text-white
+                            uppercase
+                            tracking-wide
+                            font-bold
+                            text-sm
+                            px-5
+                            py-3
+                            rounded-lg
+                            flex
+                            items-center
+                            gap-2
+                            hover:bg-gold
+                            hover:text-navy
+                            transition
+                            cursor-pointer
+                            flex-shrink-0
+                        "
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Company
+                    </button>
+
+                </div>
+
+                {/* Stat Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+
+                    {/* Total */}
+                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                            Total Companies
+                        </p>
+
+                        <p className="text-4xl font-bold text-navy mt-2">
+                            {stats.total.toLocaleString()}
+                        </p>
+
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                            <TrendingUp className="w-3.5 h-3.5 text-green-600" />
+
+                            <span className="text-sm font-bold text-green-600">
+                                +{stats.totalDeltaPercent}% this month
+                            </span>
+                        </div>
+
+                    </div>
+
+                    {/* Active */}
+                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                            Active
+                        </p>
+
+                        <p className="text-4xl font-bold text-navy mt-2">
+                            {stats.active.toLocaleString()}
+                        </p>
+                    </div>
+
+                    {/* Pending */}
+                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                            Pending
+                        </p>
+
+                        <p className="text-4xl font-bold text-navy mt-2">
+                            {stats.pending.toLocaleString()}
+                        </p>
+                    </div>
+
+                    {/* Suspended */}
+                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                            Suspended
+                        </p>
+
+                        <p className="text-4xl font-bold text-navy mt-2">
+                            {stats.suspended.toLocaleString()}
+                        </p>
+                    </div>
+
+                </div>
+
+                {/* Table */}
+                <div className="overflow-x-auto">
+
+                    {/* Header */}
+                    <div className="grid grid-cols-[1fr_120px_1.2fr_130px_80px_80px] px-6 py-3 border-b border-gray/20 text-xs font-bold uppercase tracking-wide text-slate min-w-[900px]">
+                        <span>Company</span>
+                        <span>Category</span>
+                        <span>Contact</span>
+                        <span>Registration Date</span>
+                        <span className="text-right">Staff</span>
+                        <span className="text-right">Appts</span>
+                    </div>
+
+                    {/* Rows */}
+                    {companies.map((company) => (
+                        <div
+                            key={company.id}
+                            onClick={() => navigate(`/superadmin/companies/${company.id}`)}
+                            className="
+                                grid
+                                grid-cols-[1fr_120px_1.2fr_130px_80px_80px]
+                                px-6
+                                py-4
+                                border-b
+                                border-gray/20
+                                last:border-b-0
+                                hover:bg-beige/20
+                                cursor-pointer
+                                transition
+                                min-w-[900px]
+                            "
+                        >
+
+                            {/* Company */}
+                            <div className="flex items-center gap-3 min-w-0">
+
+                                {company.logoUrl ? (
+                                    <img
+                                        src={company.logoUrl}
+                                        alt={company.name}
+                                        className="w-10 h-10 rounded-lg object-cover border border-gray/20 flex-shrink-0"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-lg bg-beige flex items-center justify-center border border-gray/20 flex-shrink-0">
+                                        <span className="font-serif text-sm text-navy">
+                                            {company.name
+                                                .split(" ")
+                                                .map((word) => word.charAt(0))
+                                                .slice(0, 2)
+                                                .join("")
+                                                .toUpperCase()}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <div className="min-w-0">
+                                    <p className="text-base font-bold text-navy">
+                                        {company.name}
+                                    </p>
+
+                                    <p className="text-xs text-slate">
+                                        ID: {company.id}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            {/* Category */}
+                            <span className="text-sm text-slate self-center">
+                                {company.category}
+                            </span>
+
+                            {/* Contact */}
+                            <span className="text-sm text-slate self-center truncate">
+                                {company.contactEmail}
+                            </span>
+
+                            {/* Registration Date */}
+                            <span className="text-sm text-navy self-center">
+                                {company.registrationDate}
+                            </span>
+
+                            {/* Staff */}
+                            <span className="text-sm text-navy text-right self-center">
+                                {company.staffCount}
+                            </span>
+
+                            {/* Appointments */}
+                            <span className="text-sm text-navy text-right self-center">
+                                {company.appointmentCount}
+                            </span>
+
+                        </div>
+                    ))}
+
+                </div>
+
+                {/* Footer */}
+                <div className="px-6 py-4 border-t border-gray/20 flex justify-between items-center flex-wrap gap-3">
+
+                    <p className="text-sm text-slate">
+                        1-{pageSize} of {totalCount.toLocaleString()}
+                    </p>
+
+                    <div className="flex items-center gap-2">
+
+                        <button
+                            type="button"
+                            disabled={currentPage === 1}
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            aria-label="Previous page"
+                            className="
+                                w-9
+                                h-9
+                                rounded-lg
+                                border
+                                border-gray
+                                flex
+                                items-center
+                                justify-center
+                                text-navy
+                                disabled:opacity-40
+                                disabled:cursor-not-allowed
+                                hover:bg-beige
+                                transition
+                                cursor-pointer
+                            "
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+
+                        <button
+                            type="button"
+                            disabled={
+                                currentPage === Math.ceil(totalCount / pageSize)
+                            }
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            aria-label="Next page"
+                            className="
+                                w-9
+                                h-9
+                                rounded-lg
+                                border
+                                border-gray
+                                flex
+                                items-center
+                                justify-center
+                                text-navy
+                                disabled:opacity-40
+                                disabled:cursor-not-allowed
+                                hover:bg-beige
+                                transition
+                                cursor-pointer
+                            "
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </main>
 
             </div>
 
