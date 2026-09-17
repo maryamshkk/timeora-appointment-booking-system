@@ -105,6 +105,10 @@ import CustomerProfile from "../pages/customers/MyProfile";
 import CustomerSettings from "../pages/customers/CustomerSettings";
 import CustomerNotifications from "../pages/customers/CustomerNotifications";
 
+
+// super admin section
+import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
+
 function AppRoutes() {
     return (
         <Routes>
@@ -382,8 +386,8 @@ function AppRoutes() {
             />
 
             {/* Super Admin dashboard */}
+            <Route path="/superadmin/dashboard" element={<SuperAdminDashboard />} />
 
-            
 
 
 
