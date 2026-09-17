@@ -38,7 +38,7 @@ function Companies() {
     const [sortBy, setSortBy] = useState("newest");
     const [isSortOpen, setIsSortOpen] = useState(false);
 
-    const [companies, setCompanies] = useState([
+    const [companies] = useState([
         {
             id: "CMP-8492",
             name: "Shifa Clinic",
@@ -109,270 +109,534 @@ function Companies() {
 
                 <main className="flex-1 px-8 py-6">
 
-                {/* Header */}
-                <div className="flex justify-between items-start gap-6 flex-wrap mb-6">
+                    {/* Header */}
+                    <div className="flex justify-between items-start gap-6 flex-wrap mb-6">
 
-                    <div>
-                        <h1 className="font-serif text-4xl text-navy">
-                            Companies
-                        </h1>
+                        <div>
+                            <h1 className="font-serif text-4xl text-navy">
+                                Companies
+                            </h1>
 
-                        <p className="text-sm text-slate mt-1.5">
-                            Manage and review companies registered on TIMEORA.
-                        </p>
+                            <p className="text-sm text-slate mt-1.5">
+                                Manage and review companies registered on TIMEORA.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleAddCompany}
+                            className="
+                                bg-navy
+                                text-white
+                                uppercase
+                                tracking-wide
+                                font-bold
+                                text-sm
+                                px-5
+                                py-3
+                                rounded-lg
+                                flex
+                                items-center
+                                gap-2
+                                hover:bg-gold
+                                hover:text-navy
+                                transition
+                                cursor-pointer
+                                flex-shrink-0
+                            "
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add Company
+                        </button>
+
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleAddCompany}
-                        className="
-                            bg-navy
-                            text-white
-                            uppercase
-                            tracking-wide
-                            font-bold
-                            text-sm
-                            px-5
-                            py-3
-                            rounded-lg
-                            flex
-                            items-center
-                            gap-2
-                            hover:bg-gold
-                            hover:text-navy
-                            transition
-                            cursor-pointer
-                            flex-shrink-0
-                        "
-                    >
-                        <Plus className="w-4 h-4" />
-                        Add Company
-                    </button>
+                    {/* Stat Cards */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
 
-                </div>
+                        {/* Total */}
+                        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
 
-                {/* Stat Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                            <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                                Total Companies
+                            </p>
 
-                    {/* Total */}
-                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+                            <p className="text-4xl font-bold text-navy mt-2">
+                                {stats.total.toLocaleString()}
+                            </p>
 
-                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                            Total Companies
-                        </p>
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                                <TrendingUp className="w-3.5 h-3.5 text-green-600" />
 
-                        <p className="text-4xl font-bold text-navy mt-2">
-                            {stats.total.toLocaleString()}
-                        </p>
+                                <span className="text-sm font-bold text-green-600">
+                                    +{stats.totalDeltaPercent}% this month
+                                </span>
+                            </div>
 
-                        <div className="flex items-center gap-1.5 mt-1.5">
-                            <TrendingUp className="w-3.5 h-3.5 text-green-600" />
+                        </div>
 
-                            <span className="text-sm font-bold text-green-600">
-                                +{stats.totalDeltaPercent}% this month
-                            </span>
+                        {/* Active */}
+                        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+                            <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                                Active
+                            </p>
+
+                            <p className="text-4xl font-bold text-navy mt-2">
+                                {stats.active.toLocaleString()}
+                            </p>
+                        </div>
+
+                        {/* Pending */}
+                        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+                            <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                                Pending
+                            </p>
+
+                            <p className="text-4xl font-bold text-navy mt-2">
+                                {stats.pending.toLocaleString()}
+                            </p>
+                        </div>
+
+                        {/* Suspended */}
+                        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+                            <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                                Suspended
+                            </p>
+
+                            <p className="text-4xl font-bold text-navy mt-2">
+                                {stats.suspended.toLocaleString()}
+                            </p>
                         </div>
 
                     </div>
 
-                    {/* Active */}
-                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
-                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                            Active
-                        </p>
+                    {/* Table Card */}
+                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
 
-                        <p className="text-4xl font-bold text-navy mt-2">
-                            {stats.active.toLocaleString()}
-                        </p>
-                    </div>
+                        {/* Filter Row */}
+                        <div className="p-5 border-b border-gray/20 flex justify-between items-center flex-wrap gap-3">
 
-                    {/* Pending */}
-                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
-                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                            Pending
-                        </p>
+                            {/* Search */}
+                            <div className="relative">
 
-                        <p className="text-4xl font-bold text-navy mt-2">
-                            {stats.pending.toLocaleString()}
-                        </p>
-                    </div>
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray pointer-events-none" />
 
-                    {/* Suspended */}
-                    <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
-                        <p className="text-xs font-bold uppercase tracking-wide text-slate">
-                            Suspended
-                        </p>
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(event) =>
+                                        setSearchQuery(event.target.value)
+                                    }
+                                    placeholder="Search companies..."
+                                    className="
+                                        border
+                                        border-gray
+                                        rounded-lg
+                                        pl-9
+                                        pr-4
+                                        py-2.5
+                                        text-sm
+                                        text-navy
+                                        bg-white
+                                        outline-none
+                                        focus:border-navy
+                                        w-72
+                                    "
+                                />
 
-                        <p className="text-4xl font-bold text-navy mt-2">
-                            {stats.suspended.toLocaleString()}
-                        </p>
-                    </div>
+                            </div>
 
-                </div>
+                            {/* Filters */}
+                            <div className="flex gap-3 flex-wrap">
 
-                {/* Table */}
-                <div className="overflow-x-auto">
+                                {/* Status */}
+                                <div className="relative">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsStatusOpen(!isStatusOpen);
+                                            setIsCategoryOpen(false);
+                                            setIsDateOpen(false);
+                                            setIsSortOpen(false);
+                                        }}
+                                        className="
+                                            bg-white
+                                            border
+                                            border-gray
+                                            rounded-lg
+                                            px-4
+                                            py-2.5
+                                            text-sm
+                                            font-bold
+                                            text-navy
+                                            flex
+                                            items-center
+                                            gap-2
+                                            cursor-pointer
+                                        "
+                                    >
+                                        Status
+                                        <ChevronDown className="w-3.5 h-3.5 text-slate" />
+                                    </button>
 
-                    {/* Header */}
-                    <div className="grid grid-cols-[1fr_120px_1.2fr_130px_80px_80px] px-6 py-3 border-b border-gray/20 text-xs font-bold uppercase tracking-wide text-slate min-w-[900px]">
-                        <span>Company</span>
-                        <span>Category</span>
-                        <span>Contact</span>
-                        <span>Registration Date</span>
-                        <span className="text-right">Staff</span>
-                        <span className="text-right">Appts</span>
-                    </div>
+                                    {isStatusOpen && (
+                                        <div className="absolute right-0 top-full mt-2 z-20 w-40 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                            {[
+                                                { value: "all", label: "All Status" },
+                                                { value: "active", label: "Active" },
+                                                { value: "pending", label: "Pending" },
+                                                { value: "suspended", label: "Suspended" },
+                                            ].map((option) => (
+                                                <button
+                                                    key={option.value}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setStatusFilter(option.value);
+                                                        setIsStatusOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                                >
+                                                    {option.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
 
-                    {/* Rows */}
-                    {companies.map((company) => (
-                        <div
-                            key={company.id}
-                            onClick={() => navigate(`/superadmin/companies/${company.id}`)}
-                            className="
-                                grid
-                                grid-cols-[1fr_120px_1.2fr_130px_80px_80px]
-                                px-6
-                                py-4
-                                border-b
-                                border-gray/20
-                                last:border-b-0
-                                hover:bg-beige/20
-                                cursor-pointer
-                                transition
-                                min-w-[900px]
-                            "
-                        >
+                                {/* Category */}
+                                <div className="relative">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsCategoryOpen(!isCategoryOpen);
+                                            setIsStatusOpen(false);
+                                            setIsDateOpen(false);
+                                            setIsSortOpen(false);
+                                        }}
+                                        className="
+                                            bg-white
+                                            border
+                                            border-gray
+                                            rounded-lg
+                                            px-4
+                                            py-2.5
+                                            text-sm
+                                            font-bold
+                                            text-navy
+                                            flex
+                                            items-center
+                                            gap-2
+                                            cursor-pointer
+                                        "
+                                    >
+                                        Category
+                                        <ChevronDown className="w-3.5 h-3.5 text-slate" />
+                                    </button>
 
-                            {/* Company */}
-                            <div className="flex items-center gap-3 min-w-0">
+                                    {isCategoryOpen && (
+                                        <div className="absolute right-0 top-full mt-2 z-20 w-40 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                            {[
+                                                { value: "all", label: "All Categories" },
+                                                { value: "healthcare", label: "Healthcare" },
+                                                { value: "fitness", label: "Fitness" },
+                                                { value: "wellness", label: "Wellness" },
+                                                { value: "consulting", label: "Consulting" },
+                                            ].map((option) => (
+                                                <button
+                                                    key={option.value}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setCategoryFilter(option.value);
+                                                        setIsCategoryOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                                >
+                                                    {option.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
 
-                                {company.logoUrl ? (
-                                    <img
-                                        src={company.logoUrl}
-                                        alt={company.name}
-                                        className="w-10 h-10 rounded-lg object-cover border border-gray/20 flex-shrink-0"
-                                    />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-lg bg-beige flex items-center justify-center border border-gray/20 flex-shrink-0">
-                                        <span className="font-serif text-sm text-navy">
-                                            {company.name
-                                                .split(" ")
-                                                .map((word) => word.charAt(0))
-                                                .slice(0, 2)
-                                                .join("")
-                                                .toUpperCase()}
-                                        </span>
-                                    </div>
-                                )}
+                                {/* Date */}
+                                <div className="relative">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsDateOpen(!isDateOpen);
+                                            setIsStatusOpen(false);
+                                            setIsCategoryOpen(false);
+                                            setIsSortOpen(false);
+                                        }}
+                                        className="
+                                            bg-white
+                                            border
+                                            border-gray
+                                            rounded-lg
+                                            px-4
+                                            py-2.5
+                                            text-sm
+                                            font-bold
+                                            text-navy
+                                            flex
+                                            items-center
+                                            gap-2
+                                            cursor-pointer
+                                        "
+                                    >
+                                        Date
+                                        <ChevronDown className="w-3.5 h-3.5 text-slate" />
+                                    </button>
 
-                                <div className="min-w-0">
-                                    <p className="text-base font-bold text-navy">
-                                        {company.name}
-                                    </p>
+                                    {isDateOpen && (
+                                        <div className="absolute right-0 top-full mt-2 z-20 w-40 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                            {[
+                                                { value: "all", label: "All Time" },
+                                                { value: "week", label: "This Week" },
+                                                { value: "month", label: "This Month" },
+                                                { value: "year", label: "This Year" },
+                                            ].map((option) => (
+                                                <button
+                                                    key={option.value}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setDateFilter(option.value);
+                                                        setIsDateOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                                >
+                                                    {option.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
 
-                                    <p className="text-xs text-slate">
-                                        ID: {company.id}
-                                    </p>
+                                {/* Sort */}
+                                <div className="relative">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsSortOpen(!isSortOpen);
+                                            setIsStatusOpen(false);
+                                            setIsCategoryOpen(false);
+                                            setIsDateOpen(false);
+                                        }}
+                                        className="
+                                            bg-white
+                                            border
+                                            border-gray
+                                            rounded-lg
+                                            px-4
+                                            py-2.5
+                                            text-sm
+                                            font-bold
+                                            text-navy
+                                            flex
+                                            items-center
+                                            gap-2
+                                            cursor-pointer
+                                        "
+                                    >
+                                        Sort
+                                        <ArrowUpDown className="w-3.5 h-3.5 text-slate" />
+                                    </button>
+
+                                    {isSortOpen && (
+                                        <div className="absolute right-0 top-full mt-2 z-20 w-44 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                                            {[
+                                                { value: "newest", label: "Newest First" },
+                                                { value: "oldest", label: "Oldest First" },
+                                                { value: "name", label: "Name A–Z" },
+                                                { value: "appointments", label: "Most Appointments" },
+                                            ].map((option) => (
+                                                <button
+                                                    key={option.value}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setSortBy(option.value);
+                                                        setIsSortOpen(false);
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                                >
+                                                    {option.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                             </div>
 
-                            {/* Category */}
-                            <span className="text-sm text-slate self-center">
-                                {company.category}
-                            </span>
+                        </div>
 
-                            {/* Contact */}
-                            <span className="text-sm text-slate self-center truncate">
-                                {company.contactEmail}
-                            </span>
+                        {/* Table */}
+                        <div className="overflow-x-auto">
 
-                            {/* Registration Date */}
-                            <span className="text-sm text-navy self-center">
-                                {company.registrationDate}
-                            </span>
+                            {/* Header */}
+                            <div className="grid grid-cols-[1fr_120px_1.2fr_130px_80px_80px] px-6 py-3 border-b border-gray/20 text-xs font-bold uppercase tracking-wide text-slate min-w-[900px]">
+                                <span>Company</span>
+                                <span>Category</span>
+                                <span>Contact</span>
+                                <span>Registration Date</span>
+                                <span className="text-right">Staff</span>
+                                <span className="text-right">Appts</span>
+                            </div>
 
-                            {/* Staff */}
-                            <span className="text-sm text-navy text-right self-center">
-                                {company.staffCount}
-                            </span>
+                            {/* Rows */}
+                            {companies.map((company) => (
+                                <div
+                                    key={company.id}
+                                    onClick={() =>
+                                        navigate(`/superadmin/companies/${company.id}`)
+                                    }
+                                    className="
+                                        grid
+                                        grid-cols-[1fr_120px_1.2fr_130px_80px_80px]
+                                        px-6
+                                        py-4
+                                        border-b
+                                        border-gray/20
+                                        last:border-b-0
+                                        hover:bg-beige/20
+                                        cursor-pointer
+                                        transition
+                                        min-w-[900px]
+                                    "
+                                >
 
-                            {/* Appointments */}
-                            <span className="text-sm text-navy text-right self-center">
-                                {company.appointmentCount}
-                            </span>
+                                    {/* Company */}
+                                    <div className="flex items-center gap-3 min-w-0">
+
+                                        {company.logoUrl ? (
+                                            <img
+                                                src={company.logoUrl}
+                                                alt={company.name}
+                                                className="w-10 h-10 rounded-lg object-cover border border-gray/20 flex-shrink-0"
+                                            />
+                                        ) : (
+                                            <div className="w-10 h-10 rounded-lg bg-beige flex items-center justify-center border border-gray/20 flex-shrink-0">
+                                                <span className="font-serif text-sm text-navy">
+                                                    {company.name
+                                                        .split(" ")
+                                                        .map((word) => word.charAt(0))
+                                                        .slice(0, 2)
+                                                        .join("")
+                                                        .toUpperCase()}
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        <div className="min-w-0">
+                                            <p className="text-base font-bold text-navy">
+                                                {company.name}
+                                            </p>
+
+                                            <p className="text-xs text-slate">
+                                                ID: {company.id}
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    {/* Category */}
+                                    <span className="text-sm text-slate self-center">
+                                        {company.category}
+                                    </span>
+
+                                    {/* Contact */}
+                                    <span className="text-sm text-slate self-center truncate">
+                                        {company.contactEmail}
+                                    </span>
+
+                                    {/* Registration Date */}
+                                    <span className="text-sm text-navy self-center">
+                                        {company.registrationDate}
+                                    </span>
+
+                                    {/* Staff */}
+                                    <span className="text-sm text-navy text-right self-center">
+                                        {company.staffCount}
+                                    </span>
+
+                                    {/* Appointments */}
+                                    <span className="text-sm text-navy text-right self-center">
+                                        {company.appointmentCount}
+                                    </span>
+
+                                </div>
+                            ))}
 
                         </div>
-                    ))}
 
-                </div>
+                        {/* Footer */}
+                        <div className="px-6 py-4 border-t border-gray/20 flex justify-between items-center flex-wrap gap-3">
 
-                {/* Footer */}
-                <div className="px-6 py-4 border-t border-gray/20 flex justify-between items-center flex-wrap gap-3">
+                            <p className="text-sm text-slate">
+                                1-{pageSize} of {totalCount.toLocaleString()}
+                            </p>
 
-                    <p className="text-sm text-slate">
-                        1-{pageSize} of {totalCount.toLocaleString()}
-                    </p>
+                            <div className="flex items-center gap-2">
 
-                    <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    disabled={currentPage === 1}
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    aria-label="Previous page"
+                                    className="
+                                        w-9
+                                        h-9
+                                        rounded-lg
+                                        border
+                                        border-gray
+                                        flex
+                                        items-center
+                                        justify-center
+                                        text-navy
+                                        disabled:opacity-40
+                                        disabled:cursor-not-allowed
+                                        hover:bg-beige
+                                        transition
+                                        cursor-pointer
+                                    "
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
 
-                        <button
-                            type="button"
-                            disabled={currentPage === 1}
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            aria-label="Previous page"
-                            className="
-                                w-9
-                                h-9
-                                rounded-lg
-                                border
-                                border-gray
-                                flex
-                                items-center
-                                justify-center
-                                text-navy
-                                disabled:opacity-40
-                                disabled:cursor-not-allowed
-                                hover:bg-beige
-                                transition
-                                cursor-pointer
-                            "
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
+                                <button
+                                    type="button"
+                                    disabled={
+                                        currentPage === Math.ceil(totalCount / pageSize)
+                                    }
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    aria-label="Next page"
+                                    className="
+                                        w-9
+                                        h-9
+                                        rounded-lg
+                                        border
+                                        border-gray
+                                        flex
+                                        items-center
+                                        justify-center
+                                        text-navy
+                                        disabled:opacity-40
+                                        disabled:cursor-not-allowed
+                                        hover:bg-beige
+                                        transition
+                                        cursor-pointer
+                                    "
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
 
-                        <button
-                            type="button"
-                            disabled={
-                                currentPage === Math.ceil(totalCount / pageSize)
-                            }
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            aria-label="Next page"
-                            className="
-                                w-9
-                                h-9
-                                rounded-lg
-                                border
-                                border-gray
-                                flex
-                                items-center
-                                justify-center
-                                text-navy
-                                disabled:opacity-40
-                                disabled:cursor-not-allowed
-                                hover:bg-beige
-                                transition
-                                cursor-pointer
-                            "
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
+                            </div>
+
+                        </div>
 
                     </div>
 
-                </div>
-
-            </main>
+                </main>
 
             </div>
 
