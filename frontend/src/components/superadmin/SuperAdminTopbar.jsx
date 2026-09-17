@@ -1,7 +1,10 @@
 import React from "react";
 import { Search, Bell, HelpCircle } from "lucide-react";
 
-function SuperAdminTopbar({ systemStatus = "operational" }) {
+function SuperAdminTopbar({
+    systemStatus = "operational",
+    unreadCount = 0,
+}) {
     // Map status → pill styling + label
     const statusStyles = {
         operational: {
@@ -78,12 +81,27 @@ function SuperAdminTopbar({ systemStatus = "operational" }) {
 
                 </span>
 
+                {/* Bell with unread dot */}
                 <button
                     type="button"
                     aria-label="Notifications"
-                    className="text-navy hover:text-gold transition cursor-pointer"
+                    className="relative text-navy hover:text-gold transition cursor-pointer"
                 >
                     <Bell className="w-5 h-5" />
+
+                    {unreadCount > 0 && (
+                        <span
+                            className="
+                                absolute
+                                -top-0.5
+                                -right-0.5
+                                w-2
+                                h-2
+                                rounded-full
+                                bg-red-500
+                            "
+                        />
+                    )}
                 </button>
 
                 <button
