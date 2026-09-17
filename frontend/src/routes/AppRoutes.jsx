@@ -288,88 +288,102 @@ function AppRoutes() {
             <Route path="/staff/settings" element={<StaffSettings />} />
 
 
+
+
             {/* Customer Dashbaord */}
             <Route
             path="/customer/dashboard"
             element={<CustomerDashboard />}
             />
 
+            {/* browse companies */}
             <Route
             path="/customer/browse"
             element={<BrowseCompanies />}
             />
 
+            {/* choose company profile */}
             <Route path="/customer/companies/:id" 
             element={<CustomerCompanyProfile />} 
             />
 
+            {/* choose service */}
             <Route
             path="/customer/booking/service"
             element={<ChooseService />}
             />
 
+            {/* choose staff */}
             <Route
             path="/customer/booking/staff"
             element={<ChooseStaff />}
             />
 
+             {/* date time */}
             <Route
             path="/customer/booking/datetime"
             element={<ChooseDateTime />}
-            />
+            />  
 
+            {/* review */}
             <Route
             path="/customer/booking/summary"
             element={<ReviewAppointment />}
             />
-
+            {/* booking confirmation */}
             <Route
             path="/customer/booking/confirmation"
             element={<BookingConfirmation />}
             />
-
+            {/* all appointments */}
             <Route
                 path="/customer/appointments"
                 element={<MyAppointments />}
             />
-
+            {/* details */}
             <Route
                 path="/customer/appointments/:id/detail"
                 element={<CustomerAppointmentDetails />} 
                 />
-
+            {/* reschedule */}
 
             <Route
                 path="/customer/appointments/:id/reschedule"
                 element={<CustomerRescheduleAppointment />} 
                 />
+            {/* cancel appointment */}
 
             <Route
                 path="/customer/appointments/:id/cancel"
                 element={<CancelAppointment />}
             />
+            {/* payment */}
 
             <Route
                 path="/customer/receipts"
                 element={<CustomerPaymentReceipt />}
             />
+            {/* profile */}
 
             <Route
                 path="/customer/profile"
                 element={<CustomerProfile />}
             />
+            {/* settings */}
 
             <Route
                 path="/customer/settings"
                 element={<CustomerSettings />}
             />
-
+            {/* notifications */}
             <Route
                 path="/customer/notifications"
                 element={<CustomerNotifications />}
             />
 
+            {/* Super Admin dashboard */}
 
+            
 
 
 
