@@ -111,8 +111,132 @@ function Staff() {
                 <SuperAdminTopbar unreadCount={3} />
 
                 <main className="flex-1 px-8 py-6">
-                    {/* Content added in next steps */}
-                </main>
+
+    {/* Header */}
+    <div className="flex justify-between items-start gap-6 flex-wrap mb-6">
+
+        <div>
+            <h1 className="font-serif text-4xl text-navy">
+                Staff
+            </h1>
+
+            <p className="text-sm text-slate mt-1.5">
+                Manage and review staff members across TIMEORA.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            onClick={handleExportStaff}
+            className="
+                bg-white
+                border-2
+                border-navy
+                text-navy
+                font-bold
+                text-sm
+                px-5
+                py-2.5
+                rounded-lg
+                flex
+                items-center
+                gap-2
+                hover:bg-navy
+                hover:text-white
+                transition
+                cursor-pointer
+                flex-shrink-0
+            "
+        >
+            <Download className="w-4 h-4" />
+            Export Staff
+        </button>
+
+    </div>
+
+    {/* Stat Cards */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+
+        {/* Total Staff */}
+        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+
+            <div className="flex justify-between items-center mb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                    Total Staff
+                </span>
+
+                <Users className="w-[18px] h-[18px] text-navy" />
+            </div>
+
+            <div className="flex items-center gap-3">
+                <span className="text-4xl font-bold text-navy">
+                    {stats.total.value.toLocaleString()}
+                </span>
+
+                <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md bg-green-50 text-green-700">
+                    <TrendingUp className="w-3 h-3" />
+                    +{stats.total.deltaPercent}%
+                </span>
+            </div>
+
+        </div>
+
+        {/* Active */}
+        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+
+            <div className="flex justify-between items-center mb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                    Active
+                </span>
+
+                <CheckCircle2 className="w-[18px] h-[18px] text-green-600" />
+            </div>
+
+            <p className="text-4xl font-bold text-navy">
+                {stats.active.toLocaleString()}
+            </p>
+
+        </div>
+
+        {/* Inactive */}
+        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+
+            <div className="flex justify-between items-center mb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                    Inactive
+                </span>
+
+                <PauseCircle className="w-[18px] h-[18px] text-orange-500" />
+            </div>
+
+            <p className="text-4xl font-bold text-navy">
+                {stats.inactive.toLocaleString()}
+            </p>
+
+        </div>
+
+        {/* Companies with Staff */}
+        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+
+            <div className="flex justify-between items-center mb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                    Companies w/ Staff
+                </span>
+
+                <Building2 className="w-[18px] h-[18px] text-navy" />
+            </div>
+
+            <p className="text-4xl font-bold text-navy">
+                {stats.companiesWithStaff.toLocaleString()}
+            </p>
+
+        </div>
+
+    </div>
+
+    {/* Filter row added next */}
+
+</main>
 
             </div>
 
