@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
     ChevronDown,
     ChevronLeft,
@@ -46,8 +46,10 @@ function Customers() {
             initials: "HM",
             email: "hina@example.com",
             registeredDate: "21 Aug 2026",
+            registeredSortKey: "2026-08-21",
             appointmentCount: 8,
             lastActivity: "Today",
+            lastActivitySortKey: "2026-08-21",
             status: "active",
         },
         {
@@ -56,8 +58,10 @@ function Customers() {
             initials: "AK",
             email: "ayesha@example.com",
             registeredDate: "19 Aug 2026",
+            registeredSortKey: "2026-08-19",
             appointmentCount: 3,
             lastActivity: "Yesterday",
+            lastActivitySortKey: "2026-08-20",
             status: "active",
         },
         {
@@ -66,8 +70,10 @@ function Customers() {
             initials: "MA",
             email: "maham@example.com",
             registeredDate: "15 Aug 2026",
+            registeredSortKey: "2026-08-15",
             appointmentCount: 0,
             lastActivity: "15 Aug 2026",
+            lastActivitySortKey: "2026-08-15",
             status: "inactive",
         },
     ]);
@@ -80,6 +86,50 @@ function Customers() {
     const pageSize = 25;
 
     // TODO: Replace seeded customers + totalCount with a real fetch per page.
+
+    // ─────────────── Derived list ───────────────
+
+    const filteredCustomers = useMemo(() => {
+        const filtered = customers.filter((customer) => {
+            const matchesStatus =
+                statusFilter === "all" || customer.status === statusFilter;
+
+            // Registration / Activity / dates are TODO until API provides precise dates.
+            const matchesRegistration = registrationFilter === "all";
+            const matchesActivity = activityFilter === "all";
+
+            return matchesStatus && matchesRegistration && matchesActivity;
+        });
+
+        // Sorting
+        const sorted = [...filtered];
+
+        sorted.sort((a, b) => {
+            if (sortBy === "newest") {
+                return b.registeredSortKey.localeCompare(a.registeredSortKey);
+            }
+            if (sortBy === "oldest") {
+                return a.registeredSortKey.localeCompare(b.registeredSortKey);
+            }
+            if (sortBy === "name") {
+                return a.name.localeCompare(b.name);
+            }
+            if (sortBy === "appointments") {
+                return b.appointmentCount - a.appointmentCount;
+            }
+            return 0;
+        });
+
+        return sorted;
+    }, [
+        customers,
+        statusFilter,
+        registrationFilter,
+        activityFilter,
+        sortBy,
+    ]);
+
+    // ─────────────── Handlers ───────────────
 
     function handlePageChange(page) {
         setCurrentPage(page);
@@ -103,6 +153,26 @@ function Customers() {
             return "bg-green-50 text-green-700";
         }
         return "bg-gray/10 text-slate";
+    }
+
+    function getStatusLabel(value) {
+        if (value === "all") return "All";
+        if (value === "active") return "Active";
+        return "Inactive";
+    }
+
+    function getRegistrationLabel(value) {
+        if (value === "all") return "All";
+        if (value === "week") return "This Week";
+        if (value === "month") return "This Month";
+        return "This Year";
+    }
+
+    function getActivityLabel(value) {
+        if (value === "all") return "All";
+        if (value === "today") return "Today";
+        if (value === "week") return "This Week";
+        return "This Month";
     }
 
     return (
@@ -260,7 +330,7 @@ function Customers() {
                                         cursor-pointer
                                     "
                                 >
-                                    Status: All
+                                    Status: {getStatusLabel(statusFilter)}
                                     <ChevronDown className="w-3.5 h-3.5 text-slate" />
                                 </button>
 
@@ -313,7 +383,7 @@ function Customers() {
                                         cursor-pointer
                                     "
                                 >
-                                    Registration: All
+                                    Registration: {getRegistrationLabel(registrationFilter)}
                                     <ChevronDown className="w-3.5 h-3.5 text-slate" />
                                 </button>
 
@@ -367,7 +437,7 @@ function Customers() {
                                         cursor-pointer
                                     "
                                 >
-                                    Activity: All
+                                    Activity: {getActivityLabel(activityFilter)}
                                     <ChevronDown className="w-3.5 h-3.5 text-slate" />
                                 </button>
 
@@ -482,150 +552,158 @@ function Customers() {
                             </div>
 
                             {/* Rows */}
-                            {customers.map((customer) => (
-                                <div
-                                    key={customer.id}
-                                    onClick={() =>
-                                        navigate(`/superadmin/customers/${customer.id}`)
-                                    }
-                                    className="
-                                        grid
-                                        grid-cols-[1fr_1fr_110px_130px_120px_100px_60px]
-                                        px-6
-                                        py-5
-                                        border-b
-                                        border-gray/20
-                                        last:border-b-0
-                                        hover:bg-beige/20
-                                        transition
-                                        min-w-[900px]
-                                        cursor-pointer
-                                    "
-                                >
-
-                                    {/* Customer */}
-                                    <div className="flex items-center gap-3 min-w-0">
-
-                                        <div className="w-11 h-11 rounded-lg bg-gray/10 border border-gray/20 flex items-center justify-center flex-shrink-0">
-                                            <span className="font-serif text-sm font-bold text-navy">
-                                                {customer.initials}
-                                            </span>
-                                        </div>
-
-                                        <div className="min-w-0">
-                                            <p className="text-base font-bold text-navy">
-                                                {customer.name}
-                                            </p>
-
-                                            <p className="text-xs text-slate">
-                                                {customer.id}
-                                            </p>
-                                        </div>
-
-                                    </div>
-
-                                    {/* Contact */}
-                                    <span className="text-sm text-slate self-center truncate">
-                                        {customer.email}
-                                    </span>
-
-                                    {/* Registered */}
-                                    <span className="text-sm text-navy self-center">
-                                        {customer.registeredDate}
-                                    </span>
-
-                                    {/* Appointments */}
-                                    <span className="text-base font-bold text-navy self-center">
-                                        {customer.appointmentCount}
-                                    </span>
-
-                                    {/* Last Activity */}
-                                    <span className="text-sm text-slate self-center">
-                                        {customer.lastActivity}
-                                    </span>
-
-                                    {/* Status */}
-                                    <span className="self-center">
-                                        <span
-                                            className={`
-                                                text-xs
-                                                font-bold
-                                                uppercase
-                                                tracking-wide
-                                                px-2.5
-                                                py-1
-                                                rounded
-                                                ${getStatusStyles(customer.status)}
-                                            `}
-                                        >
-                                            {customer.status}
-                                        </span>
-                                    </span>
-
-                                    {/* Actions */}
+                            {filteredCustomers.length > 0 ? (
+                                filteredCustomers.map((customer) => (
                                     <div
-                                        className="relative self-center flex justify-end"
-                                        onClick={(event) => event.stopPropagation()}
+                                        key={customer.id}
+                                        onClick={() =>
+                                            navigate(`/superadmin/customers/${customer.id}`)
+                                        }
+                                        className="
+                                            grid
+                                            grid-cols-[1fr_1fr_110px_130px_120px_100px_60px]
+                                            px-6
+                                            py-5
+                                            border-b
+                                            border-gray/20
+                                            last:border-b-0
+                                            hover:bg-beige/20
+                                            transition
+                                            min-w-[900px]
+                                            cursor-pointer
+                                        "
                                     >
 
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                setOpenActionMenuId(
-                                                    openActionMenuId === customer.id
-                                                        ? null
-                                                        : customer.id
-                                                )
-                                            }
-                                            aria-label="Row actions"
-                                            className="text-slate hover:text-navy transition cursor-pointer"
-                                        >
-                                            <MoreHorizontal className="w-[18px] h-[18px]" />
-                                        </button>
+                                        {/* Customer */}
+                                        <div className="flex items-center gap-3 min-w-0">
 
-                                        {openActionMenuId === customer.id && (
-                                            <div className="absolute right-0 top-full mt-2 z-20 w-48 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
-
-                                                <button
-                                                    type="button"
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        handleRowAction(customer.id, "view");
-                                                    }}
-                                                    className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
-                                                >
-                                                    View Profile
-                                                </button>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        handleRowAction(customer.id, "suspend");
-                                                    }}
-                                                    className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
-                                                >
-                                                    Suspend Customer
-                                                </button>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        handleRowAction(customer.id, "delete");
-                                                    }}
-                                                    className="w-full text-left px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 cursor-pointer"
-                                                >
-                                                    Delete Customer
-                                                </button>
-
+                                            <div className="w-11 h-11 rounded-lg bg-gray/10 border border-gray/20 flex items-center justify-center flex-shrink-0">
+                                                <span className="font-serif text-sm font-bold text-navy">
+                                                    {customer.initials}
+                                                </span>
                                             </div>
-                                        )}
+
+                                            <div className="min-w-0">
+                                                <p className="text-base font-bold text-navy">
+                                                    {customer.name}
+                                                </p>
+
+                                                <p className="text-xs text-slate">
+                                                    {customer.id}
+                                                </p>
+                                            </div>
+
+                                        </div>
+
+                                        {/* Contact */}
+                                        <span className="text-sm text-slate self-center truncate">
+                                            {customer.email}
+                                        </span>
+
+                                        {/* Registered */}
+                                        <span className="text-sm text-navy self-center">
+                                            {customer.registeredDate}
+                                        </span>
+
+                                        {/* Appointments */}
+                                        <span className="text-base font-bold text-navy self-center">
+                                            {customer.appointmentCount}
+                                        </span>
+
+                                        {/* Last Activity */}
+                                        <span className="text-sm text-slate self-center">
+                                            {customer.lastActivity}
+                                        </span>
+
+                                        {/* Status */}
+                                        <span className="self-center">
+                                            <span
+                                                className={`
+                                                    text-xs
+                                                    font-bold
+                                                    uppercase
+                                                    tracking-wide
+                                                    px-2.5
+                                                    py-1
+                                                    rounded
+                                                    ${getStatusStyles(customer.status)}
+                                                `}
+                                            >
+                                                {customer.status}
+                                            </span>
+                                        </span>
+
+                                        {/* Actions */}
+                                        <div
+                                            className="relative self-center flex justify-end"
+                                            onClick={(event) => event.stopPropagation()}
+                                        >
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setOpenActionMenuId(
+                                                        openActionMenuId === customer.id
+                                                            ? null
+                                                            : customer.id
+                                                    )
+                                                }
+                                                aria-label="Row actions"
+                                                className="text-slate hover:text-navy transition cursor-pointer"
+                                            >
+                                                <MoreHorizontal className="w-[18px] h-[18px]" />
+                                            </button>
+
+                                            {openActionMenuId === customer.id && (
+                                                <div className="absolute right-0 top-full mt-2 z-20 w-48 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            handleRowAction(customer.id, "view");
+                                                        }}
+                                                        className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                                    >
+                                                        View Profile
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            handleRowAction(customer.id, "suspend");
+                                                        }}
+                                                        className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                                                    >
+                                                        Suspend Customer
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            handleRowAction(customer.id, "delete");
+                                                        }}
+                                                        className="w-full text-left px-3 py-2 rounded-md text-sm text-red-600 hover:bg-red-50 cursor-pointer"
+                                                    >
+                                                        Delete Customer
+                                                    </button>
+
+                                                </div>
+                                            )}
+
+                                        </div>
 
                                     </div>
-
+                                ))
+                            ) : (
+                                <div className="px-6 py-16 text-center min-w-[900px]">
+                                    <p className="text-sm text-slate">
+                                        No customers match the current filters.
+                                    </p>
                                 </div>
-                            ))}
+                            )}
 
                         </div>
 
@@ -633,7 +711,7 @@ function Customers() {
                         <div className="px-6 py-4 border-t border-gray/20 flex justify-between items-center flex-wrap gap-3">
 
                             <p className="text-sm text-slate">
-                                Showing 1-{pageSize} of {totalCount.toLocaleString()} customers
+                                Showing {filteredCustomers.length > 0 ? 1 : 0}-{filteredCustomers.length} of {totalCount.toLocaleString()} customers
                             </p>
 
                             <div className="flex items-center gap-2">

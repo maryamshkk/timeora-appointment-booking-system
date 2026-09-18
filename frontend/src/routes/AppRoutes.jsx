@@ -113,6 +113,7 @@ import CompanyDetails from "../pages/superadmin/CompanyDetails";
 import Customers from "../pages/superadmin/Customers";
 import SuperAdminCustomerDetails from "../pages/superadmin/CustomerDetails";
 import Staff from "../pages/superadmin/Staff";
+import SuperAdminStaffDetails from "../pages/superadmin/StaffDetails";
 
 
 function AppRoutes() {
@@ -398,6 +399,7 @@ function AppRoutes() {
             <Route path="/superadmin/customers" element={<Customers />} />
             <Route path="/superadmin/customers/:id" element={<SuperAdminCustomerDetails />} />
             <Route path="/superadmin/staff" element={<Staff />} />
+            <Route path="/superadmin/staff/:id" element={<SuperAdminStaffDetails />} />
 
 
 
