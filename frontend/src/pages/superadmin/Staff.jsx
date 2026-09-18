@@ -235,6 +235,578 @@ function Staff() {
     </div>
 
     {/* Filter row added next */}
+    {/* Filter Row */}
+<div className="flex justify-between items-center flex-wrap gap-3 mb-5">
+
+    {/* Left — dropdowns */}
+    <div className="flex gap-3 flex-wrap">
+
+        {/* Status */}
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => {
+                    setIsStatusOpen(!isStatusOpen);
+                    setIsCompanyOpen(false);
+                    setIsRoleOpen(false);
+                    setIsDateOpen(false);
+                    setIsSortOpen(false);
+                }}
+                className="
+                    bg-white
+                    border
+                    border-gray
+                    rounded-lg
+                    px-4
+                    py-2.5
+                    text-sm
+                    font-bold
+                    text-navy
+                    flex
+                    items-center
+                    gap-2
+                    cursor-pointer
+                "
+            >
+                Status: All
+                <ChevronDown className="w-3.5 h-3.5 text-slate" />
+            </button>
+
+            {isStatusOpen && (
+                <div className="absolute left-0 top-full mt-2 z-20 w-40 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                    {[
+                        { value: "all", label: "All Status" },
+                        { value: "active", label: "Active" },
+                        { value: "inactive", label: "Inactive" },
+                    ].map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                                setStatusFilter(option.value);
+                                setIsStatusOpen(false);
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                        >
+                            {option.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+
+        {/* Company */}
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => {
+                    setIsCompanyOpen(!isCompanyOpen);
+                    setIsStatusOpen(false);
+                    setIsRoleOpen(false);
+                    setIsDateOpen(false);
+                    setIsSortOpen(false);
+                }}
+                className="
+                    bg-white
+                    border
+                    border-gray
+                    rounded-lg
+                    px-4
+                    py-2.5
+                    text-sm
+                    font-bold
+                    text-navy
+                    flex
+                    items-center
+                    gap-2
+                    cursor-pointer
+                "
+            >
+                Company: All
+                <ChevronDown className="w-3.5 h-3.5 text-slate" />
+            </button>
+
+            {isCompanyOpen && (
+                <div className="absolute left-0 top-full mt-2 z-20 w-44 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                    {[
+                        { value: "all", label: "All Companies" },
+                        { value: "shifa-clinic", label: "Shifa Clinic" },
+                        { value: "elite-fitness", label: "Elite Fitness" },
+                        { value: "urban-wellness", label: "Urban Wellness" },
+                    ].map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                                setCompanyFilter(option.value);
+                                setIsCompanyOpen(false);
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                        >
+                            {option.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+
+        {/* Role */}
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => {
+                    setIsRoleOpen(!isRoleOpen);
+                    setIsStatusOpen(false);
+                    setIsCompanyOpen(false);
+                    setIsDateOpen(false);
+                    setIsSortOpen(false);
+                }}
+                className="
+                    bg-white
+                    border
+                    border-gray
+                    rounded-lg
+                    px-4
+                    py-2.5
+                    text-sm
+                    font-bold
+                    text-navy
+                    flex
+                    items-center
+                    gap-2
+                    cursor-pointer
+                "
+            >
+                Role: All
+                <ChevronDown className="w-3.5 h-3.5 text-slate" />
+            </button>
+
+            {isRoleOpen && (
+                <div className="absolute left-0 top-full mt-2 z-20 w-44 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                    {[
+                        { value: "all", label: "All Roles" },
+                        { value: "doctor", label: "Doctor" },
+                        { value: "trainer", label: "Trainer" },
+                        { value: "therapist", label: "Therapist" },
+                    ].map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                                setRoleFilter(option.value);
+                                setIsRoleOpen(false);
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                        >
+                            {option.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+
+        {/* Date */}
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => {
+                    setIsDateOpen(!isDateOpen);
+                    setIsStatusOpen(false);
+                    setIsCompanyOpen(false);
+                    setIsRoleOpen(false);
+                    setIsSortOpen(false);
+                }}
+                className="
+                    bg-white
+                    border
+                    border-gray
+                    rounded-lg
+                    px-4
+                    py-2.5
+                    text-sm
+                    font-bold
+                    text-navy
+                    flex
+                    items-center
+                    gap-2
+                    cursor-pointer
+                "
+            >
+                <Calendar className="w-3.5 h-3.5 text-slate" />
+                Date
+                <ChevronDown className="w-3.5 h-3.5 text-slate" />
+            </button>
+
+            {isDateOpen && (
+                <div className="absolute left-0 top-full mt-2 z-20 w-44 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                    {[
+                        { value: "all", label: "All Time" },
+                        { value: "week", label: "This Week" },
+                        { value: "month", label: "This Month" },
+                        { value: "year", label: "This Year" },
+                    ].map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                                setDateFilter(option.value);
+                                setIsDateOpen(false);
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                        >
+                            {option.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+
+    </div>
+
+    {/* Right — sort */}
+    <div className="flex items-center gap-2">
+
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => {
+                    setIsSortOpen(!isSortOpen);
+                    setIsStatusOpen(false);
+                    setIsCompanyOpen(false);
+                    setIsRoleOpen(false);
+                    setIsDateOpen(false);
+                }}
+                className="
+                    text-sm
+                    font-bold
+                    text-navy
+                    flex
+                    items-center
+                    gap-1.5
+                    cursor-pointer
+                "
+            >
+                Sort:{" "}
+                {sortBy === "newest"
+                    ? "Newest Joined"
+                    : sortBy === "oldest"
+                    ? "Oldest Joined"
+                    : sortBy === "name"
+                    ? "Name A–Z"
+                    : "Most Appointments"}
+
+                <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+
+            {isSortOpen && (
+                <div className="absolute right-0 top-full mt-2 z-20 w-52 bg-white border border-gray/20 rounded-lg shadow-lg p-1">
+                    {[
+                        { value: "newest", label: "Newest Joined" },
+                        { value: "oldest", label: "Oldest Joined" },
+                        { value: "name", label: "Name A–Z" },
+                        { value: "appointments", label: "Most Appointments" },
+                    ].map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                                setSortBy(option.value);
+                                setIsSortOpen(false);
+                            }}
+                            className="w-full text-left px-3 py-2 rounded-md text-sm text-navy hover:bg-beige cursor-pointer"
+                        >
+                            {option.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+
+    </div>
+
+</div>
+{/* Table Card */}
+<div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
+
+    {/* Table */}
+    <div className="overflow-x-auto">
+
+        {/* Header */}
+        <div className="grid grid-cols-[1.2fr_1fr_100px_1.2fr_100px_80px_90px] px-6 py-4 border-b border-gray/20 text-xs font-bold uppercase tracking-wide text-slate min-w-[1000px]">
+            <span>Staff</span>
+            <span>Company</span>
+            <span>Role</span>
+            <span>Contact</span>
+            <span>Joined</span>
+            <span className="text-right">Appts</span>
+            <span>Status</span>
+        </div>
+
+        {/* Rows */}
+        {staffList.map((member) => (
+            <div
+                key={member.id}
+                className="
+                    grid
+                    grid-cols-[1.2fr_1fr_100px_1.2fr_100px_80px_90px]
+                    px-6
+                    py-5
+                    border-b
+                    border-gray/20
+                    last:border-b-0
+                    hover:bg-beige/20
+                    transition
+                    min-w-[1000px]
+                "
+            >
+
+                {/* Staff */}
+                <div className="flex items-center gap-3 min-w-0">
+
+                    {member.avatarUrl ? (
+                        <img
+                            src={member.avatarUrl}
+                            alt={member.name}
+                            className="w-11 h-11 rounded-lg object-cover flex-shrink-0"
+                        />
+                    ) : (
+                        <div className="w-11 h-11 rounded-lg bg-beige flex items-center justify-center flex-shrink-0">
+                            <span className="font-serif text-sm font-bold text-navy">
+                                {member.name
+                                    .split(" ")
+                                    .map((word) => word.charAt(0))
+                                    .slice(0, 2)
+                                    .join("")
+                                    .toUpperCase()}
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="min-w-0">
+                        <p className="text-base font-bold text-navy">
+                            {member.name}
+                        </p>
+
+                        <p className="text-xs text-slate">
+                            {member.id}
+                        </p>
+                    </div>
+
+                </div>
+
+                {/* Company */}
+                <div className="min-w-0 self-center">
+                    <p className="text-sm font-bold text-navy">
+                        {member.companyName}
+                    </p>
+
+                    <p className="text-xs text-slate">
+                        {member.companyCategory}
+                    </p>
+                </div>
+
+                {/* Role */}
+                <span className="text-sm text-slate self-center">
+                    {member.role}
+                </span>
+
+                {/* Contact */}
+                <span className="text-sm text-slate self-center truncate">
+                    {member.email}
+                </span>
+
+                {/* Joined */}
+                <span className="text-sm text-navy self-center">
+                    {member.joinedDate}
+                </span>
+
+                {/* Appointments */}
+                <span className="text-base font-bold text-navy text-right self-center">
+                    {member.appointmentCount}
+                </span>
+
+                {/* Status */}
+                <span className="self-center">
+                    <span
+                        className={`
+                            text-xs
+                            font-bold
+                            px-2.5
+                            py-1
+                            rounded-full
+                            ${getStatusStyles(member.status)}
+                        `}
+                    >
+                        {member.status === "active" ? "Active" : "Inactive"}
+                    </span>
+                </span>
+
+            </div>
+        ))}
+
+    </div>
+
+    {/* Footer */}
+    <div className="px-6 py-4 border-t border-gray/20 flex justify-between items-center flex-wrap gap-3">
+
+        <p className="text-sm text-slate">
+            1-{pageSize} of {totalCount.toLocaleString()}
+        </p>
+
+        <div className="flex items-center gap-2">
+
+            <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+                aria-label="Previous page"
+                className="
+                    w-9
+                    h-9
+                    rounded-lg
+                    border
+                    border-gray
+                    flex
+                    items-center
+                    justify-center
+                    text-navy
+                    disabled:opacity-40
+                    disabled:cursor-not-allowed
+                    hover:bg-beige
+                    transition
+                    cursor-pointer
+                "
+            >
+                <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {/* Page 1 */}
+            <button
+                type="button"
+                onClick={() => handlePageChange(1)}
+                className={`
+                    w-9
+                    h-9
+                    rounded-lg
+                    border
+                    text-sm
+                    font-bold
+                    transition
+                    cursor-pointer
+                    ${
+                        currentPage === 1
+                            ? "bg-navy text-white border-navy"
+                            : "border-gray text-navy hover:bg-beige"
+                    }
+                `}
+            >
+                1
+            </button>
+
+            {/* Page 2 */}
+            <button
+                type="button"
+                onClick={() => handlePageChange(2)}
+                className={`
+                    w-9
+                    h-9
+                    rounded-lg
+                    border
+                    text-sm
+                    font-bold
+                    transition
+                    cursor-pointer
+                    ${
+                        currentPage === 2
+                            ? "bg-navy text-white border-navy"
+                            : "border-gray text-navy hover:bg-beige"
+                    }
+                `}
+            >
+                2
+            </button>
+
+            {/* Page 3 */}
+            <button
+                type="button"
+                onClick={() => handlePageChange(3)}
+                className={`
+                    w-9
+                    h-9
+                    rounded-lg
+                    border
+                    text-sm
+                    font-bold
+                    transition
+                    cursor-pointer
+                    ${
+                        currentPage === 3
+                            ? "bg-navy text-white border-navy"
+                            : "border-gray text-navy hover:bg-beige"
+                    }
+                `}
+            >
+                3
+            </button>
+
+            {/* Ellipsis */}
+            <span className="w-9 h-9 flex items-center justify-center text-sm font-bold text-slate">
+                …
+            </span>
+
+            {/* Last page */}
+            <button
+                type="button"
+                onClick={() => handlePageChange(154)}
+                className={`
+                    w-9
+                    h-9
+                    rounded-lg
+                    border
+                    text-sm
+                    font-bold
+                    transition
+                    cursor-pointer
+                    ${
+                        currentPage === 154
+                            ? "bg-navy text-white border-navy"
+                            : "border-gray text-navy hover:bg-beige"
+                    }
+                `}
+            >
+                154
+            </button>
+
+            <button
+                type="button"
+                disabled={currentPage === 154}
+                onClick={() => handlePageChange(currentPage + 1)}
+                aria-label="Next page"
+                className="
+                    w-9
+                    h-9
+                    rounded-lg
+                    border
+                    border-gray
+                    flex
+                    items-center
+                    justify-center
+                    text-navy
+                    disabled:opacity-40
+                    disabled:cursor-not-allowed
+                    hover:bg-beige
+                    transition
+                    cursor-pointer
+                "
+            >
+                <ChevronRight className="w-4 h-4" />
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 
 </main>
 
