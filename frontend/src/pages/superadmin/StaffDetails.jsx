@@ -380,6 +380,162 @@ function SuperAdminStaffDetails() {
         </div>
 
         {/* Appointment Activity + Recent Appointments added next */}
+        {/* Appointment Activity */}
+<div className="bg-white rounded-xl border border-gray/20 shadow-sm p-7">
+
+    <div className="flex justify-between items-center gap-4 flex-wrap mb-5">
+
+        <h2 className="font-serif text-2xl text-navy">
+            Appointment Activity
+        </h2>
+
+        {/* Legend */}
+        <div className="flex gap-4 text-sm text-slate">
+
+            <div className="flex items-center gap-1.5">
+                <span className="w-4 h-0.5 bg-navy rounded-full" />
+                <span>Completed</span>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+                <span className="w-4 border-t-2 border-dashed border-gold" />
+                <span>Cancelled</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div style={{ width: "100%", height: 280 }}>
+
+        <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+                data={staff.appointmentActivity.completed.map(
+                    (value, index) => ({
+                        index,
+                        completed: value,
+                        cancelled:
+                            staff.appointmentActivity.cancelled[index],
+                    })
+                )}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            >
+                <CartesianGrid
+                    strokeDasharray="4 4"
+                    vertical={false}
+                    stroke="#C3C6CF"
+                />
+
+                <Line
+                    type="monotone"
+                    dataKey="completed"
+                    stroke="#000C1E"
+                    strokeWidth={2}
+                    dot={false}
+                />
+
+                <Line
+                    type="monotone"
+                    dataKey="cancelled"
+                    stroke="#FED488"
+                    strokeWidth={2}
+                    strokeDasharray="4 4"
+                    dot={false}
+                />
+            </LineChart>
+        </ResponsiveContainer>
+
+    </div>
+
+</div>
+{/* Recent Appointments */}
+<div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
+
+    {/* Header */}
+    <div className="flex justify-between items-center gap-4 p-6">
+        <h2 className="font-serif text-2xl text-navy">
+            Recent Appointments
+        </h2>
+
+        <Link
+            to={`/superadmin/staff/${id}/appointments`}
+            className="text-sm font-bold text-gold hover:underline transition"
+        >
+            View All
+        </Link>
+    </div>
+
+    {/* Table */}
+    <div className="overflow-x-auto">
+
+        {/* Header */}
+        <div className="grid grid-cols-[110px_1fr_1fr_100px] px-6 py-3 bg-beige/40 text-xs font-bold uppercase tracking-wide text-slate min-w-[600px]">
+            <span>Date &amp; Time</span>
+            <span>Customer</span>
+            <span>Service</span>
+            <span>Status</span>
+        </div>
+
+        {/* Rows */}
+        {staff.recentAppointments.map((appt, index) => (
+            <div
+                key={index}
+                className="
+                    grid
+                    grid-cols-[110px_1fr_1fr_100px]
+                    px-6
+                    py-4
+                    border-b
+                    border-gray/20
+                    last:border-b-0
+                    min-w-[600px]
+                "
+            >
+                <div className="self-center">
+                    <p className="text-sm font-bold text-navy">
+                        {appt.date}
+                    </p>
+
+                    <p className="text-xs text-slate">
+                        {appt.time}
+                    </p>
+                </div>
+
+                <span className="text-sm text-navy self-center">
+                    {appt.customer}
+                </span>
+
+                <span className="text-sm text-slate self-center">
+                    {appt.service}
+                </span>
+
+                <span className="self-center">
+                    <span
+                        className={`
+                            text-xs
+                            font-bold
+                            px-2.5
+                            py-1
+                            rounded-full
+                            ${
+                                appt.status === "completed"
+                                    ? "bg-green-50 text-green-700"
+                                    : "bg-gray/10 text-slate"
+                            }
+                        `}
+                    >
+                        {appt.status === "completed"
+                            ? "Completed"
+                            : "Cancelled"}
+                    </span>
+                </span>
+
+            </div>
+        ))}
+
+    </div>
+
+</div>
 
     </div>
 
