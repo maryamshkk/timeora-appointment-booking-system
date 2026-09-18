@@ -540,6 +540,212 @@ function SuperAdminStaffDetails() {
     </div>
 
     {/* Right column added next */}
+    {/* Right Column */}
+<aside className="flex flex-col gap-5">
+
+    {/* Stat Grid */}
+    <div className="grid grid-cols-2 gap-4">
+
+        {/* Total Appts — inverted navy */}
+        <div className="bg-navy text-white rounded-xl p-5">
+            <p className="text-xs font-bold uppercase tracking-wide text-white/60">
+                Total Appts
+            </p>
+
+            <p className="text-4xl font-bold text-white mt-1">
+                {staff.stats.totalAppts}
+            </p>
+        </div>
+
+        {/* Completed */}
+        <div className="bg-white border border-gray/20 shadow-sm rounded-xl p-5">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                Completed
+            </p>
+
+            <p className="text-4xl font-bold text-navy mt-1">
+                {staff.stats.completed}
+            </p>
+        </div>
+
+        {/* Upcoming */}
+        <div className="bg-white border border-gray/20 shadow-sm rounded-xl p-5">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                Upcoming
+            </p>
+
+            <p className="text-4xl font-bold text-navy mt-1">
+                {staff.stats.upcoming}
+            </p>
+        </div>
+
+        {/* Cancelled — amber value */}
+        <div className="bg-white border border-gray/20 shadow-sm rounded-xl p-5">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate">
+                Cancelled
+            </p>
+
+            <p className="text-4xl font-bold text-amber-700 mt-1">
+                {staff.stats.cancelled}
+            </p>
+        </div>
+
+    </div>
+
+    {/* Assigned Services — added next */}
+    {/* Assigned Services */}
+<div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5">
+
+    <h2 className="font-serif text-xl text-navy mb-4">
+        Assigned Services
+    </h2>
+
+    <div>
+        {staff.assignedServices.map((service, index) => {
+            const Icon =
+                service.name === "Health Assessment"
+                    ? HeartPulse
+                    : service.name === "Follow-up Consultation"
+                    ? FileText
+                    : Stethoscope;
+
+            return (
+                <div
+                    key={service.name}
+                    className={`flex items-center gap-3 ${
+                        index !== staff.assignedServices.length - 1
+                            ? "mb-3.5"
+                            : ""
+                    }`}
+                >
+                    <div className="w-9 h-9 bg-beige/60 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-4 h-4 text-navy" />
+                    </div>
+
+                    <div className="min-w-0">
+                        <p className="text-sm font-bold text-navy">
+                            {service.name}
+                        </p>
+
+                        <p className="text-xs text-slate">
+                            {service.durationMinutes} min
+                        </p>
+                    </div>
+                </div>
+            );
+        })}
+    </div>
+
+</div>
+
+{/* Standard Availability */}
+<div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5">
+
+    <h2 className="font-serif text-xl text-navy mb-4">
+        Standard Availability
+    </h2>
+
+    <div className="flex flex-col">
+
+        {Object.entries(staff.availability).map(([day, hours]) => {
+            const dayLabel =
+                day.charAt(0).toUpperCase() + day.slice(1).slice(0, 2);
+
+            const isAvailable = Boolean(hours);
+
+            return (
+                <div
+                    key={day}
+                    className="flex justify-between items-center py-2"
+                >
+                    <span
+                        className={`
+                            text-sm font-bold
+                            ${isAvailable ? "text-navy" : "text-gray"}
+                        `}
+                    >
+                        {dayLabel}
+                    </span>
+
+                    <span
+                        className={`
+                            text-sm
+                            ${isAvailable ? "text-navy" : "text-gray"}
+                        `}
+                    >
+                        {hours || "Unavailable"}
+                    </span>
+                </div>
+            );
+        })}
+
+    </div>
+
+</div>
+
+{/* Recent Activity */}
+<div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5">
+
+    <h2 className="font-serif text-xl text-navy mb-4">
+        Recent Activity
+    </h2>
+
+    <div className="flex flex-col">
+
+        {staff.recentActivity.map((entry, index) => {
+            const isLatest = index === 0;
+            const isLast =
+                index === staff.recentActivity.length - 1;
+
+            return (
+                <div
+                    key={entry.label}
+                    className="flex gap-3 relative"
+                    style={{
+                        paddingBottom: isLast ? 0 : "14px",
+                    }}
+                >
+                    {/* Connector */}
+                    {!isLast && (
+                        <span
+                            className="absolute left-[4.5px] top-3 bottom-0 border-l border-gray/20"
+                            aria-hidden="true"
+                        />
+                    )}
+
+                    {/* Dot */}
+                    <span
+                        className={`
+                            flex-shrink-0 relative z-10 mt-1.5
+                            ${
+                                isLatest
+                                    ? "w-3 h-3 rounded-full bg-navy"
+                                    : "w-2.5 h-2.5 rounded-full border-2 border-gray/40 bg-white"
+                            }
+                        `}
+                    />
+
+                    <div className="min-w-0">
+                        <p className="text-sm font-bold text-navy">
+                            {entry.label}
+                        </p>
+
+                        <p className="text-xs text-slate mt-0.5">
+                            {entry.timestamp}
+                        </p>
+                    </div>
+
+                </div>
+            );
+        })}
+
+    </div>
+
+</div>
+
+</aside>
+
+
 
 </div>
 
