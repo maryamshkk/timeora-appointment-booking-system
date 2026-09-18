@@ -414,7 +414,242 @@ function SuperAdminCustomerDetails() {
     </div>
 
     {/* Right Column — added next */}
+                {/* Right Column */}
+<div className="min-w-0">
 
+    {/* Stat Row */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+        {/* Total */}
+        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5">
+
+            <div className="flex justify-between items-center mb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                    Total
+                </span>
+
+                <Calendar className="w-[18px] h-[18px] text-navy" />
+            </div>
+
+            <p className="text-4xl font-bold text-navy">
+                {customer.stats.total}
+            </p>
+
+        </div>
+
+        {/* Completed */}
+        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5">
+
+            <div className="flex justify-between items-center mb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                    Completed
+                </span>
+
+                <CheckCircle2 className="w-[18px] h-[18px] text-green-600" />
+            </div>
+
+            <p className="text-4xl font-bold text-navy">
+                {customer.stats.completed}
+            </p>
+
+        </div>
+
+        {/* Cancelled */}
+        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5">
+
+            <div className="flex justify-between items-center mb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                    Cancelled
+                </span>
+
+                <XCircle className="w-[18px] h-[18px] text-red-600" />
+            </div>
+
+            <p className="text-4xl font-bold text-navy">
+                {customer.stats.cancelled}
+            </p>
+
+        </div>
+
+        {/* Upcoming */}
+        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5">
+
+            <div className="flex justify-between items-center mb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-slate">
+                    Upcoming
+                </span>
+
+                <Clock className="w-[18px] h-[18px] text-gold" />
+            </div>
+
+            <p className="text-4xl font-bold text-navy">
+                {customer.stats.upcoming}
+            </p>
+
+        </div>
+
+    </div>
+
+    {/* Activity Trend + Appointment History — added next */}
+                {/* Activity Trend */}
+<div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6 mb-6">
+
+    <h2 className="font-serif text-2xl text-navy mb-5">
+        Activity Trend
+    </h2>
+
+    <div style={{ width: "100%", height: 280 }}>
+
+        <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+                data={customer.activityTrend}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+            >
+                <defs>
+                    <linearGradient
+                        id="activityFill"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                    >
+                        <stop
+                            offset="0%"
+                            stopColor="#000C1E"
+                            stopOpacity={0.15}
+                        />
+                        <stop
+                            offset="100%"
+                            stopColor="#000C1E"
+                            stopOpacity={0}
+                        />
+                    </linearGradient>
+                </defs>
+
+                <CartesianGrid
+                    strokeDasharray="4 4"
+                    vertical={false}
+                    stroke="#C3C6CF"
+                />
+
+                <XAxis
+                    dataKey="month"
+                    tick={{ fill: "#43474E", fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                />
+
+                <YAxis
+                    domain={[0, 5]}
+                    ticks={[0, 1, 2, 3, 4, 5]}
+                    tick={{ fill: "#43474E", fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                />
+
+                <Tooltip
+                    cursor={{ stroke: "#C3C6CF", strokeDasharray: "4 4" }}
+                />
+
+                <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#000C1E"
+                    strokeWidth={2}
+                    fill="url(#activityFill)"
+                    dot={{
+                        r: 4,
+                        fill: "#FED488",
+                        stroke: "#000C1E",
+                        strokeWidth: 1.5,
+                    }}
+                    activeDot={{
+                        r: 5,
+                        fill: "#FED488",
+                        stroke: "#000C1E",
+                        strokeWidth: 2,
+                    }}
+                />
+            </AreaChart>
+        </ResponsiveContainer>
+
+    </div>
+
+    
+
+</div>
+
+{/* Appointment History */}
+<div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
+
+    {/* Header */}
+    <div className="flex justify-between items-center gap-4 p-6">
+        <h2 className="font-serif text-2xl text-navy">
+            Appointment History
+        </h2>
+
+        <Link
+            to={`/superadmin/customers/${id}/appointments`}
+            className="text-sm font-bold text-navy hover:text-gold transition"
+        >
+            View All
+        </Link>
+    </div>
+
+    {/* Table */}
+    <div className="overflow-x-auto">
+
+        {/* Header */}
+        <div className="grid grid-cols-[110px_90px_1fr_1fr_140px] px-6 py-3 border-b border-gray/20 text-xs font-bold uppercase tracking-wide text-slate min-w-[700px]">
+            <span>Date</span>
+            <span>Time</span>
+            <span>Company</span>
+            <span>Service</span>
+            <span>Staff</span>
+        </div>
+
+        {/* Rows */}
+        {customer.appointmentHistory.map((entry, index) => (
+            <div
+                key={index}
+                className="
+                    grid
+                    grid-cols-[110px_90px_1fr_1fr_140px]
+                    px-6
+                    py-4
+                    border-b
+                    border-gray/20
+                    last:border-b-0
+                    min-w-[700px]
+                "
+            >
+                <span className="text-sm text-navy self-center">
+                    {entry.date}
+                </span>
+
+                <span className="text-sm text-slate self-center">
+                    {entry.time}
+                </span>
+
+                <span className="text-sm font-bold text-navy self-center">
+                    {entry.company}
+                </span>
+
+                <span className="text-sm text-slate self-center">
+                    {entry.service}
+                </span>
+
+                <span className="text-sm text-slate self-center">
+                    {entry.staffName}
+                </span>
+
+            </div>
+        ))}
+
+    </div>
+
+</div>
+</div>
 </div>
 </main>
 
