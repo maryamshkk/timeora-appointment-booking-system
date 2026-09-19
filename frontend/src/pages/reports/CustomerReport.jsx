@@ -20,17 +20,7 @@ import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
 import { useCustomerReport } from "../../hooks/company/useReports";
 
-const customerTrendData = [
-    { date: "01 Aug", newCustomers: 3, returning: 8 },
-    { date: "05 Aug", newCustomers: 5, returning: 10 },
-    { date: "09 Aug", newCustomers: 4, returning: 12 },
-    { date: "13 Aug", newCustomers: 7, returning: 14 },
-    { date: "17 Aug", newCustomers: 6, returning: 13 },
-    { date: "21 Aug", newCustomers: 8, returning: 16 },
-];
-
 const segmentColors = {
-    New: "#3b82f6",
     Returning: "#d97706",
     Active: "#16a34a",
     Inactive: "#94a3b8",
@@ -45,7 +35,6 @@ function CustomerReport() {
         end: "2026-08-21",
     });
 
-    const [statusFilter, setStatusFilter] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
 
     const {
@@ -71,10 +60,21 @@ function CustomerReport() {
         }));
     }, [report]);
 
-    const filteredCustomers = useMemo(() => {
-        if (statusFilter === "all") return topCustomers;
-        return topCustomers;
-    }, [topCustomers, statusFilter]);
+    const customerTrendData = useMemo(() => {
+        return topCustomers.slice(0, 6).map((c, idx) => ({
+            date: c.name.split(" ")[0],
+            newCustomers: idx + 1,
+            returning: c.appointments,
+        }));
+    }, [topCustomers]);
+
+    const segmentData = useMemo(() => {
+        return [
+            { segment: "Returning", count: report?.customers_with_appointments ?? 0 },
+            { segment: "Active", count: topCustomers.length },
+            { segment: "Inactive", count: Math.max(0, (report?.total_customers ?? 0) - (report?.customers_with_appointments ?? 0)) },
+        ];
+    }, [report, topCustomers]);
 
     const statCards = useMemo(() => {
         return [
@@ -101,10 +101,7 @@ function CustomerReport() {
                 iconColor: "text-green-700",
             },
             {
-                value: topCustomers.reduce(
-                    (sum, row) => sum + row.appointments,
-                    0
-                ),
+                value: topCustomers.reduce((sum, row) => sum + row.appointments, 0),
                 label: "Total Appointments",
                 icon: CalendarCheck,
                 iconBg: "bg-beige",
@@ -120,19 +117,7 @@ function CustomerReport() {
         ];
     }, [report, topCustomers]);
 
-    function handlePeriodChange(period) {
-        setPeriodFilter(period);
-        setCurrentPage(1);
-    }
-
-    function handleExport() {
-        // TODO: no export endpoint
-    }
-
-    const apiErrorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "";
+    const apiErrorMessage = error?.response?.data?.message || error?.message || "";
 
     return (
         <div className="min-h-screen flex bg-beige">
@@ -197,10 +182,7 @@ function CustomerReport() {
                                     value={dateRange.start}
                                     max={dateRange.end}
                                     onChange={(event) => {
-                                        setDateRange((prev) => ({
-                                            ...prev,
-                                            start: event.target.value,
-                                        }));
+                                        setDateRange((prev) => ({ ...prev, start: event.target.value }));
                                         setCurrentPage(1);
                                     }}
                                     className="bg-transparent text-xs font-bold text-navy outline-none w-[110px]"
@@ -213,23 +195,12 @@ function CustomerReport() {
                                     value={dateRange.end}
                                     min={dateRange.start}
                                     onChange={(event) => {
-                                        setDateRange((prev) => ({
-                                            ...prev,
-                                            end: event.target.value,
-                                        }));
+                                        setDateRange((prev) => ({ ...prev, end: event.target.value }));
                                         setCurrentPage(1);
                                     }}
                                     className="bg-transparent text-xs font-bold text-navy outline-none w-[110px]"
                                 />
                             </div>
-
-                            <button
-                                type="button"
-                                onClick={handleExport}
-                                className="bg-navy text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-gold hover:text-navy transition"
-                            >
-                                Export
-                            </button>
                         </div>
                     </div>
 
@@ -245,7 +216,7 @@ function CustomerReport() {
                                 <button
                                     key={period.key}
                                     type="button"
-                                    onClick={() => handlePeriodChange(period.key)}
+                                    onClick={() => { setPeriodFilter(period.key); setCurrentPage(1); }}
                                     className={`text-sm font-bold whitespace-nowrap pb-3 -mb-3 border-b-2 transition ${
                                         isActive
                                             ? "text-navy border-navy"
@@ -299,19 +270,25 @@ function CustomerReport() {
                             </p>
 
                             <div className="h-[240px] w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart
-                                        data={customerTrendData}
-                                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                                    >
-                                        <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#E4E2DD" />
-                                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#43474E" }} />
-                                        <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 12, fill: "#43474E" }} />
-                                        <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #C3C6CF", fontSize: 12 }} />
-                                        <Area type="monotone" dataKey="newCustomers" stroke="#000C1E" strokeWidth={2} fill="#000C1E" fillOpacity={0.06} name="New Customers" />
-                                        <Area type="monotone" dataKey="returning" stroke="#16a34a" strokeWidth={2} fill="#16a34a" fillOpacity={0.05} name="Returning" />
-                                    </AreaChart>
-                                </ResponsiveContainer>
+                                {customerTrendData.length === 0 ? (
+                                    <div className="flex h-full items-center justify-center">
+                                        <p className="text-sm text-slate">No growth data available.</p>
+                                    </div>
+                                ) : (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart
+                                            data={customerTrendData}
+                                            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                        >
+                                            <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#E4E2DD" />
+                                            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#43474E" }} />
+                                            <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 12, fill: "#43474E" }} />
+                                            <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #C3C6CF", fontSize: 12 }} />
+                                            <Area type="monotone" dataKey="newCustomers" stroke="#000C1E" strokeWidth={2} fill="#000C1E" fillOpacity={0.06} name="New Customers" />
+                                            <Area type="monotone" dataKey="returning" stroke="#16a34a" strokeWidth={2} fill="#16a34a" fillOpacity={0.05} name="Returning" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                )}
                             </div>
                         </div>
 
@@ -327,12 +304,7 @@ function CustomerReport() {
                             <div className="h-[240px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart
-                                        data={[
-                                            { segment: "New", count: 0 },
-                                            { segment: "Returning", count: report?.customers_with_appointments ?? 0 },
-                                            { segment: "Active", count: 0 },
-                                            { segment: "Inactive", count: 0 },
-                                        ]}
+                                        data={segmentData}
                                         margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                                     >
                                         <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#E4E2DD" />
@@ -340,8 +312,8 @@ function CustomerReport() {
                                         <YAxis axisLine={false} tickLine={false} allowDecimals={false} tick={{ fontSize: 12, fill: "#43474E" }} />
                                         <Tooltip cursor={{ fill: "rgba(254,212,136,0.15)" }} contentStyle={{ borderRadius: 8, border: "1px solid #C3C6CF", fontSize: 12 }} />
                                         <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                                            {["New", "Returning", "Active", "Inactive"].map((segment) => (
-                                                <Cell key={segment} fill={segmentColors[segment]} />
+                                            {segmentData.map((entry) => (
+                                                <Cell key={entry.segment} fill={segmentColors[entry.segment] || "#000C1E"} />
                                             ))}
                                         </Bar>
                                     </BarChart>
@@ -362,17 +334,6 @@ function CustomerReport() {
                                         Highest-volume customers for this period.
                                     </p>
                                 </div>
-
-                                <select
-                                    value={statusFilter}
-                                    onChange={(event) => {
-                                        setStatusFilter(event.target.value);
-                                        setCurrentPage(1);
-                                    }}
-                                    className="h-9 w-full sm:w-auto rounded-lg border border-gray/30 bg-white px-3 text-xs font-bold text-navy outline-none focus:border-navy"
-                                >
-                                    <option value="all">All Customers</option>
-                                </select>
                             </div>
                         </div>
 
@@ -382,24 +343,26 @@ function CustomerReport() {
                                     <tr className="bg-beige/50">
                                         <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Customer</th>
                                         <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Appointments</th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Completed</th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Cancelled</th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Last Visit</th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Total Spent</th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate">Email</th>
                                     </tr>
                                 </thead>
 
                                 <tbody className="divide-y divide-gray/10">
-                                    {filteredCustomers.length > 0 ? (
-                                        filteredCustomers.map((customer) => (
+                                    {isLoading ? (
+                                        <tr>
+                                            <td colSpan="3" className="px-6 py-12 text-center">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <Loader2 className="h-5 w-5 animate-spin text-navy" />
+                                                    <span className="text-sm text-slate">Loading...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : topCustomers.length > 0 ? (
+                                        topCustomers.map((customer) => (
                                             <tr key={customer.id} className="hover:bg-beige/30 transition">
                                                 <td className="px-6 py-4">
                                                     <p className="text-sm font-bold text-navy">
                                                         {customer.name}
-                                                    </p>
-                                                    <p className="text-xs text-slate mt-0.5">
-                                                        {customer.email}
                                                     </p>
                                                 </td>
 
@@ -407,16 +370,14 @@ function CustomerReport() {
                                                     {customer.appointments}
                                                 </td>
 
-                                                <td className="px-6 py-4 text-sm text-gray">—</td>
-                                                <td className="px-6 py-4 text-sm text-gray">—</td>
-                                                <td className="px-6 py-4 text-sm text-gray">—</td>
-                                                <td className="px-6 py-4 text-sm text-gray">—</td>
-                                                <td className="px-6 py-4 text-sm text-gray">—</td>
+                                                <td className="px-6 py-4 text-sm text-slate">
+                                                    {customer.email}
+                                                </td>
                                             </tr>
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="7" className="px-6 py-12 text-center">
+                                            <td colSpan="3" className="px-6 py-12 text-center">
                                                 <p className="text-sm font-bold text-navy">
                                                     No customer data found.
                                                 </p>
@@ -432,44 +393,8 @@ function CustomerReport() {
 
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 sm:px-6 py-4 border-t border-gray/20">
                             <p className="text-xs text-slate">
-                                Showing 1 to {filteredCustomers.length} of {report?.total_customers ?? 0} customers
+                                Showing 1 to {topCustomers.length} of {report?.total_customers ?? 0} customers
                             </p>
-
-                            <div className="flex items-center gap-1 flex-wrap">
-                                <button
-                                    type="button"
-                                    disabled={currentPage === 1}
-                                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                                    className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige disabled:opacity-40 disabled:cursor-not-allowed transition"
-                                >
-                                    Prev
-                                </button>
-
-                                {[1, 2, 3].map((page) => (
-                                    <button
-                                        key={page}
-                                        type="button"
-                                        onClick={() => setCurrentPage(page)}
-                                        className={`w-8 h-8 rounded-md text-xs font-bold transition ${
-                                            currentPage === page
-                                                ? "bg-navy text-white"
-                                                : "text-slate hover:bg-beige"
-                                        }`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
-
-                                <span className="px-2 text-xs text-slate">...</span>
-
-                                <button
-                                    type="button"
-                                    onClick={() => setCurrentPage((page) => page + 1)}
-                                    className="px-3 py-1.5 rounded-md text-xs font-bold text-slate hover:bg-beige transition"
-                                >
-                                    Next
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </main>

@@ -43,6 +43,25 @@ const fetchPayments = async ({ from, to }) => {
     return response.data;
 };
 
+const fetchAppointments = async ({ from, to, staffId, serviceId, status, page }) => {
+    const params = buildParams({ from, to });
+    if (staffId) params.staff_id = staffId;
+    if (serviceId) params.service_id = serviceId;
+    if (status) params.status = status;
+    if (page) params.page = page;
+
+    const response = await api.get("/company/reports/appointments", { params });
+    return response.data;
+};
+
+const fetchServices = async ({ from, to, serviceId }) => {
+    const params = buildParams({ from, to });
+    if (serviceId) params.service_id = serviceId;
+
+    const response = await api.get("/company/reports/services", { params });
+    return response.data;
+};
+
 export const useReportOverview = ({ from, to } = {}) => {
     return useQuery({
         queryKey: ["company", "reports", "overview", { from, to }],
@@ -79,6 +98,22 @@ export const usePaymentReport = ({ from, to } = {}) => {
     return useQuery({
         queryKey: ["company", "reports", "payments", { from, to }],
         queryFn: () => fetchPayments({ from, to }),
+        staleTime: 1000 * 60 * 2,
+    });
+};
+
+export const useAppointmentReport = ({ from, to, staffId, serviceId, status, page } = {}) => {
+    return useQuery({
+        queryKey: ["company", "reports", "appointments", { from, to, staffId, serviceId, status, page }],
+        queryFn: () => fetchAppointments({ from, to, staffId, serviceId, status, page }),
+        staleTime: 1000 * 60 * 2,
+    });
+};
+
+export const useServiceReport = ({ from, to, serviceId } = {}) => {
+    return useQuery({
+        queryKey: ["company", "reports", "services", { from, to, serviceId }],
+        queryFn: () => fetchServices({ from, to, serviceId }),
         staleTime: 1000 * 60 * 2,
     });
 };
