@@ -42,7 +42,10 @@ import CustomerDetails from "../pages/customers/CustomerDetails";
 
 import AvailabilityManagement from "../pages/availability/AvailabilityManagement";
 
-import Notifications from "../pages/notifications/Notifications";
+// Notifications — all three from notifications folder
+import CompanyNotifications from "../pages/notifications/CompanyNotifications";
+import StaffNotifications from "../pages/notifications/StaffNotifications";
+import CustomerNotifications from "../pages/notifications/CustomerNotifications";
 
 import Reports from "../pages/reports/Reports";
 import AppointmentReport from "../pages/reports/AppointmentReport";
@@ -60,42 +63,26 @@ import NotificationSettings from "../pages/settings/NotificationSettings";
 
 // Staff Portal
 import StaffDashboard from "../pages/staff/StaffDashboard";
-
 import StaffCalendar from "../pages/staff/StaffCalendar";
-
 import StaffAppointments from "../pages/staff/StaffAppointments";
 import StaffAppointmentDetails from "../pages/staff/StaffAppointmentDetails";
 import StaffRescheduleAppointment from "../pages/staff/StaffRescheduleAppointment";
-
 import StaffCustomers from "../pages/staff/StaffCustomers";
 import StaffCustomerDetails from "../pages/staff/StaffCustomerDetails";
 import StaffEditCustomer from "../pages/staff/StaffEditCustomer";
-
 import StaffAvailability from "../pages/staff/StaffAvailability";
-
 import StaffReports from "../pages/staff/StaffReports";
-
-import StaffNotifications from "../pages/staff/StaffNotifications";
 import StaffSettings from "../pages/staff/StaffSettings";
 
-
-// customer Dashboard
+// Customer Dashboard
 import CustomerDashboard from "../pages/customers/CustomerDashboard";
-
 import BrowseCompanies from "../pages/customers/BrowseCompanies";
-
 import CustomerCompanyProfile from "../pages/customers/CompanyProfile";
-
 import ChooseService from "../pages/booking/ChooseService";
-
 import ChooseStaff from "../pages/booking/ChooseStaff";
-
 import ChooseDateTime from "../pages/booking/ChooseDateTime";
-
 import ReviewAppointment from "../pages/booking/ReviewAppointment";
-
 import BookingConfirmation from "../pages/booking/BookingConfirmation";
-
 import MyAppointments from "../pages/customers/MyAppointments";
 import CustomerAppointmentDetails from "../pages/customers/CustomerAppointmentDetails";
 import CustomerRescheduleAppointment from "../pages/customers/RescheduleAppointment";
@@ -103,10 +90,8 @@ import CancelAppointment from "../pages/customers/CancelAppointment";
 import CustomerPaymentReceipt from "../pages/customers/PaymentReceipt";
 import CustomerProfile from "../pages/customers/MyProfile";
 import CustomerSettings from "../pages/customers/CustomerSettings";
-import CustomerNotifications from "../pages/customers/CustomerNotifications";
 
-
-// super admin section
+// Super Admin
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
 import Companies from "../pages/superadmin/Companies";
 import CompanyDetails from "../pages/superadmin/CompanyDetails";
@@ -237,7 +222,7 @@ function AppRoutes() {
             />
 
             {/* Company — Notifications */}
-            <Route path="/company/notifications" element={<Notifications />} />
+            <Route path="/company/notifications" element={<CompanyNotifications />} />
 
             {/* Company — Help */}
             <Route path="/company/help" element={<HelpCenter />} />
@@ -304,95 +289,87 @@ function AppRoutes() {
             {/* Staff Portal — Settings */}
             <Route path="/staff/settings" element={<StaffSettings />} />
 
-
-
-
-            {/* Customer Dashbaord */}
+            {/* Customer Dashboard */}
             <Route
-            path="/customer/dashboard"
-            element={<CustomerDashboard />}
+                path="/customer/dashboard"
+                element={<CustomerDashboard />}
             />
 
-            {/* browse companies */}
+            {/* Browse companies */}
             <Route
-            path="/customer/browse"
-            element={<BrowseCompanies />}
+                path="/customer/browse"
+                element={<BrowseCompanies />}
             />
 
-            {/* choose company profile */}
-            <Route path="/customer/companies/:id" 
-            element={<CustomerCompanyProfile />} 
+            {/* Choose company profile */}
+            <Route path="/customer/companies/:id"
+                element={<CustomerCompanyProfile />}
             />
 
-            {/* choose service */}
+            {/* Choose service */}
             <Route
-            path="/customer/booking/service"
-            element={<ChooseService />}
+                path="/customer/booking/service"
+                element={<ChooseService />}
             />
 
-            {/* choose staff */}
+            {/* Choose staff */}
             <Route
-            path="/customer/booking/staff"
-            element={<ChooseStaff />}
+                path="/customer/booking/staff"
+                element={<ChooseStaff />}
             />
 
-             {/* date time */}
+            {/* Date time */}
             <Route
-            path="/customer/booking/datetime"
-            element={<ChooseDateTime />}
-            />  
+                path="/customer/booking/datetime"
+                element={<ChooseDateTime />}
+            />
 
-            {/* review */}
+            {/* Review */}
             <Route
-            path="/customer/booking/summary"
-            element={<ReviewAppointment />}
+                path="/customer/booking/summary"
+                element={<ReviewAppointment />}
             />
-            {/* booking confirmation */}
+            {/* Booking confirmation */}
             <Route
-            path="/customer/booking/confirmation"
-            element={<BookingConfirmation />}
+                path="/customer/booking/confirmation"
+                element={<BookingConfirmation />}
             />
-            {/* all appointments */}
+            {/* All appointments */}
             <Route
                 path="/customer/appointments"
                 element={<MyAppointments />}
             />
-            {/* details */}
+            {/* Details */}
             <Route
                 path="/customer/appointments/:id/detail"
-                element={<CustomerAppointmentDetails />} 
-                />
-            {/* reschedule */}
-
+                element={<CustomerAppointmentDetails />}
+            />
+            {/* Reschedule */}
             <Route
                 path="/customer/appointments/:id/reschedule"
-                element={<CustomerRescheduleAppointment />} 
-                />
-            {/* cancel appointment */}
-
+                element={<CustomerRescheduleAppointment />}
+            />
+            {/* Cancel appointment */}
             <Route
                 path="/customer/appointments/:id/cancel"
                 element={<CancelAppointment />}
             />
-            {/* payment */}
-
+            {/* Payment */}
             <Route
                 path="/customer/receipts"
                 element={<CustomerPaymentReceipt />}
             />
-            {/* profile */}
-
+            {/* Profile */}
             <Route
                 path="/customer/profile"
                 element={<CustomerProfile />}
             />
-            {/* settings */}
-
+            {/* Settings */}
             <Route
                 path="/customer/settings"
                 element={<CustomerSettings />}
             />
-            {/* notifications */}
+            {/* Notifications */}
             <Route
                 path="/customer/notifications"
                 element={<CustomerNotifications />}
@@ -412,13 +389,6 @@ function AppRoutes() {
             <Route path="/superadmin/analytics" element={<AdminAnalytics />} />
             <Route path="/superadmin/notifications" element={<AdminNotifications />} />
             <Route path="/superadmin/settings" element={<SuperAdminSettings />} />
-
-
-
-
-
-
-
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/login" replace />} />
