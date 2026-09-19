@@ -119,7 +119,7 @@ import SuperAdminAppointmentDetails from "../pages/superadmin/AppointmentDetails
 import AdminReports from "../pages/superadmin/Reports";
 import AdminAnalytics from "../pages/superadmin/AdminAnalytics";
 import AdminNotifications from "../pages/superadmin/Notifications";
-
+import SuperAdminSettings from "../pages/superadmin/SuperAdminSettings";
 
 
 function AppRoutes() {
@@ -411,6 +411,8 @@ function AppRoutes() {
             <Route path="/superadmin/reports" element={<AdminReports />} />
             <Route path="/superadmin/analytics" element={<AdminAnalytics />} />
             <Route path="/superadmin/notifications" element={<AdminNotifications />} />
+            <Route path="/superadmin/settings" element={<SuperAdminSettings />} />
+
 
 
 
