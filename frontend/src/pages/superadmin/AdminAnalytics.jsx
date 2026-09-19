@@ -205,6 +205,24 @@ function AdminAnalytics() {
     </div>
 
     {/* Key Insight card added next */}
+    {/* Key Insight */}
+<div className="bg-beige/40 border border-brown/40 rounded-xl p-5 flex items-start gap-3">
+
+    <Lightbulb className="w-5 h-5 text-brown flex-shrink-0 mt-0.5" />
+
+    <div className="min-w-0">
+        <h2 className="font-serif text-xl text-navy mb-1.5">
+            Key Insight
+        </h2>
+
+        <p className="text-sm text-slate leading-relaxed">
+            {keyInsight.text}
+        </p>
+    </div>
+
+</div>
+
+{/* Room for future trend charts and breakdowns will go below. */}
 
 </main>
 
