@@ -319,7 +319,7 @@ function SuperAdminStaffDetails() {
                     </p>
                     <Link
                         to={`/superadmin/companies/${staff.company.id}`}
-                        className="text-sm font-bold text-gold underline hover:text-navy transition"
+                        className="text-sm font-bold text-brown underline hover:text-navy transition"
                     >
                         {staff.company.name}
                     </Link>
@@ -379,7 +379,6 @@ function SuperAdminStaffDetails() {
 
         </div>
 
-        {/* Appointment Activity + Recent Appointments added next */}
         {/* Appointment Activity */}
 <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-7">
 

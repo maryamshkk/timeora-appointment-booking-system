@@ -114,6 +114,8 @@ import Customers from "../pages/superadmin/Customers";
 import SuperAdminCustomerDetails from "../pages/superadmin/CustomerDetails";
 import Staff from "../pages/superadmin/Staff";
 import SuperAdminStaffDetails from "../pages/superadmin/StaffDetails";
+import Appointments from "../pages/superadmin/Appointments";
+import SuperAdminAppointmentDetails from "../pages/superadmin/AppointmentDetails";
 
 
 function AppRoutes() {
@@ -400,7 +402,9 @@ function AppRoutes() {
             <Route path="/superadmin/customers/:id" element={<SuperAdminCustomerDetails />} />
             <Route path="/superadmin/staff" element={<Staff />} />
             <Route path="/superadmin/staff/:id" element={<SuperAdminStaffDetails />} />
-
+            <Route path="/superadmin/appointments" element={<Appointments />} />
+            <Route path="/superadmin/appointments/:id" element={<SuperAdminAppointmentDetails />} />
+            
 
 
 
