@@ -242,6 +242,8 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     Route::get('/company/reports/customers',[CompanyReportController::class, 'customers']);
     Route::get('/company/reports/staff',[CompanyReportController::class, 'staff']);
     Route::get('/company/reports/payments',[CompanyReportController::class, 'payments']);
+    Route::get('/company/reports/appointments', [CompanyReportController::class, 'appointments']);
+    Route::get('/company/reports/services', [CompanyReportController::class, 'services']);
 });
 
 
@@ -328,12 +330,18 @@ Route::middleware(['auth:sanctum', 'role:company_admin,staff,'])->group(function
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/notifications', [NotificationController::class, 'index']);
+    // Company
+    Route::get('/company/notifications', [NotificationController::class, 'index']);
+    Route::put('/company/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::put('/company/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
-    Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    // Staff
+    Route::get('/staff/notifications', [NotificationController::class, 'index']);
+    Route::put('/staff/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::put('/staff/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
-    Route::get('/notifications/{id}', [NotificationController::class, 'show']);
-
-    Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-
+    // Customer
+    Route::get('/customer/notifications', [NotificationController::class, 'index']);
+    Route::put('/customer/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::put('/customer/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 });
