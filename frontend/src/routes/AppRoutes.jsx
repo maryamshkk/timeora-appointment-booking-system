@@ -116,7 +116,7 @@ import Staff from "../pages/superadmin/Staff";
 import SuperAdminStaffDetails from "../pages/superadmin/StaffDetails";
 import Appointments from "../pages/superadmin/Appointments";
 import SuperAdminAppointmentDetails from "../pages/superadmin/AppointmentDetails";
-
+import AdminReports from "../pages/superadmin/Reports";
 
 function AppRoutes() {
     return (
@@ -404,7 +404,7 @@ function AppRoutes() {
             <Route path="/superadmin/staff/:id" element={<SuperAdminStaffDetails />} />
             <Route path="/superadmin/appointments" element={<Appointments />} />
             <Route path="/superadmin/appointments/:id" element={<SuperAdminAppointmentDetails />} />
-            
+            <Route path="/superadmin/reports" element={<AdminReports />} />
 
 
 

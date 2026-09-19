@@ -12,7 +12,7 @@ import {
 import SuperAdminSidebar from "../../components/superadmin/SuperAdminSidebar";
 import SuperAdminTopbar from "../../components/superadmin/SuperAdminTopbar";
 
-function Reports() {
+function AdminReports() {
     const [dateRange] = useState({
         start: "2026-08-01",
         end: "2026-08-21",
@@ -477,6 +477,223 @@ function Reports() {
 
 </div>
 
+{/* Tabs */}
+<div className="flex items-center gap-8 border-b border-gray/20 mb-5 overflow-x-auto">
+
+    {tabs.map((tab) => (
+        <button
+            key={tab.key}
+            type="button"
+            onClick={() => setActiveTab(tab.key)}
+            className={`
+                text-sm font-bold uppercase tracking-wide
+                whitespace-nowrap pb-3 border-b-2 transition cursor-pointer
+                ${
+                    activeTab === tab.key
+                        ? "text-navy border-gold"
+                        : "text-slate border-transparent hover:text-navy"
+                }
+            `}
+        >
+            {tab.label}
+        </button>
+    ))}
+
+</div>
+
+{activeTab === "overview" ? (
+    <>
+        {/* Main content row added next */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+
+    {/* Left — Performance Trend */}
+    <div className="bg-white rounded-xl border border-gray/20 shadow-sm overflow-hidden">
+
+        {/* Header */}
+        <div className="flex justify-between items-center gap-4 p-6">
+            <h2 className="font-serif text-2xl text-navy">
+                Performance Trend
+            </h2>
+
+            <button
+                type="button"
+                aria-label="More options"
+                className="text-slate hover:text-navy transition cursor-pointer"
+            >
+                <MoreHorizontal className="w-[18px] h-[18px]" />
+            </button>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+
+            {/* Header row */}
+            <div className="grid grid-cols-[100px_90px_100px_100px_90px_110px] px-6 py-3 bg-beige/40 text-xs font-bold uppercase tracking-wide text-slate min-w-[700px]">
+                <span>Date</span>
+                <span>Total Appts</span>
+                <span>Completed</span>
+                <span>Cancelled</span>
+                <span>No-Show</span>
+                <span>Completion</span>
+            </div>
+
+            {/* Rows */}
+            {performanceTrend.map((row, index) => (
+                <div
+                    key={row.date}
+                    className={`
+                        grid grid-cols-[100px_90px_100px_100px_90px_110px]
+                        px-6 py-4 min-w-[700px]
+                        ${index !== performanceTrend.length - 1 ? "border-b border-gray/20" : ""}
+                    `}
+                >
+                    <span className="text-sm text-navy self-center">
+                        {row.date}
+                    </span>
+
+                    <span className="text-sm text-navy self-center">
+                        {row.totalAppts}
+                    </span>
+
+                    <span className="text-sm font-bold text-green-600 self-center">
+                        {row.completed}
+                    </span>
+
+                    <span className="text-sm text-navy self-center">
+                        {row.cancelled}
+                    </span>
+
+                    <span className="text-sm text-navy self-center">
+                        {row.noShow}
+                    </span>
+
+                    <span className="text-sm font-bold text-navy self-center">
+                        {row.completionRate}%
+                    </span>
+                </div>
+            ))}
+
+        </div>
+
+        {/* Footer */}
+        <button
+            type="button"
+            onClick={handleViewFullReport}
+            className="
+                block w-full bg-beige/40 text-navy
+                font-bold uppercase tracking-wide text-sm
+                py-3 text-center
+                hover:bg-beige/60 transition cursor-pointer
+            "
+        >
+            View Full Report
+        </button>
+
+    </div>
+
+    {/* Right Column */}
+    <aside className="flex flex-col gap-5">
+
+        {/* Overall Completion Rate */}
+        <div className="bg-navy text-white rounded-xl p-6">
+
+            <div className="flex justify-between items-center mb-3.5">
+                <span className="text-xs font-bold uppercase tracking-wide text-white/60">
+                    Overall Completion Rate
+                </span>
+
+                <CheckCircle2 className="w-[18px] h-[18px] text-white/70" />
+            </div>
+
+            <p className="font-serif text-5xl text-white mb-2.5">
+                {overallCompletionRate.value}%
+            </p>
+
+            <div className="flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-green-400" />
+                <span className="text-sm font-bold text-green-400">
+                    +{overallCompletionRate.deltaPercent}% vs previous period
+                </span>
+            </div>
+
+        </div>
+
+        {/* Top Companies by Volume */}
+        <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6">
+
+            <h2 className="font-serif text-2xl text-navy mb-5">
+                Top Companies by Volume
+            </h2>
+
+            {topCompanies.map((company, index) => {
+                const maxValue = Math.max(
+                    ...topCompanies.map((c) => c.value)
+                );
+
+                const widthPercent = (company.value / maxValue) * 100;
+
+                const fillColors = [
+                    "bg-navy",
+                    "bg-blue-500",
+                    "bg-gray/50",
+                ];
+
+                return (
+                    <div
+                        key={company.name}
+                        className={
+                            index !== topCompanies.length - 1 ? "mb-4" : ""
+                        }
+                    >
+                        <div className="flex items-center gap-3 mb-2">
+
+                            <div className="w-9 h-9 bg-gray/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span className="text-xs font-bold text-navy">
+                                    {company.initials}
+                                </span>
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-bold text-navy truncate">
+                                    {company.name}
+                                </p>
+
+                                <p className="text-xs text-slate truncate">
+                                    {company.category}
+                                </p>
+                            </div>
+
+                            <span className="text-sm font-bold text-navy">
+                                {company.value.toLocaleString()}
+                            </span>
+
+                        </div>
+
+                        <div className="h-1.5 rounded-full bg-gray/15 overflow-hidden">
+                            <div
+                                className={`h-full rounded-full ${fillColors[index % fillColors.length]}`}
+                                style={{ width: `${widthPercent}%` }}
+                            />
+                        </div>
+
+                    </div>
+                );
+            })}
+
+        </div>
+
+    </aside>
+
+</div>
+    </>
+) : (
+    <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-16 text-center">
+        <p className="text-sm text-slate">
+            The <span className="font-bold uppercase">{activeTab}</span> report
+            is coming soon.
+        </p>
+    </div>
+)}
 </main>
 
             </div>
@@ -485,4 +702,4 @@ function Reports() {
     );
 }
 
-export default Reports;
+export default AdminReports;
