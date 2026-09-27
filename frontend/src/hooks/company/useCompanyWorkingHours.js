@@ -15,9 +15,16 @@ export const useCompanyWorkingHours = () => {
 };
 
 const updateWorkingHoursApi = async (workingHours) => {
-    const response = await api.put("/company/working-hours", {
-        working_hours: workingHours,
-    });
+    const payload = {
+        working_hours: workingHours.map((day) => ({
+            day_of_week: day.day_of_week,
+            is_open: Boolean(day.is_open),
+            opening_time: day.is_open ? day.opening_time || null : null,
+            closing_time: day.is_open ? day.closing_time || null : null,
+        })),
+    };
+
+    const response = await api.put("/company/working-hours", payload);
     return response.data;
 };
 
