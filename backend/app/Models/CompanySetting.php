@@ -42,6 +42,8 @@ class CompanySetting extends Model
         'same_day_booking',
         'appointment_buffer_enabled',
         'appointment_buffer_minutes',
+          
+        'notification_preferences',    // ← ADD
     ];
 
     protected $casts = [
@@ -64,7 +66,10 @@ class CompanySetting extends Model
         'rescheduling_deadline_value' => 'integer',
         'max_reschedules' => 'integer',
         'appointment_buffer_minutes' => 'integer',
+        
+        'notification_preferences' => 'array', 
     ];
+
 
     public function company(): BelongsTo
     {
