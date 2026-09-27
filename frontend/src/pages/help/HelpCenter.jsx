@@ -7,7 +7,6 @@ import {
     Banknote,
     ChevronDown,
     SearchX,
-    MessageCircle,
     Mail,
     Phone,
     FileText,
@@ -95,7 +94,6 @@ function HelpCenter() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [expandedFaqIndex, setExpandedFaqIndex] = useState(null);
-    const [showContactForm, setShowContactForm] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const filteredFaqs = faqs.filter((faq) => {
@@ -447,7 +445,7 @@ function HelpCenter() {
                             {/* Right Column */}
                             <aside className="lg:col-span-1 flex flex-col gap-6">
 
-                                {/* Still Need Help */}
+                                {/* Still Need Help — Contact Info Only */}
                                 <div className="bg-navy rounded-xl p-5 sm:p-6 md:p-7 text-white">
 
                                     <h2 className="font-serif text-lg sm:text-xl text-white mb-2.5">
@@ -456,144 +454,52 @@ function HelpCenter() {
 
                                     <p className="text-sm text-white/70 leading-relaxed mb-5">
                                         Our support team typically responds
-                                        within a few hours.
+                                        within a few hours. Reach out to us
+                                        directly:
                                     </p>
 
-                                    {/* Contact toggle */}
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setShowContactForm(
-                                                (current) => !current
-                                            )
-                                        }
-                                        className="
-                                            w-full
-                                            inline-flex
-                                            items-center
-                                            justify-center
-                                            gap-2
-                                            bg-gold
-                                            text-navy
-                                            px-4
-                                            py-2.5
-                                            rounded-lg
-                                            text-sm
-                                            font-bold
-                                            hover:bg-white
-                                            transition
-                                        "
-                                    >
-                                        <MessageCircle className="w-4 h-4" />
-                                        {showContactForm
-                                            ? "Hide Contact"
-                                            : "Contact Support"}
-                                    </button>
-
-                                    {showContactForm && (
-                                        <div className="mt-4 border-t border-white/10 pt-4 space-y-3">
-
-                                            <div>
-                                                <label className="block text-[11px] font-bold uppercase tracking-wide text-white/70 mb-1.5">
-                                                    Subject
-                                                </label>
-
-                                                <input
-                                                    type="text"
-                                                    placeholder="Brief summary"
-                                                    className="
-                                                        w-full
-                                                        bg-white/10
-                                                        border
-                                                        border-white/20
-                                                        rounded-lg
-                                                        px-3
-                                                        py-2
-                                                        text-sm
-                                                        text-white
-                                                        placeholder-white/40
-                                                        outline-none
-                                                        focus:border-gold
-                                                    "
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-[11px] font-bold uppercase tracking-wide text-white/70 mb-1.5">
-                                                    Message
-                                                </label>
-
-                                                <textarea
-                                                    rows="3"
-                                                    placeholder="Describe your issue"
-                                                    className="
-                                                        w-full
-                                                        bg-white/10
-                                                        border
-                                                        border-white/20
-                                                        rounded-lg
-                                                        px-3
-                                                        py-2
-                                                        text-sm
-                                                        text-white
-                                                        placeholder-white/40
-                                                        outline-none
-                                                        resize-y
-                                                        focus:border-gold
-                                                    "
-                                                />
-                                            </div>
-
-                                            <button
-                                                type="button"
-                                                className="
-                                                    w-full
-                                                    bg-white
-                                                    text-navy
-                                                    px-4
-                                                    py-2.5
-                                                    rounded-lg
-                                                    text-sm
-                                                    font-bold
-                                                    hover:bg-gold
-                                                    transition
-                                                "
-                                                // TODO: POST /api/company/support/tickets
-                                            >
-                                                Send Message
-                                            </button>
-
-                                        </div>
-                                    )}
-
-                                    <div className="border-t border-white/10 my-4" />
+                                    <div className="border-t border-white/10 mb-4" />
 
                                     {/* Email */}
-                                    <div className="flex items-start gap-2.5 mb-2.5">
-
+                                    <div className="flex items-start gap-2.5 mb-3.5">
                                         <Mail
-                                            size={14}
+                                            size={16}
                                             className="text-gold flex-shrink-0 mt-0.5"
                                         />
 
-                                        <span className="text-sm text-white/80 break-all">
-                                            timeorabytiemio@gmail.com
-                                        </span>
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] font-bold uppercase tracking-wide text-white/50 mb-0.5">
+                                                Email
+                                            </p>
 
+                                            <a
+                                                href="mailto:timeorabytiemio@gmail.com"
+                                                className="text-sm text-white/90 hover:text-gold break-all transition"
+                                            >
+                                                timeorabytiemio@gmail.com
+                                            </a>
+                                        </div>
                                     </div>
 
                                     {/* Phone */}
                                     <div className="flex items-start gap-2.5">
-
                                         <Phone
-                                            size={14}
+                                            size={16}
                                             className="text-gold flex-shrink-0 mt-0.5"
                                         />
 
-                                        <span className="text-sm text-white/80 break-all">
-                                            +92 317 4842792
-                                        </span>
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] font-bold uppercase tracking-wide text-white/50 mb-0.5">
+                                                Phone
+                                            </p>
 
+                                            <a
+                                                href="tel:+923174842792"
+                                                className="text-sm text-white/90 hover:text-gold break-all transition"
+                                            >
+                                                +92 317 4842792
+                                            </a>
+                                        </div>
                                     </div>
 
                                 </div>
