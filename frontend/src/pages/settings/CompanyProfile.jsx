@@ -1,8 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+    AlertCircle,
     ChevronDown,
     ChevronRight,
     Image,
+    Loader2,
     Upload,
     X,
 } from "lucide-react";
@@ -11,57 +13,98 @@ import { Link } from "react-router-dom";
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import SettingsNav from "../../components/settings/SettingsNav";
+import {
+    useCompanyProfile,
+    useUpdateCompanyProfile,
+} from "../../hooks/company/useCompanyProfile";
 
 function CompanyProfile() {
     const fileInputRef = useRef(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    const {
+        data: profileResponse,
+        isLoading,
+        isError,
+        error,
+    } = useCompanyProfile();
+
+    const {
+        mutate: updateProfile,
+        isPending: isSaving,
+        error: saveError,
+        isSuccess: isSaved,
+    } = useUpdateCompanyProfile();
+
+    const company = profileResponse?.data?.company;
+
     const [formData, setFormData] = useState({
-        logoUrl: "",
-        companyName: "Shifa Clinic",
-        description:
-            "A professional healthcare clinic providing consultation and follow-up services.",
-        email: "contact@shifaclinic.example",
-        phone: "+92 300 0000000",
-        website: "www.shifaclinic.example",
-        address: "Main Boulevard",
-        city: "Lahore",
-        province: "Punjab",
-        country: "Pakistan",
-        postalCode: "54000",
+        name: "",
+        description: "",
+        email: "",
+        phone: "",
+        website: "",
+        address: "",
+        city: "",
+        country: "",
+        timezone: "",
+        logoFile: null,
+        logoPreviewUrl: "",
     });
 
-    const [savedSnapshot, setSavedSnapshot] = useState(formData);
+    const [savedSnapshot, setSavedSnapshot] = useState(null);
+
+    useEffect(() => {
+        if (!company) return;
+
+        const next = {
+            name: company.name || "",
+            description: company.description || "",
+            email: company.email || "",
+            phone: company.phone || "",
+            website: company.website || "",
+            address: company.address || "",
+            city: company.city || "",
+            country: company.country || "",
+            timezone: company.timezone || "",
+            logoFile: null,
+            logoPreviewUrl: company.logo_path
+                ? `/storage/${company.logo_path}`
+                : "",
+        };
+
+        setFormData(next);
+        setSavedSnapshot(next);
+    }, [company]);
+
+    const isDirty =
+        savedSnapshot &&
+        JSON.stringify({ ...formData, logoFile: null }) !==
+            JSON.stringify({ ...savedSnapshot, logoFile: null });
 
     function handleChange(event) {
         const { name, value } = event.target;
-
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+        setFormData((prev) => ({ ...prev, [name]: value }));
     }
 
     function handleLogoChange(event) {
         const file = event.target.files[0];
-
-        if (!file) {
-            return;
-        }
+        if (!file) return;
 
         const previewUrl = URL.createObjectURL(file);
-
-        setFormData({
-            ...formData,
-            logoUrl: previewUrl,
-        });
+        setFormData((prev) => ({
+            ...prev,
+            logoFile: file,
+            logoPreviewUrl: previewUrl,
+        }));
     }
 
     function handleLogoRemove() {
-        setFormData({
-            ...formData,
-            logoUrl: "",
-        });
+        setFormData((prev) => ({
+            ...prev,
+            logoFile: null,
+            logoPreviewUrl: "",
+        }));
 
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
@@ -69,15 +112,39 @@ function CompanyProfile() {
     }
 
     function handleSave(event) {
-        event.preventDefault();
+        if (event) event.preventDefault();
 
-        setSavedSnapshot(formData);
+        const payload = new FormData();
 
-        // TODO: axios PUT /api/company/profile with the full form payload
+        payload.append("name", formData.name);
+        payload.append("description", formData.description);
+        payload.append("email", formData.email);
+        payload.append("phone", formData.phone);
+        payload.append("website", formData.website);
+        payload.append("address", formData.address);
+        payload.append("city", formData.city);
+        payload.append("country", formData.country);
+        payload.append("timezone", formData.timezone);
+
+        if (formData.logoFile) {
+            payload.append("logo", formData.logoFile);
+        }
+
+        updateProfile(payload, {
+            onSuccess: () => {
+                setSavedSnapshot({ ...formData });
+            },
+        });
     }
 
     function handleCancel() {
-        setFormData(savedSnapshot);
+        if (savedSnapshot) {
+            setFormData({ ...savedSnapshot });
+        }
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     }
 
     const descriptionCharCount = formData.description.length;
@@ -98,15 +165,55 @@ function CompanyProfile() {
         focus:ring-gold
     `;
 
+    if (isLoading) {
+        return (
+            <div className="flex min-h-screen bg-beige">
+                <div className="hidden lg:block lg:flex-shrink-0">
+                    <Sidebar activeItem="Settings" />
+                </div>
+
+                <div className="flex flex-1 items-center justify-center">
+                    <div className="flex items-center gap-3 text-navy">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span className="font-serif text-sm">
+                            Loading company profile...
+                        </span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="flex min-h-screen bg-beige">
+                <div className="hidden lg:block lg:flex-shrink-0">
+                    <Sidebar activeItem="Settings" />
+                </div>
+
+                <div className="flex flex-1 items-center justify-center px-6">
+                    <div className="flex max-w-md items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                        <AlertCircle className="h-5 w-5 shrink-0 text-red-600" />
+                        <p className="text-sm text-red-700">
+                            {error?.response?.data?.message ||
+                                error?.message ||
+                                "Failed to load company profile."}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const apiError =
+        saveError?.response?.data?.message || saveError?.message || "";
+
     return (
         <div className="min-h-screen flex bg-beige">
-
-            {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
                 <Sidebar activeItem="Settings" />
             </div>
 
-            {/* Mobile / Tablet Sidebar — overlay drawer */}
             {sidebarOpen && (
                 <>
                     <button
@@ -122,9 +229,7 @@ function CompanyProfile() {
                 </>
             )}
 
-            {/* Main Area */}
             <div className="flex min-w-0 flex-1 flex-col">
-
                 <Topbar
                     onMenuClick={() => setSidebarOpen(true)}
                     showBell
@@ -133,12 +238,9 @@ function CompanyProfile() {
                 />
 
                 <main className="flex-1 bg-beige px-4 py-5 sm:px-6 md:px-8 md:py-6">
-
-                    {/* Breadcrumb */}
                     <div className="flex flex-wrap items-center gap-2 mb-6">
-
                         <Link
-                            to="/settings"
+                            to="/company/settings"
                             className="text-sm text-slate hover:text-navy transition"
                         >
                             Settings
@@ -149,12 +251,9 @@ function CompanyProfile() {
                         <span className="text-sm font-bold text-navy">
                             Company Profile
                         </span>
-
                     </div>
 
-                    {/* Header */}
                     <div className="flex flex-col gap-5 mb-8 md:flex-row md:items-start md:justify-between">
-
                         <div>
                             <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                                 Company Profile
@@ -168,6 +267,7 @@ function CompanyProfile() {
                         <button
                             type="button"
                             onClick={handleSave}
+                            disabled={isSaving || !isDirty}
                             className="
                                 bg-navy
                                 text-white
@@ -181,59 +281,60 @@ function CompanyProfile() {
                                 transition
                                 w-full
                                 md:w-auto
+                                disabled:opacity-50
+                                disabled:cursor-not-allowed
                             "
                         >
-                            Save Changes
+                            {isSaving ? "Saving..." : "Save Changes"}
                         </button>
-
                     </div>
 
-                    {/* Three Zone Layout */}
-                    <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_280px] gap-6">
+                    {apiError && (
+                        <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 max-w-2xl">
+                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                            <p className="text-sm text-red-700">{apiError}</p>
+                        </div>
+                    )}
 
-                        {/* Left - Settings Navigation */}
+                    {isSaved && !isDirty && (
+                        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 max-w-2xl">
+                            <p className="text-sm text-green-700">
+                                Company profile updated successfully.
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_280px] gap-6">
                         <div>
                             <SettingsNav activeSection="profile" />
                         </div>
 
-                        {/* Center - Form Cards */}
                         <div className="min-w-0 max-w-2xl w-full">
-
                             <form
                                 onSubmit={handleSave}
                                 className="flex flex-col gap-6"
                             >
-
-                                {/* Basic Information */}
                                 <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
-
                                     <h2 className="font-serif text-xl text-navy sm:text-2xl">
                                         Basic Information
                                     </h2>
 
                                     <div className="border-b border-gray/20 mt-4 mb-5" />
 
-                                    {/* Logo */}
                                     <div className="flex flex-col sm:flex-row items-start gap-5 mb-5">
-
-                                        {/* Logo Preview */}
                                         <div className="w-24 h-20 bg-gray/10 border border-gray/20 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0">
-
-                                            {formData.logoUrl ? (
+                                            {formData.logoPreviewUrl ? (
                                                 <img
-                                                    src={formData.logoUrl}
+                                                    src={formData.logoPreviewUrl}
                                                     alt="Company logo"
                                                     className="w-full h-full object-cover"
                                                 />
                                             ) : (
                                                 <Image className="w-7 h-7 text-gray" />
                                             )}
-
                                         </div>
 
-                                        {/* Logo Details */}
                                         <div className="flex-1 min-w-0">
-
                                             <p className="text-xs font-bold uppercase tracking-wide text-navy mb-1.5">
                                                 Company Logo
                                             </p>
@@ -243,7 +344,6 @@ function CompanyProfile() {
                                             </p>
 
                                             <div className="flex flex-wrap items-center gap-4">
-
                                                 <input
                                                     ref={fileInputRef}
                                                     type="file"
@@ -279,7 +379,7 @@ function CompanyProfile() {
                                                     Change Logo
                                                 </button>
 
-                                                {formData.logoUrl && (
+                                                {formData.logoPreviewUrl && (
                                                     <button
                                                         type="button"
                                                         onClick={handleLogoRemove}
@@ -297,37 +397,28 @@ function CompanyProfile() {
                                                         Remove
                                                     </button>
                                                 )}
-
                                             </div>
-
                                         </div>
-
                                     </div>
 
                                     <div className="border-b border-gray/20 my-5" />
 
-                                    {/* Company Name */}
                                     <div className="mb-5">
-
                                         <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
                                             Company Name
                                         </label>
 
                                         <input
                                             type="text"
-                                            name="companyName"
-                                            value={formData.companyName}
+                                            name="name"
+                                            value={formData.name}
                                             onChange={handleChange}
                                             className={inputClass}
                                         />
-
                                     </div>
 
-                                    {/* Business Description */}
                                     <div>
-
                                         <div className="flex items-center justify-between mb-2">
-
                                             <label className="text-xs font-bold uppercase tracking-wide text-navy">
                                                 Business Description
                                             </label>
@@ -335,7 +426,6 @@ function CompanyProfile() {
                                             <span className="text-xs text-gray">
                                                 {descriptionCharCount} / 500
                                             </span>
-
                                         </div>
 
                                         <textarea
@@ -346,24 +436,17 @@ function CompanyProfile() {
                                             onChange={handleChange}
                                             className={`${inputClass} resize-y`}
                                         />
-
                                     </div>
-
                                 </div>
 
-                                {/* Contact Information */}
                                 <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
-
                                     <h2 className="font-serif text-xl text-navy sm:text-2xl">
                                         Contact Information
                                     </h2>
 
                                     <div className="border-b border-gray/20 mt-4 mb-5" />
 
-                                    {/* Email + Phone */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-
-                                        {/* Business Email */}
                                         <div>
                                             <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
                                                 Business Email
@@ -378,7 +461,6 @@ function CompanyProfile() {
                                             />
                                         </div>
 
-                                        {/* Business Phone */}
                                         <div>
                                             <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
                                                 Business Phone
@@ -392,10 +474,8 @@ function CompanyProfile() {
                                                 className={inputClass}
                                             />
                                         </div>
-
                                     </div>
 
-                                    {/* Website */}
                                     <div>
                                         <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
                                             Website
@@ -410,21 +490,16 @@ function CompanyProfile() {
                                             className={inputClass}
                                         />
                                     </div>
-
                                 </div>
 
-                                {/* Business Address */}
                                 <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
-
                                     <h2 className="font-serif text-xl text-navy sm:text-2xl">
                                         Business Address
                                     </h2>
 
                                     <div className="border-b border-gray/20 mt-4 mb-5" />
 
-                                    {/* Address */}
                                     <div className="mb-5">
-
                                         <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
                                             Address
                                         </label>
@@ -436,13 +511,9 @@ function CompanyProfile() {
                                             onChange={handleChange}
                                             className={inputClass}
                                         />
-
                                     </div>
 
-                                    {/* City + Province */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-
-                                        {/* City */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
                                                 City
@@ -457,111 +528,29 @@ function CompanyProfile() {
                                             />
                                         </div>
 
-                                        {/* Province */}
-                                        <div>
-                                            <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
-                                                Province / State
-                                            </label>
-
-                                            <input
-                                                type="text"
-                                                name="province"
-                                                value={formData.province}
-                                                onChange={handleChange}
-                                                className={inputClass}
-                                            />
-                                        </div>
-
-                                    </div>
-
-                                    {/* Country + Postal Code */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                                        {/* Country */}
                                         <div>
                                             <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
                                                 Country
                                             </label>
 
                                             <div className="relative">
-
-                                                <select
+                                                <input
+                                                    type="text"
                                                     name="country"
                                                     value={formData.country}
                                                     onChange={handleChange}
-                                                    className={`
-                                                        ${inputClass}
-                                                        appearance-none
-                                                        pr-10
-                                                    `}
-                                                >
-                                                    <option value="Pakistan">
-                                                        Pakistan
-                                                    </option>
-
-                                                    <option value="United States">
-                                                        United States
-                                                    </option>
-
-                                                    <option value="United Kingdom">
-                                                        United Kingdom
-                                                    </option>
-
-                                                    <option value="United Arab Emirates">
-                                                        United Arab Emirates
-                                                    </option>
-
-                                                    <option value="Canada">
-                                                        Canada
-                                                    </option>
-
-                                                    <option value="Australia">
-                                                        Australia
-                                                    </option>
-                                                </select>
-
-                                                <ChevronDown
-                                                    className="
-                                                        absolute
-                                                        right-4
-                                                        top-1/2
-                                                        -translate-y-1/2
-                                                        w-4
-                                                        h-4
-                                                        text-slate
-                                                        pointer-events-none
-                                                    "
+                                                    className={inputClass}
                                                 />
-
                                             </div>
-
                                         </div>
-
-                                        {/* Postal Code */}
-                                        <div>
-                                            <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
-                                                Postal Code
-                                            </label>
-
-                                            <input
-                                                type="text"
-                                                name="postalCode"
-                                                value={formData.postalCode}
-                                                onChange={handleChange}
-                                                className={inputClass}
-                                            />
-                                        </div>
-
                                     </div>
-
                                 </div>
 
-                                {/* Bottom Actions */}
                                 <div className="border-t border-gray/20 pt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
-
                                     <button
                                         type="button"
                                         onClick={handleCancel}
+                                        disabled={!isDirty || isSaving}
                                         className="
                                             w-full
                                             sm:w-auto
@@ -576,6 +565,7 @@ function CompanyProfile() {
                                             text-sm
                                             hover:border-navy
                                             transition
+                                            disabled:opacity-50
                                         "
                                     >
                                         Cancel
@@ -583,6 +573,7 @@ function CompanyProfile() {
 
                                     <button
                                         type="submit"
+                                        disabled={!isDirty || isSaving}
                                         className="
                                             w-full
                                             sm:w-auto
@@ -596,159 +587,58 @@ function CompanyProfile() {
                                             hover:bg-gold
                                             hover:text-navy
                                             transition
+                                            disabled:opacity-50
+                                            disabled:cursor-not-allowed
                                         "
                                     >
-                                        Save Changes
+                                        {isSaving ? "Saving..." : "Save Changes"}
                                     </button>
-
                                 </div>
-
                             </form>
-
                         </div>
 
-                        {/* Right Column */}
                         <div className="flex flex-col gap-6">
-
-                            {/* Profile Summary */}
                             <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6 text-center">
-
-                                {/* Logo Preview */}
                                 <div className="relative w-16 h-16 mx-auto mb-3">
-
                                     <div className="w-16 h-16 rounded-lg bg-gray/10 border border-gray/20 overflow-hidden flex items-center justify-center">
-
-                                        {formData.logoUrl ? (
+                                        {formData.logoPreviewUrl ? (
                                             <img
-                                                src={formData.logoUrl}
+                                                src={formData.logoPreviewUrl}
                                                 alt="Company logo"
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
                                             <span className="font-serif text-xl text-navy">
-                                                {formData.companyName
+                                                {formData.name
                                                     .charAt(0)
-                                                    .toUpperCase() || "S"}
+                                                    .toUpperCase() || "C"}
                                             </span>
                                         )}
-
                                     </div>
 
-                                    {/* Verified Badge */}
                                     <div className="absolute -right-1 -bottom-1 w-5 h-5 rounded-full bg-gold border-2 border-white flex items-center justify-center">
                                         <span className="text-[10px] font-bold text-navy">
                                             ✓
                                         </span>
                                     </div>
-
                                 </div>
 
-                                {/* Company Name */}
                                 <h2 className="font-serif text-2xl text-navy break-words">
-                                    {formData.companyName}
+                                    {formData.name || "Company Name"}
                                 </h2>
 
                                 <p className="text-sm text-slate mt-1">
                                     Company
                                 </p>
 
-                                {/* Status */}
                                 <span className="inline-flex items-center gap-2 mt-3 bg-green-50 text-green-700 text-xs font-bold uppercase px-3 py-1.5 rounded-full">
                                     <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                     Active
                                 </span>
-
-                                {/* Divider */}
-                                <div className="border-t border-gray/20 my-5" />
-
-                                {/* Stats */}
-                                <div className="grid grid-cols-2 gap-4 text-left">
-
-                                    <div>
-                                        <p className="text-xs font-bold uppercase tracking-wide text-gray">
-                                            Member Since
-                                        </p>
-
-                                        <p className="text-sm font-bold text-navy mt-1">
-                                            Oct 2023
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-xs font-bold uppercase tracking-wide text-gray">
-                                            Profile Completion
-                                        </p>
-
-                                        <p className="text-sm font-bold text-navy mt-1">
-                                            85%
-                                        </p>
-                                    </div>
-
-                                </div>
-
                             </div>
-
-                            {/* Next Steps */}
-                            <div className="bg-navy rounded-xl p-6 text-white">
-
-                                <h2 className="font-serif text-xl text-white">
-                                    Next Steps
-                                </h2>
-
-                                <p className="text-sm text-white/70 leading-relaxed mt-2 mb-5">
-                                    Complete these actions to fully optimize your company presence.
-                                </p>
-
-                                <div className="flex flex-col gap-4">
-
-                                    {/* Completed */}
-                                    <div className="flex items-start gap-2.5">
-
-                                        <div className="w-5 h-5 rounded-full border-2 border-gold bg-gold/20 flex items-center justify-center flex-shrink-0">
-                                            <span className="text-[11px] font-bold text-gold">
-                                                ✓
-                                            </span>
-                                        </div>
-
-                                        <p className="text-sm font-bold text-white/70 line-through">
-                                            Add Basic Details
-                                        </p>
-
-                                    </div>
-
-                                    {/* Email Verification */}
-                                    <div className="flex items-start gap-2.5">
-
-                                        <div className="w-5 h-5 rounded-full border-2 border-white/40 flex-shrink-0" />
-
-                                        <div>
-                                            <p className="text-sm font-bold text-white">
-                                                Verify Email Address
-                                            </p>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    // TODO: axios call to resend verification email
-                                                }}
-                                                className="text-xs text-gold hover:underline mt-0.5"
-                                            >
-                                                Send Link
-                                            </button>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
                         </div>
-
                     </div>
-
                 </main>
-
             </div>
         </div>
     );
