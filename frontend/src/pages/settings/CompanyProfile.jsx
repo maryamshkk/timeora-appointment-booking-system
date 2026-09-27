@@ -47,7 +47,7 @@ function CompanyProfile() {
         address: "",
         city: "",
         country: "",
-        timezone: "",
+        timezone: "Asia/Karachi",
         logoFile: null,
         logoPreviewUrl: "",
     });
@@ -66,7 +66,7 @@ function CompanyProfile() {
             address: company.address || "",
             city: company.city || "",
             country: company.country || "",
-            timezone: company.timezone || "",
+            timezone: company.timezone || "Asia/Karachi",
             logoFile: null,
             logoPreviewUrl: company.logo_path
                 ? `/storage/${company.logo_path}`
@@ -116,15 +116,15 @@ function CompanyProfile() {
 
         const payload = new FormData();
 
-        payload.append("name", formData.name);
-        payload.append("description", formData.description);
-        payload.append("email", formData.email);
-        payload.append("phone", formData.phone);
-        payload.append("website", formData.website);
-        payload.append("address", formData.address);
-        payload.append("city", formData.city);
-        payload.append("country", formData.country);
-        payload.append("timezone", formData.timezone);
+        payload.append("name", formData.name || "");
+        payload.append("description", formData.description || "");
+        payload.append("email", formData.email || "");
+        payload.append("phone", formData.phone || "");
+        payload.append("website", formData.website || "");
+        payload.append("address", formData.address || "");
+        payload.append("city", formData.city || "");
+        payload.append("country", formData.country || "");
+        payload.append("timezone", formData.timezone || "Asia/Karachi");
 
         if (formData.logoFile) {
             payload.append("logo", formData.logoFile);
@@ -314,6 +314,7 @@ function CompanyProfile() {
                                 onSubmit={handleSave}
                                 className="flex flex-col gap-6"
                             >
+                                {/* Basic Information */}
                                 <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
                                     <h2 className="font-serif text-xl text-navy sm:text-2xl">
                                         Basic Information
@@ -439,6 +440,7 @@ function CompanyProfile() {
                                     </div>
                                 </div>
 
+                                {/* Contact Information */}
                                 <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
                                     <h2 className="font-serif text-xl text-navy sm:text-2xl">
                                         Contact Information
@@ -492,6 +494,7 @@ function CompanyProfile() {
                                     </div>
                                 </div>
 
+                                {/* Business Address */}
                                 <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
                                     <h2 className="font-serif text-xl text-navy sm:text-2xl">
                                         Business Address
@@ -533,19 +536,80 @@ function CompanyProfile() {
                                                 Country
                                             </label>
 
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    name="country"
-                                                    value={formData.country}
-                                                    onChange={handleChange}
-                                                    className={inputClass}
-                                                />
-                                            </div>
+                                            <input
+                                                type="text"
+                                                name="country"
+                                                value={formData.country}
+                                                onChange={handleChange}
+                                                className={inputClass}
+                                            />
                                         </div>
                                     </div>
                                 </div>
 
+                                {/* Preferences */}
+                                <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
+                                    <h2 className="font-serif text-xl text-navy sm:text-2xl">
+                                        Preferences
+                                    </h2>
+
+                                    <div className="border-b border-gray/20 mt-4 mb-5" />
+
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wide text-navy mb-2">
+                                            Timezone
+                                        </label>
+
+                                        <div className="relative">
+                                            <select
+                                                name="timezone"
+                                                value={formData.timezone}
+                                                onChange={handleChange}
+                                                className={`${inputClass} appearance-none pr-10`}
+                                            >
+                                                <option value="">
+                                                    Select a timezone
+                                                </option>
+                                                <option value="Asia/Karachi">
+                                                    Asia/Karachi (PKT)
+                                                </option>
+                                                <option value="Asia/Dubai">
+                                                    Asia/Dubai (GST)
+                                                </option>
+                                                <option value="Asia/Kolkata">
+                                                    Asia/Kolkata (IST)
+                                                </option>
+                                                <option value="Asia/Riyadh">
+                                                    Asia/Riyadh (AST)
+                                                </option>
+                                                <option value="Europe/London">
+                                                    Europe/London (GMT)
+                                                </option>
+                                                <option value="Europe/Paris">
+                                                    Europe/Paris (CET)
+                                                </option>
+                                                <option value="America/New_York">
+                                                    America/New_York (EST)
+                                                </option>
+                                                <option value="America/Los_Angeles">
+                                                    America/Los_Angeles (PST)
+                                                </option>
+                                                <option value="Australia/Sydney">
+                                                    Australia/Sydney (AEST)
+                                                </option>
+                                            </select>
+
+                                            <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate" />
+                                        </div>
+
+                                        <p className="mt-2 text-xs text-slate">
+                                            Used to display appointment times
+                                            across your company.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Bottom Actions */}
                                 <div className="border-t border-gray/20 pt-5 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
                                     <button
                                         type="button"
@@ -597,6 +661,7 @@ function CompanyProfile() {
                             </form>
                         </div>
 
+                        {/* Right Column */}
                         <div className="flex flex-col gap-6">
                             <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-6 text-center">
                                 <div className="relative w-16 h-16 mx-auto mb-3">

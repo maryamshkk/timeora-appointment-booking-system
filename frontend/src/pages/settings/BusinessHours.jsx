@@ -1,296 +1,285 @@
-import React, { useState } from "react";
-import { ChevronRight, Copy } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {
+    AlertCircle,
+    ChevronRight,
+    Copy,
+    Loader2,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import SettingsNav from "../../components/settings/SettingsNav";
+import {
+    useCompanyWorkingHours,
+    useUpdateWorkingHours,
+} from "../../hooks/company/useCompanyWorkingHours";
+
+const DAYS = [
+    { key: "monday", value: 1, label: "Monday" },
+    { key: "tuesday", value: 2, label: "Tuesday" },
+    { key: "wednesday", value: 3, label: "Wednesday" },
+    { key: "thursday", value: 4, label: "Thursday" },
+    { key: "friday", value: 5, label: "Friday" },
+    { key: "saturday", value: 6, label: "Saturday" },
+    { key: "sunday", value: 0, label: "Sunday" },
+];
+
+function buildBlankWeek() {
+    return DAYS.map((day) => ({
+        day_of_week: day.value,
+        is_open: false,
+        opening_time: null,
+        closing_time: null,
+    }));
+}
 
 function BusinessHours() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const DAYS = [
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-        "sunday",
-    ];
+    const {
+        data: workingHoursResponse,
+        isLoading,
+        isError,
+        error,
+    } = useCompanyWorkingHours();
 
-    const [schedule, setSchedule] = useState({
-        monday: {
-            isOpen: true,
-            open: "09:00 AM",
-            close: "06:00 PM",
-            breaks: [
-                {
-                    start: "01:00 PM",
-                    end: "02:00 PM",
-                },
-            ],
-        },
-        tuesday: {
-            isOpen: true,
-            open: "09:00 AM",
-            close: "06:00 PM",
-            breaks: [],
-        },
-        wednesday: {
-            isOpen: true,
-            open: "09:00 AM",
-            close: "06:00 PM",
-            breaks: [],
-        },
-        thursday: {
-            isOpen: true,
-            open: "09:00 AM",
-            close: "06:00 PM",
-            breaks: [],
-        },
-        friday: {
-            isOpen: true,
-            open: "09:00 AM",
-            close: "06:00 PM",
-            breaks: [],
-        },
-        saturday: {
-            isOpen: true,
-            open: "09:00 AM",
-            close: "02:00 PM",
-            breaks: [],
-        },
-        sunday: {
-            isOpen: false,
-            open: "",
-            close: "",
-            breaks: [],
-        },
-    });
+    const {
+        mutate: updateWorkingHours,
+        isPending: isSaving,
+        error: saveError,
+        isSuccess: isSaved,
+    } = useUpdateWorkingHours();
 
-    const timezone =
-        "Pakistan Standard Time (UTC+05:00)";
+    const [schedule, setSchedule] = useState(buildBlankWeek());
+    const [savedSnapshot, setSavedSnapshot] = useState(buildBlankWeek());
 
-    const [savedSnapshot, setSavedSnapshot] =
-        useState(schedule);
+    useEffect(() => {
+        const raw = workingHoursResponse?.data;
 
-    const isDirty =
-        JSON.stringify(schedule) !==
-        JSON.stringify(savedSnapshot);
+        if (!raw || raw.length === 0) return;
 
-    function toggleDayOpen(day) {
-        setSchedule((previous) => ({
-            ...previous,
-            [day]: {
-                ...previous[day],
-                isOpen: !previous[day].isOpen,
-            },
-        }));
-    }
+        const map = new Map();
+        raw.forEach((entry) => map.set(entry.day_of_week, entry));
 
-    function handleTimeChange(day, field, value) {
-        setSchedule((previous) => ({
-            ...previous,
-            [day]: {
-                ...previous[day],
-                [field]: value,
-            },
-        }));
-    }
+        const merged = DAYS.map((day) => {
+            const entry = map.get(day.value);
 
-    function addBreak(day) {
-        setSchedule((previous) => ({
-            ...previous,
-            [day]: {
-                ...previous[day],
-                breaks: [
-                    ...previous[day].breaks,
-                    {
-                        start: "01:00 PM",
-                        end: "02:00 PM",
-                    },
-                ],
-            },
-        }));
-    }
-
-    function removeBreak(day, index) {
-        setSchedule((previous) => ({
-            ...previous,
-            [day]: {
-                ...previous[day],
-                breaks: previous[day].breaks.filter(
-                    (_, breakIndex) => breakIndex !== index
-                ),
-            },
-        }));
-    }
-
-    function handleBreakChange(day, index, field, value) {
-        setSchedule((previous) => ({
-            ...previous,
-            [day]: {
-                ...previous[day],
-                breaks: previous[day].breaks.map((breakItem, breakIndex) =>
-                    breakIndex === index
-                        ? {
-                              ...breakItem,
-                              [field]: value,
-                          }
-                        : breakItem
-                ),
-            },
-        }));
-    }
-
-    function copyHoursToAll(day) {
-        setSchedule((previous) => {
-            const sourceDay = previous[day];
-
-            const updatedSchedule = { ...previous };
-
-            DAYS.forEach((currentDay) => {
-                if (currentDay === day) {
-                    return;
-                }
-
-                updatedSchedule[currentDay] = {
-                    ...updatedSchedule[currentDay],
-                    isOpen: sourceDay.isOpen,
-                    open: sourceDay.open,
-                    close: sourceDay.close,
-                    breaks: [],
-                };
-            });
-
-            return updatedSchedule;
+            return {
+                day_of_week: day.value,
+                is_open: Boolean(entry?.is_open),
+                opening_time: entry?.opening_time?.slice(0, 5) || null,
+                closing_time: entry?.closing_time?.slice(0, 5) || null,
+            };
         });
 
-        // TODO: Add confirmation dialog before copying hours to all days.
+        setSchedule(merged);
+        setSavedSnapshot(merged);
+    }, [workingHoursResponse]);
+
+    const isDirty =
+        JSON.stringify(schedule) !== JSON.stringify(savedSnapshot);
+
+    function getDayKey(dayValue) {
+        return DAYS.find((d) => d.value === dayValue)?.key || "";
     }
 
-    function convertToTimeInput(value) {
-        if (!value) {
-            return "";
-        }
-
-        const [time, modifier] = value.split(" ");
-        let [hours, minutes] = time.split(":");
-
-        hours = parseInt(hours, 10);
-
-        if (modifier === "PM" && hours !== 12) {
-            hours += 12;
-        }
-
-        if (modifier === "AM" && hours === 12) {
-            hours = 0;
-        }
-
-        return `${String(hours).padStart(2, "0")}:${minutes}`;
+    function getDayLabel(dayValue) {
+        return DAYS.find((d) => d.value === dayValue)?.label || "";
     }
 
-    function convertFromTimeInput(value) {
-        if (!value) {
-            return "";
-        }
+    function updateDay(dayOfWeek, field, value) {
+        setSchedule((prev) =>
+            prev.map((day) =>
+                day.day_of_week === dayOfWeek
+                    ? { ...day, [field]: value }
+                    : day
+            )
+        );
+    }
 
-        let [hours, minutes] = value.split(":");
-        hours = parseInt(hours, 10);
+    function toggleDayOpen(dayOfWeek) {
+        setSchedule((prev) =>
+            prev.map((day) => {
+                if (day.day_of_week !== dayOfWeek) return day;
 
-        const modifier = hours >= 12 ? "PM" : "AM";
+                const nextOpen = !day.is_open;
 
-        if (hours === 0) {
-            hours = 12;
-        } else if (hours > 12) {
-            hours -= 12;
-        }
+                return {
+                    ...day,
+                    is_open: nextOpen,
+                    opening_time: nextOpen
+                        ? day.opening_time || "09:00"
+                        : null,
+                    closing_time: nextOpen
+                        ? day.closing_time || "18:00"
+                        : null,
+                };
+            })
+        );
+    }
 
-        return `${String(hours).padStart(2, "0")}:${minutes} ${modifier}`;
+    function copyHoursToAll(dayOfWeek) {
+        const source = schedule.find((d) => d.day_of_week === dayOfWeek);
+
+        if (!source) return;
+
+        setSchedule((prev) =>
+            prev.map((day) => ({
+                ...day,
+                is_open: source.is_open,
+                opening_time: source.opening_time,
+                closing_time: source.closing_time,
+            }))
+        );
+    }
+
+    function formatTime12h(time) {
+        if (!time) return "";
+
+        const [hourStr, minute] = time.split(":");
+        let hour = parseInt(hourStr, 10);
+        const modifier = hour >= 12 ? "PM" : "AM";
+
+        if (hour === 0) hour = 12;
+        else if (hour > 12) hour -= 12;
+
+        return `${String(hour).padStart(2, "0")}:${minute} ${modifier}`;
     }
 
     function getScheduleSummary() {
-        const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday"];
-
-        const weekdaySchedules = weekdays.map((day) => schedule[day]);
-
-        const allWeekdaysOpen = weekdaySchedules.every(
-            (day) => day.isOpen
+        const weekdays = schedule.filter(
+            (d) => d.day_of_week >= 1 && d.day_of_week <= 5
         );
 
-        const firstWeekday = weekdaySchedules[0];
+        const allWeekdaysOpen = weekdays.every((d) => d.is_open);
 
-        const allWeekdaysSame =
+        const firstWeekday = weekdays[0];
+
+        const allSame =
             allWeekdaysOpen &&
-            weekdaySchedules.every(
-                (day) =>
-                    day.open === firstWeekday.open &&
-                    day.close === firstWeekday.close
+            weekdays.every(
+                (d) =>
+                    d.opening_time === firstWeekday.opening_time &&
+                    d.closing_time === firstWeekday.closing_time
             );
 
         const summary = [];
 
-        if (allWeekdaysSame) {
+        if (allSame) {
             summary.push({
                 label: "Mon - Fri",
-                value: `${firstWeekday.open} - ${firstWeekday.close}`,
+                value: `${formatTime12h(firstWeekday.opening_time)} - ${formatTime12h(
+                    firstWeekday.closing_time
+                )}`,
             });
         } else {
-            weekdays.forEach((day) => {
-                const dayData = schedule[day];
-
+            weekdays.forEach((d) => {
                 summary.push({
-                    label: day.slice(0, 3),
-                    value: dayData.isOpen
-                        ? `${dayData.open} - ${dayData.close}`
+                    label: getDayLabel(d.day_of_week).slice(0, 3),
+                    value: d.is_open
+                        ? `${formatTime12h(d.opening_time)} - ${formatTime12h(
+                              d.closing_time
+                          )}`
                         : "Closed",
                 });
             });
         }
 
-        ["saturday", "sunday"].forEach((day) => {
-            const dayData = schedule[day];
-
-            summary.push({
-                label: day.slice(0, 3),
-                value: dayData.isOpen
-                    ? `${dayData.open} - ${dayData.close}`
-                    : "Closed",
+        schedule
+            .filter((d) => d.day_of_week === 6 || d.day_of_week === 0)
+            .forEach((d) => {
+                summary.push({
+                    label: getDayLabel(d.day_of_week).slice(0, 3),
+                    value: d.is_open
+                        ? `${formatTime12h(d.opening_time)} - ${formatTime12h(
+                              d.closing_time
+                          )}`
+                        : "Closed",
+                });
             });
-        });
 
         return summary;
     }
 
-    const scheduleSummary = getScheduleSummary();
-
-    const hasOpenDay = DAYS.some(
-        (day) => schedule[day].isOpen
-    );
-
-    const scheduleStatus = hasOpenDay ? "Configured" : "Not Set";
-
     function handleSave() {
-        setSavedSnapshot(schedule);
+        // Validate
+        for (const day of schedule) {
+            if (day.is_open) {
+                if (!day.opening_time || !day.closing_time) {
+                    return;
+                }
 
-        // TODO: axios PUT /api/company/business-hours
-        // Payload: { schedule }
+                if (day.opening_time >= day.closing_time) {
+                    return;
+                }
+            }
+        }
+
+        updateWorkingHours(schedule, {
+            onSuccess: () => {
+                setSavedSnapshot(schedule);
+            },
+        });
     }
 
     function handleDiscard() {
-        setSchedule(savedSnapshot);
+        setSchedule(JSON.parse(JSON.stringify(savedSnapshot)));
+    }
+
+    const scheduleSummary = getScheduleSummary();
+    const hasOpenDay = schedule.some((d) => d.is_open);
+    const scheduleStatus = hasOpenDay ? "Configured" : "Not Set";
+
+    const apiError =
+        saveError?.response?.data?.message || saveError?.message || "";
+
+    if (isLoading) {
+        return (
+            <div className="flex min-h-screen bg-beige">
+                <div className="hidden lg:block lg:flex-shrink-0">
+                    <Sidebar activeItem="Settings" />
+                </div>
+
+                <div className="flex flex-1 items-center justify-center">
+                    <div className="flex items-center gap-3 text-navy">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span className="font-serif text-sm">
+                            Loading business hours...
+                        </span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="flex min-h-screen bg-beige">
+                <div className="hidden lg:block lg:flex-shrink-0">
+                    <Sidebar activeItem="Settings" />
+                </div>
+
+                <div className="flex flex-1 items-center justify-center px-6">
+                    <div className="flex max-w-md items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                        <AlertCircle className="h-5 w-5 shrink-0 text-red-600" />
+                        <p className="text-sm text-red-700">
+                            {error?.response?.data?.message ||
+                                error?.message ||
+                                "Failed to load business hours."}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className="min-h-screen flex bg-beige">
-
-            {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:flex-shrink-0">
                 <Sidebar activeItem="Settings" />
             </div>
 
-            {/* Mobile / Tablet Sidebar — overlay drawer */}
             {sidebarOpen && (
                 <>
                     <button
@@ -306,9 +295,7 @@ function BusinessHours() {
                 </>
             )}
 
-            {/* Main Area */}
             <div className="flex min-w-0 flex-1 flex-col">
-
                 <Topbar
                     onMenuClick={() => setSidebarOpen(true)}
                     showBell
@@ -317,12 +304,9 @@ function BusinessHours() {
                 />
 
                 <main className="flex-1 bg-beige px-4 py-5 pb-28 sm:px-6 md:px-8 md:py-6 md:pb-28">
-
-                    {/* Breadcrumb */}
                     <div className="flex flex-wrap items-center gap-2 mb-6 text-sm">
-
                         <Link
-                            to="/settings"
+                            to="/company/settings"
                             className="text-slate hover:text-navy transition"
                         >
                             Settings
@@ -333,34 +317,38 @@ function BusinessHours() {
                         <span className="font-bold text-navy">
                             Business Hours
                         </span>
-
                     </div>
 
-                    {/* Header */}
                     <div className="mb-6">
-
                         <h1 className="font-serif text-2xl text-navy sm:text-3xl md:text-4xl">
                             Business Hours
                         </h1>
 
                         <p className="text-sm text-slate mt-1.5">
-                            Set your company's regular operating hours and breaks.
+                            Set your company's regular operating hours.
                         </p>
-
                     </div>
 
-                    {/* Settings Layout */}
-                    <div className="grid grid-cols-1 lg:grid-cols-[220px_320px_1fr] gap-6">
+                    {apiError && (
+                        <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 max-w-3xl">
+                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                            <p className="text-sm text-red-700">{apiError}</p>
+                        </div>
+                    )}
 
-                        {/* Left */}
+                    {isSaved && !isDirty && (
+                        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 max-w-3xl">
+                            <p className="text-sm text-green-700">
+                                Business hours updated successfully.
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 lg:grid-cols-[220px_320px_1fr] gap-6">
                         <SettingsNav activeSection="hours" />
 
-                        {/* Center */}
                         <div className="flex flex-col gap-6">
-
-                            {/* Summary */}
                             <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6">
-
                                 <h2 className="font-serif text-lg text-navy sm:text-2xl">
                                     Summary
                                 </h2>
@@ -368,10 +356,9 @@ function BusinessHours() {
                                 <div className="border-b border-gray/20 mt-4 mb-4" />
 
                                 <div className="flex flex-col gap-3">
-
-                                    {scheduleSummary.map((item) => (
+                                    {scheduleSummary.map((item, idx) => (
                                         <div
-                                            key={item.label}
+                                            key={`${item.label}-${idx}`}
                                             className="flex items-center justify-between gap-4"
                                         >
                                             <span className="text-xs font-bold uppercase tracking-wide text-navy">
@@ -383,7 +370,6 @@ function BusinessHours() {
                                             </span>
                                         </div>
                                     ))}
-
                                 </div>
 
                                 <div className="border-t border-gray/20 mt-5 pt-4 flex items-center justify-between">
@@ -408,43 +394,19 @@ function BusinessHours() {
                                         {scheduleStatus}
                                     </span>
                                 </div>
-
                             </div>
 
-                            {/* Timezone */}
-                            <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6">
-
-                                <p className="text-sm font-bold text-navy">
-                                    Timezone
-                                </p>
-
-                                <p className="text-sm text-navy mt-3">
-                                    {timezone.split(" (")[0]}
-                                </p>
-
-                                <p className="text-sm text-slate mt-1">
-                                    (UTC+05:00)
-                                </p>
-
-                            </div>
-
-                            {/* Info */}
                             <div className="bg-beige/60 rounded-lg border-l-4 border-navy p-5">
-
                                 <p className="text-sm text-slate leading-relaxed">
                                     Business hours determine when your company
                                     can accept appointments. Staff availability
                                     may further restrict individual appointment
                                     times.
                                 </p>
-
                             </div>
-
                         </div>
 
-                        {/* Right */}
                         <div className="bg-white rounded-xl border border-gray/20 shadow-sm p-5 sm:p-6 md:p-7">
-
                             <h2 className="font-serif text-lg text-navy sm:text-2xl">
                                 Weekly Schedule
                             </h2>
@@ -456,67 +418,58 @@ function BusinessHours() {
 
                             <div className="border-b border-gray/20 mt-5" />
 
-                            {/* Weekly Schedule */}
                             <div className="mt-5 flex flex-col divide-y divide-gray/20">
-
-                                {DAYS.map((day) => {
-                                    const dayData = schedule[day];
-
+                                {schedule.map((day) => {
                                     return (
                                         <div
-                                            key={day}
+                                            key={day.day_of_week}
                                             className="py-4 first:pt-0 last:pb-0"
                                         >
-
                                             <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
-
-                                                {/* Day + Toggle + Status */}
                                                 <div className="flex items-center gap-4 md:gap-5">
-
-                                                    {/* Day */}
                                                     <div className="w-[100px] flex-shrink-0">
                                                         <p className="text-xs font-bold uppercase tracking-wide text-navy">
-                                                            {day}
+                                                            {getDayKey(day.day_of_week)}
                                                         </p>
                                                     </div>
 
-                                                    {/* Toggle */}
                                                     <button
                                                         type="button"
-                                                        onClick={() => toggleDayOpen(day)}
+                                                        onClick={() =>
+                                                            toggleDayOpen(
+                                                                day.day_of_week
+                                                            )
+                                                        }
                                                         className={`
                                                             relative w-11 h-6 rounded-full flex-shrink-0
                                                             transition
-                                                            ${dayData.isOpen ? "bg-navy" : "bg-gray"}
+                                                            ${day.is_open ? "bg-navy" : "bg-gray"}
                                                         `}
-                                                        aria-label={`Toggle ${day} ${dayData.isOpen ? "closed" : "open"}`}
+                                                        aria-label={`Toggle ${getDayKey(
+                                                            day.day_of_week
+                                                        )}`}
                                                     >
                                                         <span
                                                             className={`
                                                                 absolute top-1 w-4 h-4 rounded-full bg-white
                                                                 transition
-                                                                ${dayData.isOpen ? "left-6" : "left-1"}
+                                                                ${day.is_open ? "left-6" : "left-1"}
                                                             `}
                                                         />
                                                     </button>
 
-                                                    {/* Status */}
                                                     <span
                                                         className={`
                                                             text-sm w-[70px] flex-shrink-0
-                                                            ${dayData.isOpen ? "text-navy font-bold" : "text-slate"}
+                                                            ${day.is_open ? "text-navy font-bold" : "text-slate"}
                                                         `}
                                                     >
-                                                        {dayData.isOpen ? "Open" : "Closed"}
+                                                        {day.is_open ? "Open" : "Closed"}
                                                     </span>
-
                                                 </div>
 
-                                                {/* Open-day controls */}
-                                                {dayData.isOpen && (
+                                                {day.is_open && (
                                                     <div className="flex flex-wrap items-center gap-3 flex-1">
-
-                                                        {/* Opening Time */}
                                                         <div className="flex items-center gap-2">
                                                             <label className="text-xs text-slate">
                                                                 From
@@ -524,12 +477,12 @@ function BusinessHours() {
 
                                                             <input
                                                                 type="time"
-                                                                value={convertToTimeInput(dayData.open)}
-                                                                onChange={(event) =>
-                                                                    handleTimeChange(
-                                                                        day,
-                                                                        "open",
-                                                                        convertFromTimeInput(event.target.value)
+                                                                value={day.opening_time || ""}
+                                                                onChange={(e) =>
+                                                                    updateDay(
+                                                                        day.day_of_week,
+                                                                        "opening_time",
+                                                                        e.target.value
                                                                     )
                                                                 }
                                                                 className="
@@ -548,7 +501,6 @@ function BusinessHours() {
                                                             />
                                                         </div>
 
-                                                        {/* Closing Time */}
                                                         <div className="flex items-center gap-2">
                                                             <label className="text-xs text-slate">
                                                                 To
@@ -556,12 +508,12 @@ function BusinessHours() {
 
                                                             <input
                                                                 type="time"
-                                                                value={convertToTimeInput(dayData.close)}
-                                                                onChange={(event) =>
-                                                                    handleTimeChange(
-                                                                        day,
-                                                                        "close",
-                                                                        convertFromTimeInput(event.target.value)
+                                                                value={day.closing_time || ""}
+                                                                onChange={(e) =>
+                                                                    updateDay(
+                                                                        day.day_of_week,
+                                                                        "closing_time",
+                                                                        e.target.value
                                                                     )
                                                                 }
                                                                 className="
@@ -580,10 +532,13 @@ function BusinessHours() {
                                                             />
                                                         </div>
 
-                                                        {/* Copy Hours to All */}
                                                         <button
                                                             type="button"
-                                                            onClick={() => copyHoursToAll(day)}
+                                                            onClick={() =>
+                                                                copyHoursToAll(
+                                                                    day.day_of_week
+                                                                )
+                                                            }
                                                             className="
                                                                 flex
                                                                 items-center
@@ -600,161 +555,33 @@ function BusinessHours() {
                                                                 transition
                                                             "
                                                             title="Copy hours to all days"
-                                                            aria-label={`Copy ${day} hours to all days`}
+                                                            aria-label="Copy hours to all days"
                                                         >
                                                             <Copy className="w-4 h-4" />
                                                         </button>
-
-                                                        {/* Break Chips */}
-                                                        {dayData.breaks.length > 0 && (
-                                                            <div className="w-full flex flex-wrap items-center gap-2 md:pl-[70px]">
-
-                                                                {dayData.breaks.map((breakItem, index) => (
-                                                                    <div
-                                                                        key={index}
-                                                                        className="
-                                                                            flex flex-wrap items-center gap-2
-                                                                            bg-beige
-                                                                            border border-gray/30
-                                                                            rounded-lg
-                                                                            px-3
-                                                                            py-2
-                                                                        "
-                                                                    >
-                                                                        <span className="text-xs text-slate">
-                                                                            Break
-                                                                        </span>
-
-                                                                        <input
-                                                                            type="text"
-                                                                            value={breakItem.start}
-                                                                            onChange={(event) =>
-                                                                                handleBreakChange(
-                                                                                    day,
-                                                                                    index,
-                                                                                    "start",
-                                                                                    event.target.value
-                                                                                )
-                                                                            }
-                                                                            className="
-                                                                                w-[105px]
-                                                                                h-8
-                                                                                rounded-md
-                                                                                border
-                                                                                border-gray/40
-                                                                                bg-white
-                                                                                px-2
-                                                                                text-xs
-                                                                                text-navy
-                                                                                font-serif
-                                                                                outline-none
-                                                                                focus:border-navy
-                                                                            "
-                                                                        />
-
-                                                                        <span className="text-xs text-slate">
-                                                                            -
-                                                                        </span>
-
-                                                                        <input
-                                                                            type="text"
-                                                                            value={breakItem.end}
-                                                                            onChange={(event) =>
-                                                                                handleBreakChange(
-                                                                                    day,
-                                                                                    index,
-                                                                                    "end",
-                                                                                    event.target.value
-                                                                                )
-                                                                            }
-                                                                            className="
-                                                                                w-[105px]
-                                                                                h-8
-                                                                                rounded-md
-                                                                                border
-                                                                                border-gray/40
-                                                                                bg-white
-                                                                                px-2
-                                                                                text-xs
-                                                                                text-navy
-                                                                                font-serif
-                                                                                outline-none
-                                                                                focus:border-navy
-                                                                            "
-                                                                        />
-
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => removeBreak(day, index)}
-                                                                            className="
-                                                                                text-lg
-                                                                                leading-none
-                                                                                text-slate
-                                                                                hover:text-navy
-                                                                                transition
-                                                                            "
-                                                                            aria-label="Remove break"
-                                                                        >
-                                                                            ×
-                                                                        </button>
-                                                                    </div>
-                                                                ))}
-
-                                                            </div>
-                                                        )}
-
-                                                        {/* Add Break Button */}
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => addBreak(day)}
-                                                            className="
-                                                                text-xs
-                                                                font-bold
-                                                                text-navy
-                                                                border
-                                                                border-gray/40
-                                                                rounded-lg
-                                                                px-3
-                                                                py-2
-                                                                hover:border-navy
-                                                                hover:bg-beige
-                                                                transition
-                                                            "
-                                                        >
-                                                            + Add Break
-                                                        </button>
-
                                                     </div>
                                                 )}
-
                                             </div>
-
                                         </div>
                                     );
                                 })}
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </main>
 
-                {/* Sticky Unsaved Changes Bar */}
                 {isDirty && (
                     <div className="fixed bottom-0 left-0 right-0 lg:left-64 bg-navy text-white px-4 sm:px-8 py-4 z-50">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-
                             <p className="text-sm text-center sm:text-left">
                                 You have unsaved changes.
                             </p>
 
                             <div className="flex items-center justify-center gap-3">
-
                                 <button
                                     type="button"
                                     onClick={handleDiscard}
+                                    disabled={isSaving}
                                     className="
                                         bg-transparent
                                         border
@@ -767,6 +594,7 @@ function BusinessHours() {
                                         font-bold
                                         hover:border-white
                                         transition
+                                        disabled:opacity-50
                                     "
                                 >
                                     Discard
@@ -775,6 +603,7 @@ function BusinessHours() {
                                 <button
                                     type="button"
                                     onClick={handleSave}
+                                    disabled={isSaving}
                                     className="
                                         bg-white
                                         text-navy
@@ -785,19 +614,16 @@ function BusinessHours() {
                                         font-bold
                                         hover:bg-gold
                                         transition
+                                        disabled:opacity-50
                                     "
                                 >
-                                    Save Changes
+                                    {isSaving ? "Saving..." : "Save Changes"}
                                 </button>
-
                             </div>
-
                         </div>
                     </div>
                 )}
-
             </div>
-
         </div>
     );
 }
