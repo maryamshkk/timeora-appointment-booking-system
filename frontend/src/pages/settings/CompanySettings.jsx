@@ -40,29 +40,63 @@ function buildWorkingHoursSummary(workingHours) {
     const map = new Map();
     workingHours.forEach((entry) => map.set(entry.day_of_week, entry));
 
-    const days = [1, 2, 3, 4, 5, 6, 0].map((dayOfWeek) => ({
-        dayOfWeek,
-        label: DAY_KEYS[dayOfWeek],
-        entry: map.get(dayOfWeek),
-    }));
+    const getDay = (dayOfWeek) => map.get(dayOfWeek);
 
-    const openDays = days.filter((d) => d.entry?.is_open);
+    // Weekdays (Mon-Fri)
+    const weekdayDays = [1, 2, 3, 4, 5];
+    const weekdayEntries = weekdayDays.map(getDay);
+    const openWeekdays = weekdayEntries.filter((e) => e?.is_open);
 
-    if (openDays.length === 0) {
-        return "All days closed";
+    // Check if all weekdays have same hours
+    const firstOpenWeekday = openWeekdays[0];
+    const allWeekdaysSame =
+        openWeekdays.length === 5 &&
+        openWeekdays.every(
+            (e) =>
+                e.opening_time === firstOpenWeekday.opening_time &&
+                e.closing_time === firstOpenWeekday.closing_time
+        );
+
+    const parts = [];
+
+    // Weekday summary
+    if (openWeekdays.length === 0) {
+        parts.push("Mon–Fri Closed");
+    } else if (allWeekdaysSame) {
+        parts.push(
+            `Mon–Fri ${formatTime12h(
+                firstOpenWeekday.opening_time
+            )}–${formatTime12h(firstOpenWeekday.closing_time)}`
+        );
+    } else {
+        parts.push(`Mon–Fri ${openWeekdays.length}/5 days open`);
     }
 
-    const parts = days.map((d) => {
-        if (!d.entry || !d.entry.is_open) {
-            return `${d.label} Closed`;
-        }
+    // Saturday
+    const sat = getDay(6);
+    if (sat?.is_open) {
+        parts.push(
+            `Sat ${formatTime12h(sat.opening_time)}–${formatTime12h(
+                sat.closing_time
+            )}`
+        );
+    } else {
+        parts.push("Sat Closed");
+    }
 
-        return `${d.label} ${formatTime12h(
-            d.entry.opening_time
-        )} - ${formatTime12h(d.entry.closing_time)}`;
-    });
+    // Sunday
+    const sun = getDay(0);
+    if (sun?.is_open) {
+        parts.push(
+            `Sun ${formatTime12h(sun.opening_time)}–${formatTime12h(
+                sun.closing_time
+            )}`
+        );
+    } else {
+        parts.push("Sun Closed");
+    }
 
-    return parts.join(", ");
+    return parts.join(" · ");
 }
 
 function buildCompanyLocation(company) {
