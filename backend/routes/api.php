@@ -17,7 +17,6 @@ use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\Customer\AppointmentController;
 use App\Http\Controllers\Company\AppointmentController as CompanyAppointmentController;
 use App\Http\Controllers\Staff\AppointmentController as StaffAppointmentController;
-use App\Http\Controllers\Admin\SuperAdminAuthController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\CompanyDashboardController;
 use App\Http\Controllers\StaffDashboardController;
@@ -35,6 +34,8 @@ use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminAnnouncementController;
 use App\Http\Controllers\Company\CompanyReportController;
 use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\Admin\AdminSettingsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -45,9 +46,9 @@ Route::middleware(['auth:sanctum', 'super_admin'])
     ->group(function () {
 
     // admin profile
-    Route::get('/profile', [AdminProfileController::class,'show']);
-    Route::put('/profile', [AdminProfileController::class,'update']);
-    Route::put('/profile/password', [AdminProfileController::class,'updatePassword']);
+    Route::get('/admin/profile', [AdminProfileController::class,'show']);
+    Route::put('/admin/profile', [AdminProfileController::class,'update']);
+    Route::put('/admin/profile/password', [AdminProfileController::class,'updatePassword']);
 
     // get dashboard
     Route::get('/admin/dashboard', [AdminDashboardController::class,'index']);
@@ -157,8 +158,8 @@ Route::middleware(['auth:sanctum', 'super_admin'])
 
 
     // Get company profile data
-    Route::get('/company', [CompanyController::class, 'show']);
-    Route::put('/company', [CompanyController::class, 'update']);
+    Route::get('/company/profile', [CompanyController::class, 'show']);
+    Route::put('/company/profile', [CompanyController::class, 'update']);
 
     // Roles
     Route::get('/company/roles', [RoleController::class, 'index']);

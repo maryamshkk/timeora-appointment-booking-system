@@ -100,37 +100,37 @@ class CompanyDashboardController extends Controller
                         $query->whereDate('appointment_date', today())
                                 ->where('start_time', '>=', now()->format('H:i:s'));
                     });
-    })
-            ->whereIn('status', ['pending', 'accepted'])
-            ->orderBy('appointment_date')
-            ->orderBy('start_time')
-            ->limit(5)
-            ->get();
+        })
+                ->whereIn('status', ['pending', 'accepted'])
+                ->orderBy('appointment_date')
+                ->orderBy('start_time')
+                ->limit(5)
+                ->get();
 
 
-            // Return Dashboard Response
-        return response()->json([
-            'success' => true,
+                // Return Dashboard Response
+            return response()->json([
+                'success' => true,
 
-            'data' => [
-                'statistics' => [
-                    'total_appointments' => $totalAppointments,
-                    'today_appointments' => $todayAppointments,
-                    'pending_appointments' => $pendingAppointments,
-                    'accepted_appointments' => $acceptedAppointments,
-                    'completed_appointments' => $completedAppointments,
-                    'cancelled_appointments' => $cancelledAppointments,
-                    'total_customers' => $totalCustomers,
-                    'total_staff' => $totalStaff,
-                    'total_services' => $totalServices,
-                    'today_appointments' => $todayAppointments,
+                'data' => [
+                    'statistics' => [
+                        'total_appointments' => $totalAppointments,
+                        'today_appointments' => $todayAppointments,
+                        'pending_appointments' => $pendingAppointments,
+                        'accepted_appointments' => $acceptedAppointments,
+                        'completed_appointments' => $completedAppointments,
+                        'cancelled_appointments' => $cancelledAppointments,
+                        'total_customers' => $totalCustomers,
+                        'total_staff' => $totalStaff,
+                        'total_services' => $totalServices,
+                        'today_appointments' => $todayAppointments,
+                    ],
+
+                    'date_range_appointments' => $dateRangeAppointments,
+                    'recent_activity' => $recentActivity,                
+                    'upcoming_appointments' => $upcomingAppointments,
                 ],
+            ]);
+        }
 
-                'date_range_appointments' => $dateRangeAppointments,
-                'recent_activity' => $recentActivity,                
-                'upcoming_appointments' => $upcomingAppointments,
-            ],
-        ]);
     }
-
-}
