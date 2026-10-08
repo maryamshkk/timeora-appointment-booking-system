@@ -3,17 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Models\Appointment;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
 
 class Staff extends Authenticatable
 {
@@ -38,41 +35,44 @@ class Staff extends Authenticatable
         'is_active',
     ];
 
+    /**
+     * Hide sensitive fields AND back-referencing relations so that
+     * serializing a Staff model never recurses through its graph.
+     */
     protected $hidden = [
         'password_hash',
         'invitation_token',
+        'company',
+        'role',
+        'services',
+        'availability',
+        'blockedTimes',
+        'availabilityExceptions',
+        'appointments',
+        'settings',
     ];
 
     protected $casts = [
         'invitation_sent_at' => 'datetime',
-        'email_verified_at' => 'datetime',
-        'is_active' => 'boolean',
+        'email_verified_at'  => 'datetime',
+        'is_active'          => 'boolean',
     ];
-
-    /**
-     * Staff belongs to a company.
-     */
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
-    }
 
     public function getAuthPassword()
     {
         return $this->password_hash;
     }
 
-    /**
-     * Staff belongs to a role.
-     */
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
     }
 
-    /**
-     * Staff can provide many services.
-     */
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -81,26 +81,16 @@ class Staff extends Authenticatable
         )->withTimestamps();
     }
 
-
-    /**
-     * Staff has many availability records.
-     */
     public function availability(): HasMany
     {
         return $this->hasMany(StaffAvailability::class);
     }
 
-    /**
-     * Staff has many blocked times.
-     */
     public function blockedTimes(): HasMany
     {
         return $this->hasMany(BlockedTime::class);
     }
 
-    /**
-     * Staff has many availability exceptions
-     */
     public function availabilityExceptions(): HasMany
     {
         return $this->hasMany(AvailabilityException::class);
@@ -111,13 +101,13 @@ class Staff extends Authenticatable
         return $this->hasMany(Appointment::class, 'staff_id');
     }
 
-    public function routeNotificationForMail($notification)
-    {
-        return $this->account_email;
-    }
-
     public function settings(): HasOne
     {
         return $this->hasOne(StaffSetting::class);
+    }
+
+    public function routeNotificationForMail($notification)
+    {
+        return $this->account_email;
     }
 }

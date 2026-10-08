@@ -4,8 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Customer;
-use App\Models\Payment;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Appointment extends Model
 {
@@ -18,6 +17,27 @@ class Appointment extends Model
         'start_time',
         'end_time',
         'status',
+    ];
+
+    /**
+     * Hide relationships that can cause circular serialization.
+     * They can still be loaded explicitly via ->with([...]) or ->load([...]).
+     */
+    protected $hidden = [
+        'company',
+        'customer',
+        'staff',
+        'service',
+        'payment',
+        'receipt',
+    ];
+
+    protected $casts = [
+        'appointment_date' => 'date:Y-m-d',
+        'start_time'       => 'string',
+        'end_time'         => 'string',
+        'created_at'       => 'datetime',
+        'updated_at'       => 'datetime',
     ];
 
     public function company(): BelongsTo
@@ -40,12 +60,12 @@ class Appointment extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public function payment()
+    public function payment(): HasOne
     {
         return $this->hasOne(Payment::class);
     }
 
-    public function receipt()
+    public function receipt(): HasOne
     {
         return $this->hasOne(Receipt::class);
     }

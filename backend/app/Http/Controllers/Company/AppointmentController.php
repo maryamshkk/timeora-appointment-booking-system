@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Company;
 
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Notifications\TimeoraNotification;
 use App\Notifications\NotificationType;
@@ -18,87 +16,84 @@ use App\Models\StaffAvailability;
 use App\Models\BlockedTime;
 use App\Models\BusinessWorkingHour;
 
-
 class AppointmentController extends Controller
 {
-    public function upcoming(Request $request) 
-    { 
-        $user = $request->user(); 
-        
-        $appointments = Appointment::with([ 
-            'customer', 
-            'staff', 
-            'service', 
-            ]) 
-            ->where('company_id', $user->company_id) 
-            ->where(function ($query) 
-            { 
-                $query->where('appointment_date', '>', now()->toDateString()) 
-                ->orWhere(function ($query) 
-                { 
-                    $query->where('appointment_date', now()
-                    ->toDateString()) 
-                    ->where('start_time', '>', now()
-                    ->format('H:i:s')); 
-                    }); 
-                }) 
-                ->whereNotIn('status', 
-                [
-                    'cancelled', 
-                    'rejected']) 
-                    ->orderBy('appointment_date', 'asc') 
-                    ->orderBy('start_time', 'asc') 
-                    ->when($limit, function ($query) use ($limit) {
-                        $query->limit((int) $limit);
-                    })
-                    ->get();
-                    
-                    return response()->json([ 
-                        'success' => true, 
-                        'appointments' => $appointments, 
-                    ]); 
-                }
+    /**
+     * Get upcoming appointments.
+     */
+    public function upcoming(Request $request)
+    {
+        $user = $request->user();
 
+        // ✅ FIX: $limit was undefined in original code
+        $limit = $request->query('limit');
 
-    // Get Appointments
+        $appointments = Appointment::with([
+            'customer:id,name,email,phone',
+            'staff:id,first_name,last_name',
+            'service:id,name,duration',
+        ])
+            ->where('company_id', $user->company_id)
+            ->where(function ($query) {
+                $query->where('appointment_date', '>', now()->toDateString())
+                    ->orWhere(function ($query) {
+                        $query->where('appointment_date', now()->toDateString())
+                            ->where('start_time', '>', now()->format('H:i:s'));
+                    });
+            })
+            ->whereNotIn('status', ['cancelled', 'rejected'])
+            ->orderBy('appointment_date', 'asc')
+            ->orderBy('start_time', 'asc')
+            ->when($limit, fn ($q) => $q->limit((int) $limit))
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'appointments' => $appointments,
+        ]);
+    }
+
+    /**
+     * Get all appointments.
+     */
     public function index(Request $request)
     {
         $user = $request->user();
 
-        $appointment = Appointment::with([
-            'customer:id,name,email',
+        $appointments = Appointment::with([
+            'customer:id,name,email,phone',
             'staff:id,first_name,last_name',
-            'service:id,name,duration'
+            'service:id,name,duration',
         ])
-        ->where('company_id', $user->company_id)
-        ->latest('appointment_date')
-        ->latest('start_time')
-        ->get();
+            ->where('company_id', $user->company_id)
+            ->latest('appointment_date')
+            ->latest('start_time')
+            ->get();
 
         return response()->json([
             'success' => true,
             'message' => 'Company appointments retrieved successfully.',
-            'data' => $appointment,
+            'data' => $appointments,
         ]);
     }
 
-     /**
+    /**
      * Get single appointment.
      */
-    
     public function show(Request $request, $id)
     {
         $user = $request->user();
 
         $appointment = Appointment::with([
-            'customer:id,name,email',
+            'customer:id,name,email,phone',
             'staff:id,first_name,last_name',
-            'service:id,name,duration'
+            'service:id,name,duration',
+            'payment',
         ])
-        ->where('company_id', $user->company_id)
-        ->find($id);
+            ->where('company_id', $user->company_id)
+            ->find($id);
 
-        if(!$appointment){
+        if (!$appointment) {
             return response()->json([
                 'success' => false,
                 'message' => 'Appointment not found.',
@@ -107,15 +102,14 @@ class AppointmentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Company appointments retrieved successfully.',
+            'message' => 'Appointment retrieved successfully.',
             'data' => $appointment,
         ]);
     }
 
-     /**
+    /**
      * Accept appointment.
      */
-
     public function accept(Request $request, $id)
     {
         $user = $request->user();
@@ -137,18 +131,18 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $appointment->update([
-            'status' => 'accepted',
-        ]);
+        $appointment->update(['status' => 'accepted']);
 
         $appointment->load([
-            'company',
-            'staff',
-            'service',
+            'company:id,name',
+            'staff:id,first_name,last_name',
+            'service:id,name',
             'payment',
         ]);
 
         $customer = User::find($appointment->customer_id);
+
+        $payload = $this->buildNotificationPayload($appointment, $customer);
 
         if ($customer) {
             $customer->notify(
@@ -156,73 +150,18 @@ class AppointmentController extends Controller
                     NotificationType::BOOKING_ACCEPTED,
                     'Appointment Accepted',
                     'Your appointment has been accepted by the company.',
-                    [
-                        'appointment_id' => $appointment->id,
-
-                        'customer_name' => $customer->name,
-
-                        'company_name' => $appointment->company?->name,
-
-                        'staff_name' => $appointment->staff
-                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
-                            : null,
-
-                        'service_name' => $appointment->service?->name,
-
-                        'appointment_date' => $appointment->appointment_date,
-
-                        'start_time' => $appointment->start_time,
-
-                        'end_time' => $appointment->end_time,
-
-                        'amount' => $appointment->payment?->amount,
-
-                        'payment_method' => $appointment->payment?->method,
-
-                        'payment_status' => $appointment->payment?->status,
-
-                        'status' => $appointment->status,
-                    ]
+                    $payload
                 )
             );
         }
 
-
-                $staff = $appointment->staff;
-
-        if ($staff) {
-            $staff->notify(
+        if ($appointment->staff) {
+            $appointment->staff->notify(
                 new TimeoraNotification(
                     NotificationType::BOOKING_ACCEPTED,
                     'Appointment Accepted',
                     'An appointment assigned to you has been accepted by the company.',
-                    [
-                        'appointment_id' => $appointment->id,
-
-                        'customer_name' => $customer?->name,
-
-                        'company_name' => $appointment->company?->name,
-
-                        'staff_name' => $appointment->staff
-                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
-                            : null,
-
-                        'service_name' => $appointment->service?->name,
-
-                        'appointment_date' => $appointment->appointment_date,
-
-                        'start_time' => $appointment->start_time,
-
-                        'end_time' => $appointment->end_time,
-
-                        'amount' => $appointment->payment?->amount,
-
-                        'payment_method' => $appointment->payment?->method,
-
-                        'payment_status' => $appointment->payment?->status,
-
-                        'status' => $appointment->status,
-                    ]
+                    $payload
                 )
             );
         }
@@ -230,7 +169,7 @@ class AppointmentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Appointment accepted successfully.',
-            'data' => $appointment->fresh(),
+            'data' => $appointment,
         ]);
     }
 
@@ -251,7 +190,6 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-
         if ($appointment->status !== 'pending') {
             return response()->json([
                 'success' => false,
@@ -259,108 +197,48 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        $appointment->update([
-            'status' => 'rejected',
-        ]);
+        $appointment->update(['status' => 'rejected']);
 
         $appointment->load([
-            'company',
-            'staff',
-            'service',
+            'company:id,name',
+            'staff:id,first_name,last_name',
+            'service:id,name',
             'payment',
         ]);
 
-            $customer = User::find($appointment->customer_id);
+        $customer = User::find($appointment->customer_id);
+        $payload = $this->buildNotificationPayload($appointment, $customer);
 
-            if ($customer) {
-                $customer->notify(
-                    new TimeoraNotification(
-                        NotificationType::BOOKING_REJECTED,
-                        'Appointment Rejected',
-                        'Unfortunately, your appointment has been rejected by the company.',
-                        [
-                            'appointment_id' => $appointment->id,
+        if ($customer) {
+            $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_REJECTED,
+                    'Appointment Rejected',
+                    'Unfortunately, your appointment has been rejected by the company.',
+                    $payload
+                )
+            );
+        }
 
-                            'customer_name' => $customer->name,
-
-                            'company_name' => $appointment->company?->name,
-
-                            'staff_name' => $appointment->staff
-                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
-                                : null,
-
-                            'service_name' => $appointment->service?->name,
-
-                            'appointment_date' => $appointment->appointment_date,
-
-                            'start_time' => $appointment->start_time,
-
-                            'end_time' => $appointment->end_time,
-
-                            'amount' => $appointment->payment?->amount,
-
-                            'payment_method' => $appointment->payment?->method,
-
-                            'payment_status' => $appointment->payment?->status,
-
-                            'status' => $appointment->status,
-                        ]
-                    )
-                );
-            }
-
-            $staff = $appointment->staff;
-
-            if ($staff) {
-                $staff->notify(
-                    new TimeoraNotification(
-                        NotificationType::BOOKING_REJECTED,
-                        'Appointment Rejected',
-                        'An appointment assigned to you has been rejected by the company.',
-                        [
-                            'appointment_id' => $appointment->id,
-
-                            'customer_name' => $customer?->name,
-
-                            'company_name' => $appointment->company?->name,
-
-                            'staff_name' => $appointment->staff
-                                ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
-                                : null,
-
-                            'service_name' => $appointment->service?->name,
-
-                            'appointment_date' => $appointment->appointment_date,
-
-                            'start_time' => $appointment->start_time,
-
-                            'end_time' => $appointment->end_time,
-
-                            'amount' => $appointment->payment?->amount,
-
-                            'payment_method' => $appointment->payment?->method,
-
-                            'payment_status' => $appointment->payment?->status,
-
-                            'status' => $appointment->status,
-                        ]
-                    )
-                );
-            }
-
-
-
+        if ($appointment->staff) {
+            $appointment->staff->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_REJECTED,
+                    'Appointment Rejected',
+                    'An appointment assigned to you has been rejected by the company.',
+                    $payload
+                )
+            );
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Appointment rejected successfully.',
-            'data' => $appointment->fresh(),
+            'data' => $appointment,
         ]);
     }
 
-
-
-     /**
+    /**
      * Cancel appointment.
      */
     public function cancel(Request $request, $id)
@@ -377,31 +255,25 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        if (in_array($appointment->status, [
-            'cancelled',
-            'rejected',
-            'completed',
-        ])) {
+        // ✅ FIX: strict in_array
+        if (in_array($appointment->status, ['cancelled', 'rejected', 'completed'], true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'This appointment cannot be cancelled.',
             ], 422);
         }
 
-        $appointment->update([
-            'status' => 'cancelled',
-        ]);
-
-
+        $appointment->update(['status' => 'cancelled']);
 
         $appointment->load([
-            'company',
-            'staff',
-            'service',
+            'company:id,name',
+            'staff:id,first_name,last_name',
+            'service:id,name',
             'payment',
         ]);
 
         $customer = User::find($appointment->customer_id);
+        $payload = $this->buildNotificationPayload($appointment, $customer);
 
         if ($customer) {
             $customer->notify(
@@ -409,73 +281,18 @@ class AppointmentController extends Controller
                     NotificationType::BOOKING_CANCELLED,
                     'Appointment Cancelled',
                     'Your appointment has been cancelled by the company.',
-                    [
-                        'appointment_id' => $appointment->id,
-
-                        'customer_name' => $customer->name,
-
-                        'company_name' => $appointment->company?->name,
-
-                        'staff_name' => $appointment->staff
-                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
-                            : null,
-
-                        'service_name' => $appointment->service?->name,
-
-                        'appointment_date' => $appointment->appointment_date,
-
-                        'start_time' => $appointment->start_time,
-
-                        'end_time' => $appointment->end_time,
-
-                        'amount' => $appointment->payment?->amount,
-
-                        'payment_method' => $appointment->payment?->method,
-
-                        'payment_status' => $appointment->payment?->status,
-
-                        'status' => $appointment->status,
-                    ]
+                    $payload
                 )
             );
         }
 
-
-        $staff = $appointment->staff;
-
-        if ($staff) {
-            $staff->notify(
+        if ($appointment->staff) {
+            $appointment->staff->notify(
                 new TimeoraNotification(
                     NotificationType::BOOKING_CANCELLED,
                     'Appointment Cancelled',
                     'An appointment assigned to you has been cancelled by the company.',
-                    [
-                        'appointment_id' => $appointment->id,
-
-                        'customer_name' => $customer?->name,
-
-                        'company_name' => $appointment->company?->name,
-
-                        'staff_name' => $appointment->staff
-                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
-                            : null,
-
-                        'service_name' => $appointment->service?->name,
-
-                        'appointment_date' => $appointment->appointment_date,
-
-                        'start_time' => $appointment->start_time,
-
-                        'end_time' => $appointment->end_time,
-
-                        'amount' => $appointment->payment?->amount,
-
-                        'payment_method' => $appointment->payment?->method,
-
-                        'payment_status' => $appointment->payment?->status,
-
-                        'status' => $appointment->status,
-                    ]
+                    $payload
                 )
             );
         }
@@ -483,7 +300,7 @@ class AppointmentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Appointment cancelled successfully.',
-            'data' => $appointment->fresh(),
+            'data' => $appointment,
         ]);
     }
 
@@ -509,11 +326,7 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        if (in_array($appointment->status, [
-            'cancelled',
-            'rejected',
-            'completed',
-        ])) {
+        if (in_array($appointment->status, ['cancelled', 'rejected', 'completed'], true)) {
             return response()->json([
                 'success' => false,
                 'message' => 'This appointment cannot be rescheduled.',
@@ -524,13 +337,15 @@ class AppointmentController extends Controller
         $service = Service::find($appointment->service_id);
         $company = Company::find($appointment->company_id);
 
-        $startTime = Carbon::createFromFormat(
-            'H:i',
-            $validated['start_time']
-        );
+        if (!$staff || !$service || !$company) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Related staff, service, or company not found.',
+            ], 422);
+        }
 
-        $endTime = $startTime->copy()
-            ->addMinutes($service->duration);
+        $startTime = Carbon::createFromFormat('H:i', $validated['start_time']);
+        $endTime = $startTime->copy()->addMinutes($service->duration);
 
         $appointmentDateTime = Carbon::createFromFormat(
             'Y-m-d H:i',
@@ -544,15 +359,7 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Staff Availability
-        |--------------------------------------------------------------------------
-        */
-
-        $dayOfWeek = Carbon::parse(
-            $validated['appointment_date']
-        )->dayOfWeekIso;
+        $dayOfWeek = Carbon::parse($validated['appointment_date'])->dayOfWeekIso;
 
         $availability = StaffAvailability::where('staff_id', $staff->id)
             ->where('day_of_week', $dayOfWeek)
@@ -565,15 +372,9 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Company Business Hours
-        |--------------------------------------------------------------------------
-        */
-
         $businessHours = BusinessWorkingHour::where('company_id', $company->id)
-                ->where('day_of_week', $dayOfWeek)
-                ->first();
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
 
         if (!$businessHours) {
             return response()->json([
@@ -582,21 +383,8 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Common Working Window
-        |--------------------------------------------------------------------------
-        */
-
-        $commonStart = max(
-            $businessHours->opening_time,
-            $availability->start_time
-        );
-
-        $commonEnd = min(
-            $businessHours->closing_time,
-            $availability->end_time
-        );
+        $commonStart = max($businessHours->opening_time, $availability->start_time);
+        $commonEnd = min($businessHours->closing_time, $availability->end_time);
 
         if (
             $validated['start_time'] < $commonStart ||
@@ -607,12 +395,6 @@ class AppointmentController extends Controller
                 'message' => 'Selected slot is outside working hours.',
             ], 422);
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Break Time
-        |--------------------------------------------------------------------------
-        */
 
         if (
             $availability->break_start &&
@@ -626,18 +408,11 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Blocked Time
-        |--------------------------------------------------------------------------
-        */
-
         $blockedTimes = BlockedTime::where('staff_id', $staff->id)
             ->whereDate('blocked_date', $validated['appointment_date'])
             ->get();
 
         foreach ($blockedTimes as $blocked) {
-
             if (
                 $validated['start_time'] < $blocked->end_time &&
                 $endTime->format('H:i:s') > $blocked->start_time
@@ -649,31 +424,13 @@ class AppointmentController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Appointment Conflict
-        |--------------------------------------------------------------------------
-        */
-
         $conflict = Appointment::where('staff_id', $staff->id)
             ->where('appointment_date', $validated['appointment_date'])
-            ->whereIn('status', [
-                'pending',
-                'accepted',
-            ])
+            ->whereIn('status', ['pending', 'accepted'])
             ->where('id', '!=', $appointment->id)
             ->where(function ($query) use ($validated, $endTime) {
-
-                $query->where(
-                    'start_time',
-                    '<',
-                    $endTime->format('H:i:s')
-                )->where(
-                    'end_time',
-                    '>',
-                    $validated['start_time']
-                );
-
+                $query->where('start_time', '<', $endTime->format('H:i:s'))
+                    ->where('end_time', '>', $validated['start_time']);
             })
             ->exists();
 
@@ -684,12 +441,6 @@ class AppointmentController extends Controller
             ], 409);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Update Appointment
-        |--------------------------------------------------------------------------
-        */
-
         $appointment->update([
             'appointment_date' => $validated['appointment_date'],
             'start_time' => $validated['start_time'],
@@ -698,47 +449,35 @@ class AppointmentController extends Controller
         ]);
 
         $appointment->load([
-            'customer',
-            'staff',
-            'service',
+            'customer:id,name,email,phone',
+            'company:id,name',
+            'staff:id,first_name,last_name',
+            'service:id,name',
             'payment',
         ]);
 
-        $staff = $appointment->staff;
+        // ✅ FIX: $customer was undefined in original code
+        $customer = $appointment->customer;
+        $payload = $this->buildNotificationPayload($appointment, $customer);
 
-        if ($staff) {
-            $staff->notify(
+        if ($appointment->staff) {
+            $appointment->staff->notify(
                 new TimeoraNotification(
                     NotificationType::BOOKING_RESCHEDULED,
                     'Appointment Rescheduled',
                     'An appointment assigned to you has been rescheduled.',
-                    [
-                        'appointment_id' => $appointment->id,
+                    $payload
+                )
+            );
+        }
 
-                        'customer_name' => $customer?->name,
-
-                        'company_name' => $appointment->company?->name,
-
-                        'staff_name' => $appointment->staff
-                            ? $appointment->staff->first_name . ' ' . $appointment->staff->last_name
-                            : null,
-
-                        'service_name' => $appointment->service?->name,
-
-                        'appointment_date' => $appointment->appointment_date,
-
-                        'start_time' => $appointment->start_time,
-
-                        'end_time' => $appointment->end_time,
-
-                        'amount' => $appointment->payment?->amount,
-
-                        'payment_method' => $appointment->payment?->method,
-
-                        'payment_status' => $appointment->payment?->status,
-
-                        'status' => $appointment->status,
-                    ]
+        if ($customer) {
+            $customer->notify(
+                new TimeoraNotification(
+                    NotificationType::BOOKING_RESCHEDULED,
+                    'Appointment Rescheduled',
+                    'Your appointment has been rescheduled.',
+                    $payload
                 )
             );
         }
@@ -746,13 +485,13 @@ class AppointmentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Appointment rescheduled successfully.',
-            'data' => $appointment->fresh(),
+            'data' => $appointment,
         ]);
     }
 
-
-
-    // Calendar Api
+    /**
+     * Calendar API.
+     */
     public function calendar(Request $request)
     {
         $validated = $request->validate([
@@ -781,5 +520,29 @@ class AppointmentController extends Controller
             'message' => 'Company calendar retrieved successfully.',
             'data' => $appointments,
         ]);
+    }
+
+    /**
+     * Build a scalar-only notification payload.
+     * ✅ CRITICAL: Never pass models inside — causes circular serialization.
+     */
+    private function buildNotificationPayload(Appointment $appointment, ?User $customer): array
+    {
+        return [
+            'appointment_id' => $appointment->id,
+            'customer_name' => $customer?->name,
+            'company_name' => $appointment->company?->name,
+            'staff_name' => $appointment->staff
+                ? trim($appointment->staff->first_name . ' ' . $appointment->staff->last_name)
+                : null,
+            'service_name' => $appointment->service?->name,
+            'appointment_date' => (string) $appointment->appointment_date,
+            'start_time' => (string) $appointment->start_time,
+            'end_time' => (string) $appointment->end_time,
+            'amount' => $appointment->payment?->amount,
+            'payment_method' => $appointment->payment?->method,
+            'payment_status' => $appointment->payment?->status,
+            'status' => $appointment->status,
+        ];
     }
 }

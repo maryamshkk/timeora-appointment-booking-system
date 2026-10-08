@@ -183,6 +183,7 @@ Route::middleware(['auth:sanctum', 'super_admin'])
 
     // Staff invitation Send
     Route::post('/company/staff/invite', [StaffController::class, 'invite']);
+    
 
     // Business working hour
     Route::get('/company/working-hours', [CompanyWorkingHoursController::class, 'index']);
@@ -248,35 +249,28 @@ Route::middleware(['auth:sanctum', 'super_admin'])
 });
 
 
+    Route::get('/staff/verify-invitation', [StaffController::class, 'verifyInvitation']);
+    Route::post('/staff/accept-invitation', [StaffController::class, 'acceptInvitation']);
 
 
     // Staff accept invitation
-    Route::post('/staff/accept-invitation', [StaffController::class, 'acceptInvitation']);
+Route::middleware('auth:staff')->group(function () {
+    Route::get('/staff/dashboard', [StaffDashboardController::class, 'index']);
 
-Route::middleware(['auth:sanctum', 'role:staff'])->group(function()
-    {
-        Route::get('/staff/dashboard', [StaffDashboardController::class, 'index']);
-        
-        Route::get('/staff/appointments/upcoming',[StaffAppointmentController::class, 'upcoming']);
+    Route::get('/staff/appointments/upcoming', [StaffAppointmentController::class, 'upcoming']);
+    Route::get('/staff/appointments', [StaffAppointmentController::class, 'index']);
+    Route::get('/staff/appointments/{id}', [StaffAppointmentController::class, 'show']);
+    Route::put('/staff/appointments/{id}/accept', [StaffAppointmentController::class, 'accept']);
+    Route::put('/staff/appointments/{id}/reject', [StaffAppointmentController::class, 'reject']);
+    Route::put('/staff/appointments/{id}/reschedule', [StaffAppointmentController::class, 'reschedule']);
+    Route::put('/staff/appointments/{id}/cancel', [StaffAppointmentController::class, 'cancel']);
+    Route::put('/staff/appointments/{id}/complete', [StaffAppointmentController::class, 'complete']);
 
-        Route::get('/staff/appointments', [StaffAppointmentController::class,'index']);
-        Route::get('/staff/appointments/{id}', [StaffAppointmentController::class,'show']);
-        Route::put('/staff/appointments/{id}/accept', [StaffAppointmentController::class,'accept']);
-        Route::put('/staff/appointments/{id}/reject', [StaffAppointmentController::class,'reject']);
-        Route::put('/staff/appointments/{id}/reschedule', [StaffAppointmentController::class, 'reschedule']);
-        Route::put('staff/appointments/{id}/cancel', [StaffAppointmentController::class, 'cancel']);
-        Route::put('/staff/appointments/{id}/complete', [StaffAppointmentController::class, 'complete']);
+    Route::get('/staff/calendar', [StaffAppointmentController::class, 'calendar']);
 
-        // Staff Calendar 
-        Route::get('staff/calendar', [StaffAppointmentController::class, 'calendar']);
-
-        // staff settings
-        Route::get('/staff/settings', [StaffSettingsController::class, 'show']);
-
-        Route::put('/staff/settings', [StaffSettingsController::class, 'update']);
-
-    });
-
+    Route::get('/staff/settings', [StaffSettingsController::class, 'show']);
+    Route::put('/staff/settings', [StaffSettingsController::class, 'update']);
+}); 
     
 
 

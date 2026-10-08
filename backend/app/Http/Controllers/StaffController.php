@@ -489,6 +489,35 @@ class StaffController extends Controller
         ], 200);
     }
 
+    // VERIFY INVITATION TOKEN
+public function verifyInvitation(Request $request)
+{
+    $request->validate([
+        'token' => 'required|string',
+    ]);
+
+    $staff = Staff::where('invitation_token', $request->token)
+        ->where('invitation_status', 'pending')
+        ->first();
+
+    if (!$staff) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid or expired invitation token.',
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'first_name' => $staff->first_name,
+            'last_name' => $staff->last_name,
+            'email' => $staff->account_email,
+            'company' => $staff->company?->name ?? 'Timeora',
+        ],
+    ]);
+}
+
     // ACCPET INVITATION
     public function acceptInvitation(Request $request)
     {

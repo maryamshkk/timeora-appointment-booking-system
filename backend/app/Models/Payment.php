@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Payment extends Model
 {
@@ -16,13 +18,23 @@ class Payment extends Model
         'paid_at',
     ];
 
-    protected $casts = [
-        'paid_at' => 'datetime',
-        'amount' => 'decimal:2'
+    protected $hidden = [
+        'appointment',
+        'receipt',
     ];
 
-    public function appointment()
+    protected $casts = [
+        'paid_at' => 'datetime',
+        'amount'  => 'decimal:2',
+    ];
+
+    public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class);
+    }
+
+    public function receipt(): HasOne
+    {
+        return $this->hasOne(Receipt::class);
     }
 }

@@ -7,10 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use App\Models\User;
-use App\Models\Staff;
-use App\Models\Service;
-use App\Models\Appointment;
 
 class Company extends Model
 {
@@ -36,7 +32,21 @@ class Company extends Model
         'email_verified_at' => 'datetime',
     ];
 
-    
+    /**
+     * Prevent circular serialization when Company is nested
+     * inside Appointment / Staff / Service JSON payloads.
+     */
+    protected $hidden = [
+        'staff',
+        'services',
+        'appointments',
+        'admins',
+        'workingHours',
+        'holidays',
+        'settings',
+        'category',
+    ];
+
     public function staff(): HasMany
     {
         return $this->hasMany(Staff::class, 'company_id');
@@ -51,6 +61,7 @@ class Company extends Model
     {
         return $this->hasMany(Appointment::class, 'company_id');
     }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -59,7 +70,7 @@ class Company extends Model
     public function admins(): HasMany
     {
         return $this->hasMany(User::class, 'company_id')
-        ->where('user_type', 'company_admin');
+            ->where('user_type', 'company_admin');
     }
 
     public function workingHours(): HasMany

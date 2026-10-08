@@ -22,10 +22,11 @@ class Customer extends Model
 
     protected $hidden = [
         'password_hash',
+        'settings',
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime'
+        'email_verified_at' => 'datetime',
     ];
 
     public function settings(): HasOne

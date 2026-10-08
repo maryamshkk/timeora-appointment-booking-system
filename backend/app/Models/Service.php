@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\Staff;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Service extends Model
 {
@@ -22,30 +22,40 @@ class Service extends Model
         'status',
     ];
 
+    protected $hidden = [
+        'company',
+        'category',
+        'staff',
+        'appointments',
+    ];
 
     protected $casts = [
         'duration' => 'integer',
+        'price'    => 'decimal:2',
     ];
-    /**
-     * Service belongs to a company.
-     */
+
     public function company(): BelongsTo
     {
-        return $this->belongTo(Company::class);
+        return $this->belongsTo(Company::class);
     }
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
-    // Service can belong to staff members
+
     public function staff(): BelongsToMany
     {
         return $this->belongsToMany(
             Staff::class,
             'staff_service',
             'service_id',
-            'staff_id',
-            );
+            'staff_id'
+        );
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'service_id');
     }
 }
