@@ -36,20 +36,12 @@ class Staff extends Authenticatable
     ];
 
     /**
-     * Hide sensitive fields AND back-referencing relations so that
-     * serializing a Staff model never recurses through its graph.
+     * ✅ FIXED: Only sensitive fields hidden.
+     * Relations (role, services, availability, company) are now exposed.
      */
     protected $hidden = [
         'password_hash',
         'invitation_token',
-        'company',
-        'role',
-        'services',
-        'availability',
-        'blockedTimes',
-        'availabilityExceptions',
-        'appointments',
-        'settings',
     ];
 
     protected $casts = [

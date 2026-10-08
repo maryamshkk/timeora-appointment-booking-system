@@ -5,18 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Role;
 
-
 class RoleController extends Controller
 {
     public function index()
     {
-        $roles=Role::where(
+        $roles = Role::where(
             'company_id',
             auth()->user()->company_id
         )->get();
 
         return response()->json([
-            'data'=> $roles
+            'success' => true,
+            'message' => 'Roles fetched successfully.',
+            'data'    => $roles,
         ]);
     }
 
@@ -27,14 +28,14 @@ class RoleController extends Controller
         ]);
 
         $role = Role::create([
-            'name' => $validated['name'],
+            'name'       => $validated['name'],
             'company_id' => auth()->user()->company_id,
         ]);
 
         return response()->json([
-            'message' => 'Role created Successfully',
-            'data' => $role,
+            'success' => true,
+            'message' => 'Role created successfully.',
+            'data'    => $role,
         ], 201);
-
     }
 }

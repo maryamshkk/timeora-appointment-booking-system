@@ -24,8 +24,6 @@ class AppointmentController extends Controller
     public function upcoming(Request $request)
     {
         $user = $request->user();
-
-        // ✅ FIX: $limit was undefined in original code
         $limit = $request->query('limit');
 
         $appointments = Appointment::with([
@@ -64,6 +62,7 @@ class AppointmentController extends Controller
             'customer:id,name,email,phone',
             'staff:id,first_name,last_name',
             'service:id,name,duration',
+            'payment',
         ])
             ->where('company_id', $user->company_id)
             ->latest('appointment_date')
@@ -105,6 +104,106 @@ class AppointmentController extends Controller
             'message' => 'Appointment retrieved successfully.',
             'data' => $appointment,
         ]);
+    }
+
+    /**
+     * ✅ NEW: Get customers list (for Create Appointment page).
+     */
+    public function customers(Request $request)
+    {
+        $user = $request->user();
+
+        // Company ki appointments se unique customers nikaalo,
+        // plus saare active customers
+        $customerIds = Appointment::where('company_id', $user->company_id)
+            ->pluck('customer_id')
+            ->unique()
+            ->filter();
+
+        $customers = User::where('user_type', 'customer')
+            ->where(function ($query) use ($customerIds) {
+                $query->whereIn('id', $customerIds)
+                    ->orWhere('status', 'active');
+            })
+            ->select('id', 'name', 'email', 'phone')
+            ->orderBy('name')
+            ->limit(200)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Customers fetched successfully.',
+            'data'    => $customers,
+        ]);
+    }
+
+    /**
+     * ✅ NEW: Create appointment manually (by company admin).
+     */
+    public function store(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'customer_id'      => 'required|exists:users,id',
+            'service_id'       => 'required|exists:services,id',
+            'staff_id'         => 'required|exists:staff,id',
+            'appointment_date' => 'required|date|after_or_equal:today',
+            'start_time'       => 'required|date_format:H:i',
+        ]);
+
+        // Service must belong to this company
+        $service = Service::where('company_id', $user->company_id)
+            ->findOrFail($validated['service_id']);
+
+        // Staff must belong to this company
+        $staff = Staff::where('company_id', $user->company_id)
+            ->findOrFail($validated['staff_id']);
+
+        // Calculate end time from service duration
+        $startTime = Carbon::createFromFormat('H:i', $validated['start_time']);
+        $endTime = $startTime->copy()->addMinutes($service->duration);
+
+        // Check conflict
+        $conflict = Appointment::where('staff_id', $staff->id)
+            ->where('appointment_date', $validated['appointment_date'])
+            ->whereIn('status', ['pending', 'accepted'])
+            ->where(function ($query) use ($validated, $endTime) {
+                $query->where('start_time', '<', $endTime->format('H:i:s'))
+                    ->where('end_time', '>', $validated['start_time']);
+            })
+            ->exists();
+
+        if ($conflict) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This slot is already booked for the selected staff.',
+            ], 409);
+        }
+
+        $appointment = Appointment::create([
+            'company_id'       => $user->company_id,
+            'customer_id'      => $validated['customer_id'],
+            'staff_id'         => $staff->id,
+            'service_id'       => $service->id,
+            'appointment_date' => $validated['appointment_date'],
+            'start_time'       => $validated['start_time'],
+            'end_time'         => $endTime->format('H:i:s'),
+            'status'           => 'accepted', // company-created → auto accepted
+        ]);
+
+        $appointment->load([
+            'customer:id,name,email,phone',
+            'staff:id,first_name,last_name',
+            'service:id,name,duration',
+            'payment',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Appointment created successfully.',
+            'data'    => $appointment,
+        ], 201);
     }
 
     /**
@@ -255,7 +354,6 @@ class AppointmentController extends Controller
             ], 404);
         }
 
-        // ✅ FIX: strict in_array
         if (in_array($appointment->status, ['cancelled', 'rejected', 'completed'], true)) {
             return response()->json([
                 'success' => false,
@@ -456,7 +554,6 @@ class AppointmentController extends Controller
             'payment',
         ]);
 
-        // ✅ FIX: $customer was undefined in original code
         $customer = $appointment->customer;
         $payload = $this->buildNotificationPayload($appointment, $customer);
 
@@ -524,7 +621,6 @@ class AppointmentController extends Controller
 
     /**
      * Build a scalar-only notification payload.
-     * ✅ CRITICAL: Never pass models inside — causes circular serialization.
      */
     private function buildNotificationPayload(Appointment $appointment, ?User $customer): array
     {
