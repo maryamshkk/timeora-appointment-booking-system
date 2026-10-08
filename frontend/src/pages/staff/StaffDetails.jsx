@@ -30,7 +30,7 @@ import {
 import Sidebar from "../../components/dashboard/Sidebar";
 import Topbar from "../../components/dashboard/Topbar";
 import StatCard from "../../components/dashboard/StatCard";
-import { useStaffMember } from "../../hooks/company/useStaff";
+import { useStaffMember, useInviteStaff } from "../../hooks/company/useStaff";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -48,7 +48,23 @@ function StaffDetails() {
         error,
     } = useStaffMember(staffId);
 
+    const { mutate: inviteStaff, isPending: isInviting } = useInviteStaff();
+
     const staff = response?.data;
+
+    function handleInvite() {
+        if (!staff) return;
+        if (!window.confirm(`Send invitation to ${staff.account_email}?`)) return;
+
+        inviteStaff(staff.id, {
+            onSuccess: (res) => {
+                alert(res?.message || "Invitation sent successfully!");
+            },
+            onError: (err) => {
+                alert(err?.response?.data?.message || "Failed to send invitation.");
+            },
+        });
+    }
 
     if (isLoading) {
         return (
@@ -238,6 +254,17 @@ function StaffDetails() {
                         </div>
 
                         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+                            {staff?.invitation_status !== "accepted" && (
+                                <button
+                                    type="button"
+                                    onClick={handleInvite}
+                                    disabled={isInviting}
+                                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-bold text-white transition hover:bg-gold hover:text-navy disabled:opacity-60 sm:w-auto"
+                                >
+                                    {isInviting ? "Sending..." : "Send Invitation"}
+                                </button>
+                            )}
+
                             <button
                                 type="button"
                                 onClick={() =>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
     ChevronRight,
@@ -59,15 +59,9 @@ function EditStaff() {
     const { data: rolesResponse } = useRoles();
     const { data: servicesResponse } = useServices();
 
-    const {
-        mutate: updateStaff,
-        isPending: isUpdating,
-    } = useUpdateStaff();
+    const { mutate: updateStaff, isPending: isUpdating } = useUpdateStaff();
 
-    const {
-        mutate: deleteStaff,
-        isPending: isDeleting,
-    } = useDeleteStaff();
+    const { mutate: deleteStaff, isPending: isDeleting } = useDeleteStaff();
 
     const staff = staffResponse?.data;
     const roles = rolesResponse?.data || [];
@@ -81,10 +75,32 @@ function EditStaff() {
         }
     }, [staff, formData]);
 
-    const isDirty =
-        formData &&
-        savedSnapshot &&
-        JSON.stringify(formData) !== JSON.stringify(savedSnapshot);
+    // ✅ FIXED: Better isDirty check that ignores photoPreviewUrl and photoFile
+    const isDirty = useMemo(() => {
+        if (!formData || !savedSnapshot) return false;
+
+        const fieldsToCompare = [
+            "firstName",
+            "lastName",
+            "roleId",
+            "phone",
+            "accountEmail",
+            "status",
+            "bio",
+        ];
+
+        const fieldsChanged = fieldsToCompare.some(
+            (field) => (formData[field] ?? "") !== (savedSnapshot[field] ?? "")
+        );
+
+        const servicesChanged =
+            JSON.stringify([...formData.selectedServiceIds].sort()) !==
+            JSON.stringify([...savedSnapshot.selectedServiceIds].sort());
+
+        const photoChanged = Boolean(formData.photoFile);
+
+        return fieldsChanged || servicesChanged || photoChanged;
+    }, [formData, savedSnapshot]);
 
     function handleChange(event) {
         const { name, value } = event.target;
@@ -116,6 +132,7 @@ function EditStaff() {
         });
     }
 
+    // ✅ FIXED: handleSubmit with proper error handling
     function handleSubmit(event) {
         event.preventDefault();
         setLocalError("");
@@ -146,11 +163,27 @@ function EditStaff() {
             form.append("bio", formData.bio);
         }
 
-        formData.selectedServiceIds.forEach((serviceId) => {
-            form.append("service_ids[]", serviceId);
-        });
+        // ✅ Always send service_ids key (even when empty) so backend can sync
+        if (formData.selectedServiceIds.length === 0) {
+            form.append("service_ids", "");
+        } else {
+            formData.selectedServiceIds.forEach((serviceId) => {
+                form.append("service_ids[]", serviceId);
+            });
+        }
 
-        updateStaff({ id: staffId, formData });
+        updateStaff(
+            { id: staffId, formData },
+            {
+                onError: (err) => {
+                    const msg =
+                        err?.response?.data?.message ||
+                        err?.message ||
+                        "Failed to update staff. Please try again.";
+                    setLocalError(msg);
+                },
+            }
+        );
     }
 
     function handleRemoveStaff() {

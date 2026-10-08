@@ -62,6 +62,7 @@ import BusinessHours from "../pages/settings/BusinessHours";
 import NotificationSettings from "../pages/settings/NotificationSettings";
 
 // Staff Portal
+import AcceptInvitation from "../pages/staff/AcceptInvitation";
 import StaffDashboard from "../pages/staff/StaffDashboard";
 import StaffCalendar from "../pages/staff/StaffCalendar";
 import StaffAppointments from "../pages/staff/StaffAppointments";
@@ -246,6 +247,10 @@ function AppRoutes() {
                 element={<NotificationSettings />}
             />
 
+            <Route
+                path="/staff/accept-invitation"
+                element={<AcceptInvitation />}
+            />
             {/* Staff Portal — Dashboard */}
             <Route path="/staff/dashboard" element={<StaffDashboard />} />
 
